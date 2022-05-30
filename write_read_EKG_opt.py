@@ -5,7 +5,22 @@ from collections import deque
 size = 16
 plt.ion()
 
-my_serial = serial.Serial('COM6', 38400, timeout=0.1)
+com_failed = 1
+while com_failed <= 30:
+    try:
+        my_serial = serial.Serial('COM6', 38400, timeout=0.1)
+        com_failed = 0
+    except KeyboardInterrupt:
+        plt.close()
+        exit()
+    except:
+        com_failed += 1
+
+if(com_failed != 0):
+    print("Failed to connect")
+    plt.close()
+    exit()
+
 file = open('dataCalmTestGsr.txt', 'a')
 
 y = deque([128]*512)
