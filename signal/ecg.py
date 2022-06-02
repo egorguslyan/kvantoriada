@@ -7,6 +7,88 @@ RATE = 200
 RATIO = 0.3
 
 
+class Ecg:
+    def __init__(self, data, rate=200, low=0.3, high=30):
+        self.data = filter_low_high_freq(low, high, data)
+        self.__RATE = rate
+        self._g = None
+
+    def get_spectrum(self, low=0, high=7):
+        freq = np.fft.rfftfreq(len(self.data), 0.005)
+        x = np.abs(np.fft.rfft(self.data) / len(self.data))
+
+        freq_new = []
+        x_new = []
+        for i in range(len(x)):
+            if low < freq[i] < high:
+                x_new.append(x[i])
+                freq_new.append(freq[i])
+
+        return freq_new, x_new
+
+    @staticmethod
+    def __convert_signal(n, m, data):
+        g1 = [5] * len(data)
+
+        for i in range(len(g1)):
+            for j in range(n):
+                g1[i] += abs(data[i - j] - data[i - j - 1]) ** 2 * (n - j)
+
+        g = [0] * len(g1)
+        for n in range(len(g)):
+            for i in range(m):
+                g[n] += g1[n - i] / m
+
+        return g
+
+    @staticmethod
+    def __find_points_zeros(data, th):
+        neg, pos = [], []
+
+        for i in range(1, len(data)):
+            if data[i] > th > data[i - 1]:
+                pos.append(i)
+            elif data[i] < th < data[i - 1]:
+                neg.append(i)
+
+        return neg, pos
+
+    @staticmethod
+    def __median(neg, pos, n):
+        p = []
+        start_neg = 0
+        if neg[0] < pos[0]:
+            p.append(neg[0] // 2)
+            start_neg = 1
+
+        for i in range(min(len(neg) - start_neg, len(pos))):
+            p.append((neg[i + start_neg] + pos[i]) // 2)
+
+        if len(neg) - start_neg != len(pos):
+            p.append((n + pos[-1]) // 2)
+
+        return p
+
+    def find_r_peak(self, n, m, ratio=0.3):
+        if self._g is None:
+            self._g = self.__convert_signal(n, m, self.data)
+
+        th = ratio * max(self._g)
+        neg, pos = self.__find_points_zeros(self._g, th)
+
+        r_peak = self.__median(neg, pos, len(self._g))
+
+        return np.unique(r_peak)
+
+    @staticmethod
+    def convert_points_to_time(points, time):
+        return [time[i] for i in points]
+
+    @staticmethod
+    def get_time(length, rate):
+        return np.linspace(0, length / rate, length)
+
+
 def butter_band_pass_filter(lowcut, highcut, samplerate, order):
     semi_sample_rate = samplerate * 0.5
     low = lowcut / semi_sample_rate
@@ -23,16 +105,16 @@ def butter_band_stop_filter(lowcut, highcut, samplerate, order):
     return b, a
 
 
-def open_file(file_path):
-    file = open(file_path, 'r')
-    data = list(map(lambda a: int(a) - 128, file.readline().split()))
-    return data
-
-
 def filter_low_high_freq(low, high, data):
     b, a = butter_band_pass_filter(low, high, RATE, order=4)
     data_filtered = signal.lfilter(b, a, data)
     return data_filtered
+
+
+def open_file(file_path):
+    file = open(file_path, 'r')
+    data = list(map(lambda a: int(a) - 128, file.readline().split()))
+    return data
 
 
 def get_spectrum(low, high, data):
@@ -125,10 +207,14 @@ def distribution(a, step):
     return list(range(0, len(x) * step, step)), x
 
 
+def get_time(length, rate):
+    return np.linspace(0, length / rate, length)
+
+
 if __name__ == "__main__":
     ecg = open_file(FILE_PATH)
 
-    t = np.linspace(0, len(ecg) / RATE, len(ecg))
+    t = get_time(len(ecg), RATE)
 
     fig, ax = plt.subplots(6, 1)
     ax[0].plot(t[:250], ecg[:250])
