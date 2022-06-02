@@ -124,11 +124,48 @@ def distribution(a, step):
         x[int(e) // step] += 1
     return list(range(0, len(x) * step, step)), x
 
+def get_time(length, rate):
+    return np.linspace(0, length / rate, length)
+
+
+def analysis_ecg(ecg):
+    properties = {}
+
+    ecg_filtered = filter_low_high_freq(0.2, 30, ecg)
+    freq, x = get_spectrum(0, 7, ecg_filtered)
+
+    g, r_old = find_r(15, 8, RATIO, ecg_filtered)
+    var = [r_old[i] - r_old[i - 1] for i in range(1, len(r_old))]
+    r = calibrate_r(r_old, ecg, max(var) // 2)
+
+    r_new = convert_points_to_time(r, t)
+
+    properties["heart rate"] = int(len(r_new) * (60 / t[-1]))
+    var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
+
+    properties["variability"] = {
+        "min": min(var),
+        "max": max(var),
+    }
+
+    breath = [g[i] for i in r_old]
+    max_breath = max(breath)
+    min_breath = min(breath)
+    ampl_breath = max_breath - min_breath
+
+    properties["breath"] = {
+        "max": max_breath,
+        "min": min_breath,
+        "amplitude": ampl_breath
+    }
+
+    return properties
+
 
 if __name__ == "__main__":
     ecg = open_file(FILE_PATH)
 
-    t = np.linspace(0, len(ecg) / RATE, len(ecg))
+    t = get_time(len(ecg), RATE)
 
     fig, ax = plt.subplots(6, 1)
     ax[0].plot(t[:250], ecg[:250])
