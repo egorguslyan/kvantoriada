@@ -7,7 +7,7 @@ time = 15
 size_package = 200 * time
 
 my_serial = serial.Serial('COM6', 38400, timeout=0.1)
-file = open('datasets/1/MIsha/datasRelaxEKG_1.txt', 'w')
+file = open('datasets/1/Misha/datasRelaxEKG_1.txt', 'w')
 
 y = deque([128]*512)
 x = deque([128]*512)
