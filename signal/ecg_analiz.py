@@ -140,21 +140,21 @@ ax[0].plot(t[:250], ecg_filtered[:250])
 freq, x = get_spectrum(0, 7, ecg_filtered)
 ax[1].plot(freq, x)
 
-g, r = find_r(15, 8, RATIO, ecg_filtered)
-var = [r[i] - r[i - 1] for i in range(1, len(r))]
-r = calibrate_r(r, ecg, max(var) // 2)
+g, r_old = find_r(15, 8, RATIO, ecg_filtered)
+var = [r_old[i] - r_old[i - 1] for i in range(1, len(r_old))]
+r = calibrate_r(r_old, ecg, max(var) // 2)
 
-r = convert_points_to_time(r, t)
+r_new = convert_points_to_time(r, t)
 
 ax[2].plot(t, ecg)
-ax[2].scatter(r, [10] * len(r))
+ax[2].scatter(r_new, [10] * len(r))
 
 ax[3].plot(t, g)
-ax[3].scatter(r, [max(g) * RATIO] * len(r))
+ax[3].scatter(r_new, [max(g) * RATIO] * len(r_new))
 
-print("ЧСС : ", int(len(r) * (60 / t[-1])))
+print("ЧСС : ", int(len(r_new) * (60 / t[-1])))
 
-var = [(r[i] - r[i - 1]) * 1000 for i in range(1, len(r))]
+var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
 
 print("Вариабельность (макс, мин, разность) : ", max(var), min(var), max(var) - min(var))
 
@@ -162,5 +162,15 @@ step = 10
 print([abs(var[i] - var[i - 1]) for i in range(1, len(var))])
 x, y = distribution([abs(var[i] - var[i - 1]) for i in range(1, len(var))], step)
 ax[4].scatter(x, y)
+
+breath = [g[i] for i in r_old]
+max_breath = max(breath)
+min_breath = min(breath)
+ampl_breath = max_breath - min_breath
+
+ax[5].plot(g)
+ax[5].plot(r_old, breath)
+ax[5].plot([0, len(g)], [max_breath] * 2)
+ax[5].plot([0, len(g)], [min_breath] * 2)
 
 plt.show()
