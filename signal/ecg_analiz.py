@@ -1,52 +1,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import signal
+from signal_analysis import *
 
 FILE_PATH = "datasets/31/dataCalmEKG_2.txt"
 RATE = 200
 RATIO = 0.3
 
 
-def butter_band_pass_filter(lowcut, highcut, samplerate, order):
-    semi_sample_rate = samplerate * 0.5
-    low = lowcut / semi_sample_rate
-    high = highcut / semi_sample_rate
-    b, a = signal.butter(order, [low, high], btype='bandpass')
-    return b, a
-
-
-def butter_band_stop_filter(lowcut, highcut, samplerate, order):
-    semi_sample_rate = samplerate * 0.5
-    low = lowcut / semi_sample_rate
-    high = highcut / semi_sample_rate
-    b, a = signal.butter(order, [low, high], btype='bandstop')
-    return b, a
-
-
 def open_file(file_path):
     file = open(file_path, 'r')
     data = list(map(lambda a: int(a) - 128, file.readline().split()))
     return data
-
-
-def filter_low_high_freq(low, high, data):
-    b, a = butter_band_pass_filter(low, high, RATE, order=4)
-    data_filtered = signal.lfilter(b, a, data)
-    return data_filtered
-
-
-def get_spectrum(low, high, data):
-    freq = np.fft.rfftfreq(len(data), 0.005)
-    x = np.abs(np.fft.rfft(data) / len(data))
-
-    freq_new = []
-    x_new = []
-    for i in range(len(x)):
-        if low < freq[i] < high:
-            x_new.append(x[i])
-            freq_new.append(freq[i])
-
-    return freq_new, x_new
 
 
 def find_points_zeros(data, th):
@@ -92,7 +56,7 @@ def convert_signal(n, m, data):
     return g
 
 
-def find_r(n, m, ratio, data):
+def find_r_peak(n, m, ratio, data):
     g = convert_signal(n, m, data)
 
     th = ratio * max(g)
@@ -103,11 +67,7 @@ def find_r(n, m, ratio, data):
     return g, np.unique(r)
 
 
-def convert_points_to_time(points, time):
-    return [time[i] for i in points]
-
-
-def calibrate_r(r, data, size):
+def calibrate_r_peak(r, data, size):
     res = []
     for i in r:
         ind = i
@@ -124,19 +84,16 @@ def distribution(a, step):
         x[int(e) // step] += 1
     return list(range(0, len(x) * step, step)), x
 
-def get_time(length, rate):
-    return np.linspace(0, length / rate, length)
-
 
 def analysis_ecg(ecg):
     properties = {}
 
-    ecg_filtered = filter_low_high_freq(0.2, 30, ecg)
+    ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
     freq, x = get_spectrum(0, 7, ecg_filtered)
 
-    g, r_old = find_r(15, 8, RATIO, ecg_filtered)
+    g, r_old = find_r_peak(15, 8, RATIO, ecg_filtered)
     var = [r_old[i] - r_old[i - 1] for i in range(1, len(r_old))]
-    r = calibrate_r(r_old, ecg, max(var) // 2)
+    r = calibrate_r_peak(r_old, ecg, max(var) // 2)
 
     r_new = convert_points_to_time(r, t)
 
@@ -170,15 +127,15 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(6, 1)
     ax[0].plot(t[:250], ecg[:250])
 
-    ecg_filtered = filter_low_high_freq(0.2, 30, ecg)
+    ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
     ax[0].plot(t[:250], ecg_filtered[:250])
 
     freq, x = get_spectrum(0, 7, ecg_filtered)
     ax[1].plot(freq, x)
 
-    g, r_old = find_r(15, 8, RATIO, ecg_filtered)
+    g, r_old = find_r_peak(15, 8, RATIO, ecg_filtered)
     var = [r_old[i] - r_old[i - 1] for i in range(1, len(r_old))]
-    r = calibrate_r(r_old, ecg, max(var) // 2)
+    r = calibrate_r_peak(r_old, ecg, max(var) // 2)
 
     r_new = convert_points_to_time(r, t)
 
