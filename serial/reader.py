@@ -1,55 +1,46 @@
 import matplotlib.pyplot as plt
-import time
 from collections import deque
 
-file = open('dataCalm2.txt')
-s = file.readline()
-
-plt.ion()
-
-s = s[:-1]
-l = s.split()
-y = deque(map(int, l))
-
-plt.clf()
-
-plt.subplot(2, 1, 1)
-plt.plot(y)
-plt.draw()
-#plt.gcf().canvas.flush_events()
-#time.sleep(0.001)
-plt.subplot(2, 1, 2)
-plt.plot(y)
-plt.draw()
-plt.gcf().canvas.flush_events()
-#time.sleep(0.001)
-
-
+file = open('dataCalmTestGsr2.txt')
+y = deque([128] * 512)
+x = deque([128] * 512)
 size = 16
+plt.ion()
+fig, ax = plt.subplots(2)
+ax[0].set_xlim(0, 512)
+ax[1].set_xlim(0, 512)
+ax[0].set_ylim(0, 255)
+ax[1].set_ylim(0, 255)
+line1, = ax[0].plot(range(512), y)
+line2, = ax[1].plot(range(512), x)
 
 s = file.readline()
-while s != '':
-    s = s[:-1]
-    l = s.split()
-    data = list(map(int, l))
-    for i in range(0, len(data), size):
-        for j in range(size):
+try:
+    while s != '':
+        s = s[:-1]
+        e, g = s.split(',')
+        ek = e.split()
+        gs = g.split()
+        ekg = list(map(int, ek))
+        gsr = list(map(int, gs))
+        while len(gsr) < size:
+            gsr.append(128)
+        while len(ekg) < size:
+            ekg.append(128)
+        for i in range(size):
             y.popleft()
-
-        y.extend(data[i : i + size])
-
-        #plt.ylim(0, 256)
-        plt.clf()
-
-        plt.subplot(2, 1, 1)
-        plt.plot(y)
-        plt.draw()
-        #plt.gcf().canvas.flush_events()
-        #time.sleep(0.001)
-        plt.subplot(2, 1, 2)
-        plt.plot(y)
-        plt.draw()
-        plt.gcf().canvas.flush_events()
-
-    s = file.readline()
-file.close()
+            x.popleft()
+        y.extend(ekg)
+        x.extend(gsr)
+        line1.set_ydata(y)
+        line2.set_ydata(x)
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        s = file.readline()
+except KeyboardInterrupt:
+    plt.close()
+    file.close()
+    print('Bye')
+finally:
+    file.close()
+    plt.close()

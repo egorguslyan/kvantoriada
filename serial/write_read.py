@@ -2,14 +2,21 @@ import serial
 import matplotlib.pyplot as plt
 from collections import deque
 
-size = 16
+size = 256
 plt.ion()
 
 my_serial = serial.Serial('COM6', 38400, timeout=0.1)
-file = open('dataCalmTestGsr.txt', 'a')
+file = open('dataCalmEKG28_2.txt', 'a')
 
-y = deque()
-x = deque()
+y = deque([128]*512)
+x = deque([128]*512)
+fig, ax = plt.subplots(2)
+ax[0].set_xlim(0, 512)
+ax[1].set_xlim(0, 512)
+ax[0].set_ylim(0, 255)
+ax[1].set_ylim(0, 255)
+line1, = ax[0].plot(range(512), y)
+line2, = ax[1].plot(range(512), x)
 
 try:
     while True:
@@ -39,19 +46,13 @@ try:
                 for j in range(size):
                     x.popleft()
                 x.extend(z)
-            print(1)
-            plt.clf()
-            print(2)
-            plt.subplot(2, 1, 1)
-            plt.plot(y)
-            plt.draw()
-            plt.subplot(2, 1, 2)
-            plt.plot(x)
-            plt.draw()
-            print(8)
-            plt.gcf().canvas.flush_events()
-            print(9)
+            line1.set_ydata(y)
+            line2.set_ydata(x)
+            fig.canvas.draw()
+            fig.canvas.flush_events()
             file.write(' '.join(map(str, v)))
+            file.write(',')
+            file.write(' '.join(map(str, z)))
             file.write('\n')
             #plt.pause(0.1)
 except KeyboardInterrupt:
