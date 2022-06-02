@@ -7,47 +7,37 @@ RATE = 200
 RATIO = 0.3
 
 
-def butterBandPassFilter(lowcut, highcut, samplerate, order):
-    semiSampleRate = samplerate * 0.5
-    low = lowcut / semiSampleRate
-    high = highcut / semiSampleRate
+def butter_band_pass_filter(lowcut, highcut, samplerate, order):
+    semi_sample_rate = samplerate * 0.5
+    low = lowcut / semi_sample_rate
+    high = highcut / semi_sample_rate
     b, a = signal.butter(order, [low, high], btype='bandpass')
     return b, a
 
 
-def butterBandStopFilter(lowcut, highcut, samplerate, order):
-    semiSampleRate = samplerate * 0.5
-    low = lowcut / semiSampleRate
-    high = highcut / semiSampleRate
+def butter_band_stop_filter(lowcut, highcut, samplerate, order):
+    semi_sample_rate = samplerate * 0.5
+    low = lowcut / semi_sample_rate
+    high = highcut / semi_sample_rate
     b, a = signal.butter(order, [low, high], btype='bandstop')
     return b, a
 
 
-def open_file_ecg(file_path):
+def open_file(file_path):
     file = open(file_path, 'r')
-    ecg = list(map(int, file.readline().split()))
-    ecg = ecg[250:]
-    for i in range(len(ecg)):
-        ecg[i] -= 128
-    return ecg
+    data = list(map(lambda a: int(a) - 128, file.readline().split()))
+    return data
 
 
-def filter_lowhigh_freq(low, high, x):
-    b, a = butterBandPassFilter(low, high, RATE, order=4)
-    x = signal.lfilter(b, a, x)
-    return x
+def filter_low_high_freq(low, high, data):
+    b, a = butter_band_pass_filter(low, high, RATE, order=4)
+    data_filtered = signal.lfilter(b, a, data)
+    return data_filtered
 
 
-def filter_kalman(k, x):
-    x = x.copy()
-    for i in range(len(x)):
-        x[i] = x[i - 1] * (1 - k) + x[i] * k
-    return x
-
-
-def fft(low, high, x):
-    freq = np.fft.rfftfreq(len(x), 0.005)
-    x = np.abs(np.fft.rfft(x) / len(x))
+def get_spectrum(low, high, data):
+    freq = np.fft.rfftfreq(len(data), 0.005)
+    x = np.abs(np.fft.rfft(data) / len(data))
 
     freq_new = []
     x_new = []
@@ -59,35 +49,19 @@ def fft(low, high, x):
     return freq_new, x_new
 
 
-def find_points_th(g, size, th):
-    p = []
-    for i in range(0, len(g) - size + 1, size):
-        t = i
-        for j in range(size):
-            if i + j < len(g) and g[j + i] > th and g[j + i] > g[t]:
-                t = j + i
-        if g[t] > th:
-            ind = t
-            for k in range(-size // 2, size // 2):
-                if 0 <= t + k < len(x) and x[t + k] > x[ind]:
-                    ind = t + k
-            p.append(ind)
-    return p
-
-
-def find_points_zeros(x, th):
+def find_points_zeros(data, th):
     neg, pos = [], []
 
-    for i in range(1, len(x)):
-        if x[i] - th > 0 and x[i - 1] - th < 0:
+    for i in range(1, len(data)):
+        if data[i] > th > data[i - 1]:
             pos.append(i)
-        elif x[i] - th < 0 and x[i - 1] - th > 0:
+        elif data[i] < th < data[i - 1]:
             neg.append(i)
 
     return neg, pos
 
 
-def mediana(neg, pos, n):
+def median(neg, pos, n):
     p = []
     start_neg = 0
     if neg[0] < pos[0]:
@@ -103,42 +77,42 @@ def mediana(neg, pos, n):
     return p
 
 
-def convert_signal(N, M, x):
-    g1 = [5] * len(x)
+def convert_signal(n, m, data):
+    g1 = [5] * len(data)
 
     for i in range(len(g1)):
-        for j in range(N):
-            g1[i] += abs(x[i - j] - x[i - j - 1]) ** 2 * (N - j)
+        for j in range(n):
+            g1[i] += abs(data[i - j] - data[i - j - 1]) ** 2 * (n - j)
 
     g = [0] * len(g1)
     for n in range(len(g)):
-        for i in range(M):
-            g[n] += g1[n - i] / M
+        for i in range(m):
+            g[n] += g1[n - i] / m
 
     return g
 
 
-def find_r(N, M, ratio, x):
-    g = convert_signal(N, M, x)
+def find_r(n, m, ratio, data):
+    g = convert_signal(n, m, data)
 
     th = ratio * max(g)
     neg, pos = find_points_zeros(g, th)
 
-    r = mediana(neg, pos, len(g))
+    r = median(neg, pos, len(g))
 
     return g, np.unique(r)
 
 
-def convert_points_to_time(p, t):
-    return [t[i] for i in p]
+def convert_points_to_time(points, time):
+    return [time[i] for i in points]
 
 
-def calibrate_r(r, x, size):
+def calibrate_r(r, data, size):
     res = []
     for i in r:
         ind = i
         for k in range(-size // 2, size // 2):
-            if 0 <= i + k < len(x) and x[i + k] > x[ind]:
+            if 0 <= i + k < len(data) and data[i + k] > data[ind]:
                 ind = i + k
         res.append(ind)
     return np.unique(res)
@@ -153,36 +127,31 @@ def distribution(a, step):
 
 # еще определение дыхания
 
-ecg = open_file_ecg(FILE_PATH)
+ecg = open_file(FILE_PATH)
 
 t = np.linspace(0, len(ecg) / RATE, len(ecg))
 
 fig, ax = plt.subplots(6, 1)
 ax[0].plot(t[:250], ecg[:250])
 
-ecg_filt = filter_lowhigh_freq(0.2, 30, ecg)
-ax[0].plot(t[:250], ecg_filt[:250])
+ecg_filtered = filter_low_high_freq(0.2, 30, ecg)
+ax[0].plot(t[:250], ecg_filtered[:250])
 
-ecg_kalman = filter_kalman(0.3, ecg_filt)
-ax[1].plot(t[:250], ecg_filt[:250])
-ax[1].plot(t[:250], ecg_kalman[:250])
+freq, x = get_spectrum(0, 7, ecg_filtered)
+ax[1].plot(freq, x)
 
-freq, x = fft(0, 7, ecg_filt)
-ax[2].plot(freq, x)
-
-g, r = find_r(15, 8, RATIO, ecg_filt)
+g, r = find_r(15, 8, RATIO, ecg_filtered)
 var = [r[i] - r[i - 1] for i in range(1, len(r))]
 r = calibrate_r(r, ecg, max(var) // 2)
 
 r = convert_points_to_time(r, t)
 
-ax[3].plot(t, ecg)
-ax[3].scatter(r, [10] * len(r))
+ax[2].plot(t, ecg)
+ax[2].scatter(r, [10] * len(r))
 
-ax[4].plot(t, g)
-ax[4].scatter(r, [max(g) * RATIO] * len(r))
+ax[3].plot(t, g)
+ax[3].scatter(r, [max(g) * RATIO] * len(r))
 
-print(len(r))
 print("ЧСС : ", int(len(r) * (60 / t[-1])))
 
 var = [(r[i] - r[i - 1]) * 1000 for i in range(1, len(r))]
@@ -192,6 +161,6 @@ print("Вариабельность (макс, мин, разность) : ", ma
 step = 10
 print([abs(var[i] - var[i - 1]) for i in range(1, len(var))])
 x, y = distribution([abs(var[i] - var[i - 1]) for i in range(1, len(var))], step)
-ax[5].scatter(x, y)
+ax[4].scatter(x, y)
 
 plt.show()
