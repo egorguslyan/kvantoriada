@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>609</width>
-    <height>428</height>
+    <width>645</width>
+    <height>342</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,33 +18,38 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QScrollArea" name="scrollArea">
-        <property name="minimumSize">
-         <size>
-          <width>201</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>300</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="widgetResizable">
+       <widget class="QTableWidget" name="tableWidget">
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>10</number>
+        </attribute>
+        <attribute name="horizontalHeaderDefaultSectionSize">
+         <number>30</number>
+        </attribute>
+        <attribute name="horizontalHeaderStretchLastSection">
          <bool>true</bool>
-        </property>
-        <widget class="QWidget" name="scrollAreaWidgetContents_2">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>199</width>
-           <height>345</height>
-          </rect>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string/>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2"/>
-        </widget>
+         <property name="foreground">
+          <brush brushstyle="NoBrush">
+           <color alpha="255">
+            <red>0</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Спортсмен</string>
+         </property>
+        </column>
        </widget>
       </item>
       <item>
@@ -336,10 +341,8 @@
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
-  <tabstop>scrollArea</tabstop>
   <tabstop>tab</tabstop>
   <tabstop>secondNameEdit</tabstop>
   <tabstop>nameEdit</tabstop>
@@ -401,6 +404,22 @@
     <hint type="destinationlabel">
      <x>389</x>
      <y>140</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exitButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>546</x>
+     <y>294</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>980</x>
+     <y>284</y>
     </hint>
    </hints>
   </connection>
