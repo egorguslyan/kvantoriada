@@ -27,7 +27,6 @@ class Window(QtWidgets.QMainWindow):
         self.ui.ageNumberLable.setText(str(age))
 
 
-
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
     application = Window()
