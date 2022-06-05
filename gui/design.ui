@@ -48,9 +48,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QTabWidget" name="CanvasEEG">
+       <widget class="QTabWidget" name="tab">
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_3">
          <attribute name="title">
@@ -60,7 +60,7 @@
           <item>
            <layout class="QFormLayout" name="formLayout">
             <item row="0" column="0">
-             <widget class="QLabel" name="SecondNameLable">
+             <widget class="QLabel" name="secondNameLable">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -70,41 +70,41 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="SecondNameEdit"/>
+             <widget class="QLineEdit" name="secondNameEdit"/>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="NameLable">
+             <widget class="QLabel" name="nameLable">
               <property name="text">
                <string>Имя</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLineEdit" name="NameEdit"/>
+             <widget class="QLineEdit" name="nameEdit"/>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="MiddleNameLable">
+             <widget class="QLabel" name="middleNameLable">
               <property name="text">
                <string>Отчество</string>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLineEdit" name="MiddleNameEdit"/>
+             <widget class="QLineEdit" name="middleNameEdit"/>
             </item>
            </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
-             <widget class="QLabel" name="BirthdayLable">
+             <widget class="QLabel" name="birthdayLable">
               <property name="text">
                <string>Дата рождения </string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QDateEdit" name="BirthdayEdit"/>
+             <widget class="QDateEdit" name="birthdayEdit"/>
             </item>
             <item>
              <spacer name="horizontalSpacer">
@@ -120,14 +120,14 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="AgeLable">
+             <widget class="QLabel" name="ageLable">
               <property name="text">
                <string>Возраст</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="AgeNumberLable">
+             <widget class="QLabel" name="ageNumberLable">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 </string>
@@ -167,14 +167,14 @@
             <item>
              <layout class="QFormLayout" name="formLayout_3">
               <item row="0" column="0">
-               <widget class="QLabel" name="TestLable">
+               <widget class="QLabel" name="testLable">
                 <property name="text">
                  <string>Дата теста</string>
                 </property>
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLabel" name="TestDateLable">
+               <widget class="QLabel" name="testDateLable">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);</string>
                 </property>
@@ -187,14 +187,14 @@
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QLabel" name="ResultLable">
+               <widget class="QLabel" name="resultLable">
                 <property name="text">
                  <string>Результат</string>
                 </property>
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLabel" name="ResultTextLable">
+               <widget class="QLabel" name="resultTextLable">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);</string>
                 </property>
@@ -209,7 +209,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QPushButton" name="RepeatButton">
+             <widget class="QPushButton" name="repeatButton">
               <property name="text">
                <string>Повторить</string>
               </property>
@@ -251,7 +251,7 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QGraphicsView" name="CanvasECG"/>
+           <widget class="QGraphicsView" name="canvasECG"/>
           </item>
           <item>
            <spacer name="verticalSpacer_2">
@@ -274,7 +274,7 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <widget class="QGraphicsView" name="graphicsView_2"/>
+           <widget class="QGraphicsView" name="canvasEEG"/>
           </item>
           <item>
            <spacer name="verticalSpacer_3">
@@ -298,35 +298,35 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="NewUserButton">
+       <widget class="QPushButton" name="newUserButton">
         <property name="text">
          <string>Новый</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="DeleteUserButton">
+       <widget class="QPushButton" name="deleteUserButton">
         <property name="text">
          <string>Удалить</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="UpdateUserButton">
+       <widget class="QPushButton" name="updateUserButton">
         <property name="text">
          <string>Изменить</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="TestButton">
+       <widget class="QPushButton" name="testButton">
         <property name="text">
          <string>Тест</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="ExitButton">
+       <widget class="QPushButton" name="exitButton">
         <property name="text">
          <string>Выход</string>
         </property>
