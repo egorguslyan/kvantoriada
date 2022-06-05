@@ -165,7 +165,23 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.tab.setCurrentIndex(0)
+        self.secondNameEdit.editingFinished.connect(self.nameEdit.setFocus)
+        self.nameEdit.editingFinished.connect(self.middleNameEdit.setFocus)
+        self.middleNameEdit.editingFinished.connect(self.birthdayEdit.setFocus)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setTabOrder(self.scrollArea, self.tab)
+        MainWindow.setTabOrder(self.tab, self.secondNameEdit)
+        MainWindow.setTabOrder(self.secondNameEdit, self.nameEdit)
+        MainWindow.setTabOrder(self.nameEdit, self.middleNameEdit)
+        MainWindow.setTabOrder(self.middleNameEdit, self.birthdayEdit)
+        MainWindow.setTabOrder(self.birthdayEdit, self.repeatButton)
+        MainWindow.setTabOrder(self.repeatButton, self.newUserButton)
+        MainWindow.setTabOrder(self.newUserButton, self.deleteUserButton)
+        MainWindow.setTabOrder(self.deleteUserButton, self.updateUserButton)
+        MainWindow.setTabOrder(self.updateUserButton, self.testButton)
+        MainWindow.setTabOrder(self.testButton, self.exitButton)
+        MainWindow.setTabOrder(self.exitButton, self.canvasECG)
+        MainWindow.setTabOrder(self.canvasECG, self.canvasEEG)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
