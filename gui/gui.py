@@ -1,6 +1,4 @@
-import datetime
-
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 from design import Ui_MainWindow
 import sys
 
