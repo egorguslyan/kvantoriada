@@ -17,11 +17,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui.birthdayEdit.setMaximumDate(QtCore.QDate.currentDate())
         self.ui.birthdayEdit.editingFinished.connect(self.updateAge)
 
-        self.ui.table.setRowCount(1)
-        self.ui.table.setItem(0, 1, QTableWidgetItem(str("Name")))
+        self.updateTable()
 
         self.ui.newUserButton.clicked.connect(self.addNewUser)
         self.ui.deleteUserButton.clicked.connect(self.deleteUser)
+        self.ui.exitButton.clicked.connect(self.exit)
         self.ui.table.cellClicked.connect(self.chooseUser)
 
         self.user = 0
@@ -41,24 +41,24 @@ class Window(QtWidgets.QMainWindow):
     def addNewUser(self):
         global users
         rows = self.ui.table.rowCount()
-        self.ui.table.setRowCount(rows + 1)
 
-        name = QTableWidgetItem("ФИО " + str(rows))
-        name.setFlags(
-            QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
-        )
         user = [
             [str(rows), 'Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows)]
         ]
         user = pd.DataFrame(user, columns=['id', 'name', 'secondName', 'middleName'])
         users = pd.concat([users, user], ignore_index=True)
-        self.ui.table.setItem(rows, 1, name)
+
+        self.updateTable()
 
     def deleteUser(self):
+        global users
+
         row = self.ui.table.currentRow()
-        if row > -1:
-            self.ui.table.removeRow(row)
-            self.ui.table.selectionModel().clearCurrentIndex()
+        users.drop(index=[row], axis=0, inplace=True)
+        users = users.reset_index(drop=True)
+        print(users)
+        self.updateTable()
+        self.ui.table.selectionModel().clearCurrentIndex()
 
     def chooseUser(self):
         row = self.ui.table.currentRow()
@@ -70,6 +70,24 @@ class Window(QtWidgets.QMainWindow):
         self.ui.nameEdit.setText(user['name'])
         self.ui.secondNameEdit.setText(user['secondName'])
         self.ui.middleNameEdit.setText(user['middleName'])
+
+    def updateTable(self):
+        self.ui.table.clear()
+
+        if len(users) > 0:
+            self.ui.table.setRowCount(len(users))
+            for i in range(len(users)):
+                user = users.iloc[i]
+                name = ' '.join([user['secondName'], user['secondName'], user['middleName']])
+                name = QTableWidgetItem(name)
+                name.setFlags(
+                    QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                )
+                self.ui.table.setItem(i, 1, name)
+
+    def exit(self):
+        users.to_csv('users.csv', index=False)
+        self.close()
 
 
 if __name__ == "__main__":
