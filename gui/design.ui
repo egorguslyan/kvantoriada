@@ -2,12 +2,15 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>751</width>
-    <height>407</height>
+    <width>854</width>
+    <height>445</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -75,7 +78,11 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="secondNameEdit"/>
+             <widget class="QLineEdit" name="secondNameEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="nameLable">
@@ -85,7 +92,11 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLineEdit" name="nameEdit"/>
+             <widget class="QLineEdit" name="nameEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="middleNameLable">
@@ -95,7 +106,11 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLineEdit" name="middleNameEdit"/>
+             <widget class="QLineEdit" name="middleNameEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -109,7 +124,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QDateEdit" name="birthdayEdit"/>
+             <widget class="QDateEdit" name="birthdayEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
             </item>
             <item>
              <spacer name="horizontalSpacer">
@@ -366,11 +385,11 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
+     <x>544</x>
      <y>56</y>
     </hint>
     <hint type="destinationlabel">
-     <x>442</x>
+     <x>545</x>
      <y>83</y>
     </hint>
    </hints>
@@ -382,12 +401,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>358</x>
-     <y>86</y>
+     <x>726</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>361</x>
-     <y>106</y>
+     <x>726</x>
+     <y>122</y>
     </hint>
    </hints>
   </connection>
@@ -398,28 +417,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>395</x>
+     <x>498</x>
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>389</x>
-     <y>140</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>exitButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>546</x>
-     <y>294</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>980</x>
-     <y>284</y>
+     <x>627</x>
+     <y>152</y>
     </hint>
    </hints>
   </connection>

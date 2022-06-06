@@ -2,6 +2,10 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QTableWidgetItem
 from design import Ui_MainWindow
 import sys
+import pandas as pd
+
+users_data = pd.read_csv('users.csv', delimiter=',')
+users = pd.DataFrame(users_data)
 
 
 class Window(QtWidgets.QMainWindow):
@@ -18,6 +22,9 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.newUserButton.clicked.connect(self.addNewUser)
         self.ui.deleteUserButton.clicked.connect(self.deleteUser)
+        self.ui.table.cellClicked.connect(self.chooseUser)
+
+        self.user = 0
 
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
@@ -32,6 +39,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.ageNumberLable.setText(str(age))
 
     def addNewUser(self):
+        global users
         rows = self.ui.table.rowCount()
         self.ui.table.setRowCount(rows + 1)
 
@@ -39,7 +47,11 @@ class Window(QtWidgets.QMainWindow):
         name.setFlags(
             QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
         )
-
+        user = [
+            [str(rows), 'Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows)]
+        ]
+        user = pd.DataFrame(user, columns=['id', 'name', 'secondName', 'middleName'])
+        users = pd.concat([users, user], ignore_index=True)
         self.ui.table.setItem(rows, 1, name)
 
     def deleteUser(self):
@@ -47,6 +59,17 @@ class Window(QtWidgets.QMainWindow):
         if row > -1:
             self.ui.table.removeRow(row)
             self.ui.table.selectionModel().clearCurrentIndex()
+
+    def chooseUser(self):
+        row = self.ui.table.currentRow()
+        self.user = row
+        self.updateCard()
+
+    def updateCard(self):
+        user = users.iloc[self.user]
+        self.ui.nameEdit.setText(user['name'])
+        self.ui.secondNameEdit.setText(user['secondName'])
+        self.ui.middleNameEdit.setText(user['middleName'])
 
 
 if __name__ == "__main__":
