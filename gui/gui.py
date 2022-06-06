@@ -23,6 +23,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.deleteUserButton.clicked.connect(self.deleteUser)
         self.ui.exitButton.clicked.connect(self.exit)
         self.ui.table.cellClicked.connect(self.chooseUser)
+        self.ui.updateUserButton.clicked.connect(self.updateUser)
 
         self.user = 0
 
@@ -54,11 +55,11 @@ class Window(QtWidgets.QMainWindow):
         global users
 
         row = self.ui.table.currentRow()
-        users.drop(index=[row], axis=0, inplace=True)
-        users = users.reset_index(drop=True)
-
-        self.updateTable()
-        self.ui.table.selectionModel().clearCurrentIndex()
+        if row > -1:
+            users.drop(index=[row], axis=0, inplace=True)
+            users = users.reset_index(drop=True)
+            self.updateTable()
+            self.ui.table.selectionModel().clearCurrentIndex()
 
     def chooseUser(self):
         row = self.ui.table.currentRow()
@@ -73,6 +74,7 @@ class Window(QtWidgets.QMainWindow):
 
     def updateTable(self):
         self.ui.table.clear()
+        self.ui.table.setHorizontalHeaderLabels(['', 'Спортсмен'])
 
         if len(users) > 0:
             self.ui.table.setRowCount(len(users))
@@ -84,6 +86,41 @@ class Window(QtWidgets.QMainWindow):
                     QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                 )
                 self.ui.table.setItem(i, 1, name)
+
+    def updateUser(self):
+        global users
+
+        if self.ui.updateUserButton.text() == 'Изменить':
+            self.ui.secondNameEdit.setEnabled(True)
+            self.ui.nameEdit.setEnabled(True)
+            self.ui.middleNameEdit.setEnabled(True)
+            self.ui.birthdayEdit.setEnabled(True)
+            self.ui.newUserButton.setEnabled(False)
+            self.ui.deleteUserButton.setEnabled(False)
+            self.ui.testButton.setEnabled(False)
+            self.ui.table.setEnabled(False)
+
+            self.ui.updateUserButton.setText('Сохранить')
+        else:
+            self.ui.secondNameEdit.setEnabled(False)
+            self.ui.nameEdit.setEnabled(False)
+            self.ui.middleNameEdit.setEnabled(False)
+            self.ui.birthdayEdit.setEnabled(False)
+            self.ui.newUserButton.setEnabled(True)
+            self.ui.deleteUserButton.setEnabled(True)
+            self.ui.testButton.setEnabled(True)
+            self.ui.table.setEnabled(True)
+
+            self.ui.updateUserButton.setText('Изменить')
+
+            user = [
+                self.user,
+                self.ui.nameEdit.text(),
+                self.ui.secondNameEdit.text(),
+                self.ui.middleNameEdit.text()
+            ]
+            users.at[self.user] = user
+            self.updateTable()
 
     def exit(self):
         users.to_csv('users.csv', index=False)
