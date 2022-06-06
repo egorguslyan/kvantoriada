@@ -17,6 +17,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.table.setItem(0, 1, QTableWidgetItem(str("Name")))
 
         self.ui.newUserButton.clicked.connect(self.addNewUser)
+        self.ui.deleteUserButton.clicked.connect(self.deleteUser)
 
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
@@ -40,6 +41,12 @@ class Window(QtWidgets.QMainWindow):
         )
 
         self.ui.table.setItem(rows, 1, name)
+
+    def deleteUser(self):
+        row = self.ui.table.currentRow()
+        if row > -1:
+            self.ui.table.removeRow(row)
+            self.ui.table.selectionModel().clearCurrentIndex()
 
 
 if __name__ == "__main__":
