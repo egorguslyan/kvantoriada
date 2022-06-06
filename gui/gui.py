@@ -56,7 +56,7 @@ class Window(QtWidgets.QMainWindow):
         row = self.ui.table.currentRow()
         users.drop(index=[row], axis=0, inplace=True)
         users = users.reset_index(drop=True)
-        print(users)
+
         self.updateTable()
         self.ui.table.selectionModel().clearCurrentIndex()
 
@@ -78,7 +78,7 @@ class Window(QtWidgets.QMainWindow):
             self.ui.table.setRowCount(len(users))
             for i in range(len(users)):
                 user = users.iloc[i]
-                name = ' '.join([user['secondName'], user['secondName'], user['middleName']])
+                name = ' '.join([user['secondName'], user['name'], user['middleName']])
                 name = QTableWidgetItem(name)
                 name.setFlags(
                     QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
@@ -88,6 +88,9 @@ class Window(QtWidgets.QMainWindow):
     def exit(self):
         users.to_csv('users.csv', index=False)
         self.close()
+
+    def closeEvent(self, event):
+        self.exit()
 
 
 if __name__ == "__main__":
