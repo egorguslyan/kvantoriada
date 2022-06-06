@@ -24,9 +24,9 @@ class Window(QtWidgets.QMainWindow):
         now = QtCore.QDate.currentDate()
 
         age = now.year() - birthday.year()
-        if now.month() > birthday.month():
+        if now.month() < birthday.month():
             age -= 1
-        elif now.month() == birthday.month() and now.day() > birthday.day():
+        elif now.month() == birthday.month() and now.day() < birthday.day():
             age -= 1
 
         self.ui.ageNumberLable.setText(str(age))
