@@ -71,6 +71,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.nameEdit.setText(user['name'])
         self.ui.secondNameEdit.setText(user['secondName'])
         self.ui.middleNameEdit.setText(user['middleName'])
+        date = QtCore.QDate.fromString(user['birthday'], 'dd.MM.yyyy')
+        self.ui.birthdayEdit.setDate(date)
+        self.ui.birthdayEdit.show()
+        self.updateAge()
 
     def updateTable(self):
         self.ui.table.clear()
@@ -117,7 +121,8 @@ class Window(QtWidgets.QMainWindow):
                 self.user,
                 self.ui.nameEdit.text(),
                 self.ui.secondNameEdit.text(),
-                self.ui.middleNameEdit.text()
+                self.ui.middleNameEdit.text(),
+                self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
             ]
             users.at[self.user] = user
             self.updateTable()
