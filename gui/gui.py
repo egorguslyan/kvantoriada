@@ -42,11 +42,11 @@ class Window(QtWidgets.QMainWindow):
     def addNewUser(self):
         global users
         rows = self.ui.table.rowCount()
-
+        date = QtCore.QDate.currentDate().toString('dd.MM.yyyy')
         user = [
-            [str(rows), 'Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows)]
+            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date]
         ]
-        user = pd.DataFrame(user, columns=['id', 'name', 'secondName', 'middleName'])
+        user = pd.DataFrame(user, columns=['name', 'secondName', 'middleName', 'birthday'])
         users = pd.concat([users, user], ignore_index=True)
 
         self.updateTable()
@@ -118,7 +118,6 @@ class Window(QtWidgets.QMainWindow):
             self.ui.updateUserButton.setText('Изменить')
 
             user = [
-                self.user,
                 self.ui.nameEdit.text(),
                 self.ui.secondNameEdit.text(),
                 self.ui.middleNameEdit.text(),

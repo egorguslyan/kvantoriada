@@ -1,3 +1,3 @@
-id,name,secondName,middleName,birthday
-0,Name1,Second1,Middle1,10.10.2006
-2,Name2,Second2,Middle2,13.05.2020
+name,secondName,middleName,birthday
+Name1,Second1,Middle1,10.10.2006
+Name2,Second2,Middle2,13.05.2020
