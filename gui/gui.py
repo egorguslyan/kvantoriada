@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from design import Ui_MainWindow
 import sys
 import pandas as pd
+from bluetooth_serial.read_serial import read
+import os
+import time
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
@@ -24,6 +27,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.exitButton.clicked.connect(self.exit)
         self.ui.table.cellClicked.connect(self.chooseUser)
         self.ui.updateUserButton.clicked.connect(self.updateUser)
+        self.ui.testButton.clicked.connect(self.testUser)
 
         self.user = 0
 
@@ -43,21 +47,30 @@ class Window(QtWidgets.QMainWindow):
         global users
         rows = self.ui.table.rowCount()
         date = QtCore.QDate.currentDate().toString('dd.MM.yyyy')
+
+        dir_path = os.path.join(os.path.abspath(os.curdir), '..', str(int(time.time())))
+        os.mkdir(dir_path)
+
         user = [
-            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date]
+            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path]
         ]
-        user = pd.DataFrame(user, columns=['name', 'secondName', 'middleName', 'birthday'])
+        user = pd.DataFrame(user, columns=['name', 'secondName', 'middleName', 'birthday', 'dir_path'])
         users = pd.concat([users, user], ignore_index=True)
 
         self.updateTable()
+
 
     def deleteUser(self):
         global users
 
         row = self.ui.table.currentRow()
         if row > -1:
+            user = users.iloc[self.user]
+            os.rmdir(user['dir_path'])
+
             users.drop(index=[row], axis=0, inplace=True)
             users = users.reset_index(drop=True)
+
             self.updateTable()
             self.ui.table.selectionModel().clearCurrentIndex()
 
@@ -121,10 +134,18 @@ class Window(QtWidgets.QMainWindow):
                 self.ui.nameEdit.text(),
                 self.ui.secondNameEdit.text(),
                 self.ui.middleNameEdit.text(),
-                self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
+                self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy'),
+                users.iloc[self.user]['dir_path']
             ]
             users.at[self.user] = user
             self.updateTable()
+
+    def testUser(self):
+        user = users.iloc[self.user]
+        dir_path = user['dir_path']
+        file_path = os.path.join(dir_path, str(int(time.time())))
+        for a in read('COM6', file_path):
+            print(a)
 
     def exit(self):
         users.to_csv('users.csv', index=False)
