@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>854</width>
-    <height>445</height>
+    <width>1102</width>
+    <height>583</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,6 +22,12 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QTableWidget" name="table">
+        <property name="maximumSize">
+         <size>
+          <width>363</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <attribute name="horizontalHeaderMinimumSectionSize">
          <number>10</number>
         </attribute>
@@ -58,7 +64,7 @@
       <item>
        <widget class="QTabWidget" name="tab">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="card">
          <attribute name="title">
@@ -275,7 +281,76 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QGraphicsView" name="canvasECG"/>
+           <widget class="QGraphicsView" name="graphicsView"/>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_2">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="text">
+               <string>цифры</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>ЧСС:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="label_4">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="text">
+               <string>цифры</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Вариабельность (min, max):</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="label_3">
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="text">
+               <string>цифры</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
           <item>
            <spacer name="verticalSpacer_2">
@@ -371,29 +446,11 @@
   <tabstop>newUserButton</tabstop>
   <tabstop>deleteUserButton</tabstop>
   <tabstop>updateUserButton</tabstop>
-  <tabstop>testButton</tabstop>
   <tabstop>exitButton</tabstop>
-  <tabstop>canvasECG</tabstop>
   <tabstop>canvasEEG</tabstop>
  </tabstops>
  <resources/>
  <connections>
-  <connection>
-   <sender>secondNameEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>nameEdit</receiver>
-   <slot>setFocus()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>544</x>
-     <y>56</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>545</x>
-     <y>83</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>nameEdit</sender>
    <signal>editingFinished()</signal>
@@ -407,6 +464,22 @@
     <hint type="destinationlabel">
      <x>726</x>
      <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>secondNameEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>nameEdit</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>544</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>545</x>
+     <y>83</y>
     </hint>
    </hints>
   </connection>

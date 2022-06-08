@@ -147,7 +147,7 @@ class Window(QtWidgets.QMainWindow):
         date = datetime.datetime.now().strftime('%d.%m.%Y %H-%M-%S')
         file_path = os.path.join(dir_path, date)
         for a in read('COM6', file_path):
-            print(a)
+            pass
 
     def exit(self):
         users.to_csv('users.csv', index=False)
