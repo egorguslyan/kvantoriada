@@ -6,6 +6,7 @@ import pandas as pd
 from bluetooth_serial.read_serial import read
 import os
 import time
+import datetime
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
@@ -143,7 +144,8 @@ class Window(QtWidgets.QMainWindow):
     def testUser(self):
         user = users.iloc[self.user]
         dir_path = user['dir_path']
-        file_path = os.path.join(dir_path, str(int(time.time())))
+        date = datetime.datetime.now().strftime('%d.%m.%Y %H-%M-%S')
+        file_path = os.path.join(dir_path, date)
         for a in read('COM6', file_path):
             print(a)
 
