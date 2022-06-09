@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui/design.ui'
+# Form implementation generated from reading ui file 'design.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -198,7 +198,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tab.setCurrentIndex(1)
+        self.tab.setCurrentIndex(0)
         self.nameEdit.editingFinished.connect(self.middleNameEdit.setFocus)
         self.secondNameEdit.editingFinished.connect(self.nameEdit.setFocus)
         self.middleNameEdit.editingFinished.connect(self.birthdayEdit.setFocus)

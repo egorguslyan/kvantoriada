@@ -29,6 +29,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.table.cellClicked.connect(self.chooseUser)
         self.ui.updateUserButton.clicked.connect(self.updateUser)
         self.ui.testButton.clicked.connect(self.testUser)
+        self.ui.repeatButton.clicked.connect(self.testUser)
 
         self.user = 0
 
@@ -146,6 +147,10 @@ class Window(QtWidgets.QMainWindow):
         dir_path = user['dir_path']
         date = datetime.datetime.now().strftime('%d.%m.%Y %H-%M-%S')
         file_path = os.path.join(dir_path, date)
+
+        self.ui.testDateLable.setText(date)
+        self.ui.resultTextLable.setText("тестируется")
+
         for a in read('COM6', file_path):
             pass
 
