@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-import numpy as np
-from analysis.signal_analysis import *
+#import numpy as np
+from signal_analysis import *
 
-FILE_PATH = "datasets/1/Semyon/dataEEG_1.txt"
+FILE_PATH = "datasets/1/Semyon/dataEEG_2.txt"
 RATE = 200
 
 
@@ -16,30 +16,12 @@ def open_file_eeg(file_path):
 
 def find_alpha(size, sig, ratio):
     points = []
-    freq, x = get_spectrum(0, 70, sig)
-    max = 0
-    for i in range(len(x)):
-        if 8 <= freq[i] <= 14 and x[i] > x[max]:
-            max = i
-    # sum /= len(x)
-    th = ratio * x[max]
+    freq, x = get_spectrum(8, 14, sig)
+    th = ratio * max(x)
     for i in range(len(sig) - size):
-        freq, x = get_spectrum(0, 70, sig[i:i + size])
-
-        ind = 0
-        for j in range(len(x)):
-            if x[j] > x[ind]:
-                ind = j
-
-        if 8 <= freq[ind] <= 14:
-            max = 0
-            for j in range(len(x)):
-                if 8 <= freq[j] <= 14 and x[j] > x[max]:
-                    max = j
-
-            if x[max] > th:
-                points.append(i)
-
+        freq, x = get_spectrum(8, 14, sig[i:i + size])
+        if max(x) > th:
+            points.append(i+size//2)
     return points
 
 
@@ -81,25 +63,24 @@ if __name__ == "__main__":
     ax[0].plot(t[500:1000], eeg_filtered[500:1000])
 
     ax[1].plot(t, eeg)
-    ax[1].plot(t, eeg_filtered)
+    #ax[1].plot(t, eeg_filtered)
 
     freq, x = get_spectrum(0, 100, eeg_filtered)
     ax[2].plot(freq, x)
-    freq, x = get_spectrum(0, 100, eeg_filtered[500:800])
-    ax[2].plot(freq, x)
+    # freq, x = get_spectrum(0, 100, eeg_filtered[500:800])
+    # ax[2].plot(freq, x)
 
-    p = find_alpha(300, eeg_filtered, 2.3)
+    p = find_alpha(100, eeg_filtered, 1.8)
     ax[3].plot(t, eeg_filtered)
     ax[3].scatter(convert_points_to_time(p, t), [130] * len(p))
-    print(p)
-
-    p = convert_points_to_time(p, t)
-    alpha_segments = []
-    start = p[0]
-    for i in range(1, len(p)):
-        if p[i] - 1 != p[i - 1]:
-            alpha_segments.append((p[i - 1] - start, start))
-            start = p[i]
-    alpha_segments.sort()
-    print(alpha_segments[0][1])
+    print(round(min(convert_points_to_time(p, t)), 1), 'секунд до появления альфа-ритма')
+    # p = convert_points_to_time(p, t)
+    # alpha_segments = []
+    # start = p[0]
+    # for i in range(1, len(p)):
+    #     if p[i] - 1 != p[i - 1]:
+    #         alpha_segments.append((p[i - 1] - start, start))
+    #         start = p[i]
+    # alpha_segments.sort()
+    # print(alpha_segments)
     plt.show()
