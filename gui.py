@@ -49,7 +49,7 @@ class Window(QtWidgets.QMainWindow):
         rows = self.ui.table.rowCount()
         date = QtCore.QDate.currentDate().toString('dd.MM.yyyy')
 
-        dir_path = os.path.join(os.path.abspath(os.curdir), '..', str(int(time.time())))
+        dir_path = os.path.join(os.path.abspath(os.curdir), 'users', str(int(time.time())))
         os.mkdir(dir_path)
 
         user = [
