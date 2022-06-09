@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from signal_analysis import *
+from analysis.signal_analysis import *
 
 FILE_PATH = "datasets/1/Semyon/dataEEG_1.txt"
 RATE = 200

@@ -2,6 +2,12 @@ import numpy as np
 from scipy import signal
 
 
+def open_file(file_path):
+    file = open(file_path, 'r')
+    data = list(map(lambda a: int(a) - 128, file.readline().split()))
+    return data
+
+
 def butter_band_pass_filter(lowcut, highcut, samplerate, order):
     semi_sample_rate = samplerate * 0.5
     low = lowcut / semi_sample_rate

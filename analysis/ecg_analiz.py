@@ -1,16 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from signal_analysis import *
+from analysis.signal_analysis import *
 
-FILE_PATH = "datasets/31/dataCalmEKG_2.txt"
+FILE_PATH = "datasets/1/Semyon/datasCalmEKG_2.txt"
 RATE = 200
 RATIO = 0.3
-
-
-def open_file(file_path):
-    file = open(file_path, 'r')
-    data = list(map(lambda a: int(a) - 128, file.readline().split()))
-    return data
 
 
 def find_points_zeros(data, th):
@@ -87,7 +81,7 @@ def distribution(a, step):
 
 def analysis_ecg(ecg):
     properties = {}
-
+    t = get_time(len(ecg), RATE)
     ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
     freq, x = get_spectrum(0, 7, ecg_filtered)
 
@@ -97,12 +91,12 @@ def analysis_ecg(ecg):
 
     r_new = convert_points_to_time(r, t)
 
-    properties["heart rate"] = int(len(r_new) * (60 / t[-1]))
+    properties["heart_rate"] = int(len(r_new) * (60 / t[-1]))
     var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
 
     properties["variability"] = {
-        "min": min(var),
-        "max": max(var),
+        "min": int(min(var)),
+        "max": int(max(var)),
     }
 
     breath = [g[i] for i in r_old]
@@ -111,9 +105,9 @@ def analysis_ecg(ecg):
     ampl_breath = max_breath - min_breath
 
     properties["breath"] = {
-        "max": max_breath,
-        "min": min_breath,
-        "amplitude": ampl_breath
+        "max": int(max_breath),
+        "min": int(min_breath),
+        "amplitude": int(ampl_breath)
     }
 
     return properties

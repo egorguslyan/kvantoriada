@@ -281,12 +281,36 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QComboBox" name="ecgFilesCombo">
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
            <widget class="QGraphicsView" name="graphicsView"/>
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="1">
-             <widget class="QLabel" name="label_2">
+            <item row="1" column="2">
+             <widget class="QLabel" name="variabilityMaxLable">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -299,15 +323,8 @@ border-color: rgb(0, 0, 0);</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>ЧСС:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="label_4">
+            <item row="0" column="1">
+             <widget class="QLabel" name="haertRateLable">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -328,7 +345,11 @@ border-color: rgb(0, 0, 0);</string>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLabel" name="label_3">
+             <widget class="QLabel" name="variabilityMinLable">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
+              </property>
               <property name="frameShape">
                <enum>QFrame::Box</enum>
               </property>
@@ -349,6 +370,34 @@ border-color: rgb(0, 0, 0);</string>
                </size>
               </property>
              </spacer>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>ЧСС:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Дыхание (амплитуда): </string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="breathAmplitudeLable">
+              <property name="styleSheet">
+               <string notr="true">border-color: rgb(0, 0, 0);
+background-color: rgb(255, 255, 255);</string>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="text">
+               <string>цифры</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>

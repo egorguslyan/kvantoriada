@@ -4,6 +4,8 @@ from design import Ui_MainWindow
 import sys
 import pandas as pd
 from bluetooth_serial.read_serial import read
+from analysis.ecg_analiz import analysis_ecg
+from analysis.signal_analysis import open_file
 import os
 import time
 import datetime
@@ -30,6 +32,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.updateUserButton.clicked.connect(self.updateUser)
         self.ui.testButton.clicked.connect(self.testUser)
         self.ui.repeatButton.clicked.connect(self.testUser)
+
+        self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
 
         self.user = 0
 
@@ -90,6 +94,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.birthdayEdit.setDate(date)
         self.ui.birthdayEdit.show()
         self.updateAge()
+        self.ui.ecgFilesCombo.clear()
+        files = os.listdir(user['dir_path'])
+        if len(files) > 0:
+            self.ui.ecgFilesCombo.addItems(files)
 
     def updateTable(self):
         self.ui.table.clear()
@@ -151,10 +159,26 @@ class Window(QtWidgets.QMainWindow):
         self.ui.testDateLable.setText(date)
         self.ui.resultTextLable.setText("тестируется")
 
-        files = os.listdir(dir_path)
-
+        self.ui.ecgFilesCombo.addItem(date)
         read('COM6', file_path)
 
+        self.updateEcg(file_path)
+
+    def selectFile(self, text):
+        dir_path = users.iloc[self.user]['dir_path']
+        file_path = os.path.join(dir_path, text)
+
+        self.updateEcg(file_path)
+
+    def updateEcg(self, file_path):
+        ecg = open_file(file_path)
+        print(ecg)
+        properties = analysis_ecg(ecg)
+        print('analiz')
+        self.ui.haertRateLable.setText(str(properties['heart_rate']))
+        self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
+        self.ui.variabilityMinLable.setText(str(properties['variability']['min']))
+        self.ui.breathAmplitudeLable.setText(str(properties['breath']['amplitude']))
 
     def exit(self):
         users.to_csv('users.csv', index=False)
