@@ -21,4 +21,4 @@ def read(com, file_path, time=15, size=32):
         file.write(' '.join(map(str, v)))
         file.write(' ')
 
-        yield v
+        #yield v

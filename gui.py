@@ -151,8 +151,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.testDateLable.setText(date)
         self.ui.resultTextLable.setText("тестируется")
 
-        for a in read('COM6', file_path):
-            pass
+        files = os.listdir(dir_path)
+
+        read('COM6', file_path)
+
 
     def exit(self):
         users.to_csv('users.csv', index=False)
