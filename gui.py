@@ -9,6 +9,8 @@ from analysis.signal_analysis import open_file
 import os
 import time
 import datetime
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
