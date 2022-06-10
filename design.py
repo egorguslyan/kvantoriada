@@ -10,25 +10,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-
-
-class MplCanvas(FigureCanvas):
-    def __init__(self, *args, **kwargs):
-        self.fig = Figure()
-        super(MplCanvas, self).__init__(self.fig, *args, **kwargs)
-
-    def plot(self, x, y):
-        self.fig.clear()
-        self.ax = self.fig.add_subplot(111)
-        self.ax.plot(x, y)
-        self.draw()
-
-    def clear(self):
-        self.fig.clear()
-        self.draw()
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -160,13 +141,6 @@ class Ui_MainWindow(object):
         spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem4)
         self.verticalLayout_3.addLayout(self.horizontalLayout_3)
-        # self.canvasECG = QtWidgets.QGraphicsView(self.ecg)
-        # self.canvasECG.setObjectName("canvasECG")
-        # self.verticalLayout_3.addWidget(self.canvasECG)
-        #
-        # self.canvasECG = MplCanvas()
-        # self.verticalLayout_3.addWidget(self.canvasECG)
-
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
         self.variabilityMaxLable = QtWidgets.QLabel(self.ecg)
@@ -212,11 +186,6 @@ class Ui_MainWindow(object):
         self.eeg.setObjectName("eeg")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.eeg)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
-        self.canvasEEG = QtWidgets.QGraphicsView(self.eeg)
-        self.canvasEEG.setObjectName("canvasEEG")
-        self.verticalLayout_5.addWidget(self.canvasEEG)
-        spacerItem7 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_5.addItem(spacerItem7)
         self.tab.addTab(self.eeg, "")
         self.horizontalLayout.addWidget(self.tab)
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -255,7 +224,6 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.newUserButton, self.deleteUserButton)
         MainWindow.setTabOrder(self.deleteUserButton, self.updateUserButton)
         MainWindow.setTabOrder(self.updateUserButton, self.exitButton)
-        MainWindow.setTabOrder(self.exitButton, self.canvasEEG)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
