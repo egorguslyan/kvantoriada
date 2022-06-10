@@ -16,6 +16,22 @@ users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
 
 
+class MplCanvas(FigureCanvas):
+    def __init__(self, *args, **kwargs):
+        self.fig = Figure()
+        super(MplCanvas, self).__init__(self.fig, *args, **kwargs)
+
+    def plot(self, x, y):
+        self.fig.clear()
+        self.ax = self.fig.add_subplot(111)
+        self.ax.plot(x, y)
+        self.draw()
+
+    def clear(self):
+        self.fig.clear()
+        self.draw()
+
+
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
         super(Window, self).__init__()
@@ -37,6 +53,8 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
 
+        self.ui.canvasECG = MplCanvas()
+        self.ui.verticalLayout_3.addWidget(self.ui.canvasECG)
         self.user = 0
 
     def updateAge(self):
@@ -101,6 +119,8 @@ class Window(QtWidgets.QMainWindow):
         if len(files) > 0:
             self.ui.ecgFilesCombo.addItems(files)
 
+        self.ui.canvasECG.clear()
+
     def updateTable(self):
         self.ui.table.clear()
         self.ui.table.setHorizontalHeaderLabels(['', 'Спортсмен'])
@@ -164,6 +184,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.ecgFilesCombo.addItem(date)
         if read('COM6', file_path):
             self.updateEcg(file_path)
+        else:
+            self.ui.resultTextLable.setText("не удалось подключиться")
 
     def selectFile(self, text):
         dir_path = users.iloc[self.user]['dir_path']
@@ -173,9 +195,11 @@ class Window(QtWidgets.QMainWindow):
 
     def updateEcg(self, file_path):
         ecg = open_file(file_path)
-        print(ecg)
         properties = analysis_ecg(ecg)
-        print('analiz')
+
+        self.ui.canvasECG.clear()
+        self.ui.canvasECG.plot(properties['time'], ecg)
+
         self.ui.haertRateLable.setText(str(properties['heart_rate']))
         self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
         self.ui.variabilityMinLable.setText(str(properties['variability']['min']))

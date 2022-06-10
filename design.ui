@@ -305,7 +305,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QGraphicsView" name="graphicsView"/>
+           <widget class="QGraphicsView" name="canvasECG"/>
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout">

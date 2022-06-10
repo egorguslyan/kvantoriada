@@ -90,33 +90,46 @@ def distribution(a, step):
 def analysis_ecg(ecg):
     properties = {}
     t = get_time(len(ecg), RATE)
+    properties['time'] = t
     ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
     freq, x = get_spectrum(0, 7, ecg_filtered)
 
     g, r_old = find_r_peak(15, 8, RATIO, ecg_filtered)
     var = [r_old[i] - r_old[i - 1] for i in range(1, len(r_old))]
-    r = calibrate_r_peak(r_old, ecg, max(var) // 2)
+    if len(var) > 0:
+        r = calibrate_r_peak(r_old, ecg, max(var) // 2)
 
-    r_new = convert_points_to_time(r, t)
+        r_new = convert_points_to_time(r, t)
 
-    properties["heart_rate"] = int(len(r_new) * (60 / t[-1]))
-    var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
+        properties["heart_rate"] = int(len(r_new) * (60 / t[-1]))
+        var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
 
-    properties["variability"] = {
-        "min": int(min(var)),
-        "max": int(max(var)),
-    }
+        properties["variability"] = {
+            "min": int(min(var)),
+            "max": int(max(var)),
+        }
 
-    breath = [g[i] for i in r_old]
-    max_breath = max(breath)
-    min_breath = min(breath)
-    ampl_breath = max_breath - min_breath
+        breath = [g[i] for i in r_old]
+        max_breath = max(breath)
+        min_breath = min(breath)
+        ampl_breath = max_breath - min_breath
 
-    properties["breath"] = {
-        "max": int(max_breath),
-        "min": int(min_breath),
-        "amplitude": int(ampl_breath)
-    }
+        properties["breath"] = {
+            "max": int(max_breath),
+            "min": int(min_breath),
+            "amplitude": int(ampl_breath)
+        }
+    else:
+        properties["heart_rate"] = 0
+        properties["variability"] = {
+            "min": 0,
+            "max": 0,
+        }
+        properties["breath"] = {
+            "max": 0,
+            "min": 0,
+            "amplitude": 0
+        }
 
     return properties
 

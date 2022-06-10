@@ -10,6 +10,25 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
+
+class MplCanvas(FigureCanvas):
+    def __init__(self, *args, **kwargs):
+        self.fig = Figure()
+        super(MplCanvas, self).__init__(self.fig, *args, **kwargs)
+
+    def plot(self, x, y):
+        self.fig.clear()
+        self.ax = self.fig.add_subplot(111)
+        self.ax.plot(x, y)
+        self.draw()
+
+    def clear(self):
+        self.fig.clear()
+        self.draw()
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -141,9 +160,13 @@ class Ui_MainWindow(object):
         spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem4)
         self.verticalLayout_3.addLayout(self.horizontalLayout_3)
-        self.graphicsView = QtWidgets.QGraphicsView(self.ecg)
-        self.graphicsView.setObjectName("graphicsView")
-        self.verticalLayout_3.addWidget(self.graphicsView)
+        # self.canvasECG = QtWidgets.QGraphicsView(self.ecg)
+        # self.canvasECG.setObjectName("canvasECG")
+        # self.verticalLayout_3.addWidget(self.canvasECG)
+        #
+        # self.canvasECG = MplCanvas()
+        # self.verticalLayout_3.addWidget(self.canvasECG)
+
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
         self.variabilityMaxLable = QtWidgets.QLabel(self.ecg)
