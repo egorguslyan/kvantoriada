@@ -1,11 +1,14 @@
 import numpy as np
 from scipy import signal
+import os
 
 
 def open_file(file_path):
-    file = open(file_path, 'r')
-    data = list(map(lambda a: int(a) - 128, file.readline().split()))
-    return data
+    if not os.path.exists(file_path):
+        return [0] * 512
+    with open(file_path, 'r') as file:
+        data = list(map(lambda a: int(a) - 128, file.readline().split()))
+        return data
 
 
 def butter_band_pass_filter(lowcut, highcut, samplerate, order):

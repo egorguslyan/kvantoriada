@@ -20,6 +20,14 @@ def find_points_zeros(data, th):
 
 
 def median(neg, pos, n):
+    if len(neg) == 0:
+        if len(pos) == 0:
+            return []
+        else:
+            return [(n + pos[-1]) // 2]
+    else:
+        if len(pos) == 0:
+            return [neg[0] // 2]
     p = []
     start_neg = 0
     if neg[0] < pos[0]:

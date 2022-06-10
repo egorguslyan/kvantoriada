@@ -162,9 +162,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.resultTextLable.setText("тестируется")
 
         self.ui.ecgFilesCombo.addItem(date)
-        read('COM6', file_path)
-
-        self.updateEcg(file_path)
+        if read('COM6', file_path):
+            self.updateEcg(file_path)
 
     def selectFile(self, text):
         dir_path = users.iloc[self.user]['dir_path']
