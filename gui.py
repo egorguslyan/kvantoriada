@@ -5,7 +5,7 @@ import sys
 import pandas as pd
 from bluetooth_serial.read_serial import read
 from analysis.ecg_analiz import analysis_ecg
-from analysis.signal_analysis import open_file
+from analysis.signal_analysis import open_file, open_csv_file
 import os
 import time
 import datetime
@@ -55,6 +55,10 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.canvasECG = MplCanvas()
         self.ui.verticalLayout_3.addWidget(self.ui.canvasECG)
+
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.ui.verticalLayout_3.addItem(spacerItem)
+
         self.user = 0
 
     def updateAge(self):
@@ -176,7 +180,7 @@ class Window(QtWidgets.QMainWindow):
         user = users.iloc[self.user]
         dir_path = user['dir_path']
         date = datetime.datetime.now().strftime('%d.%m.%Y %H-%M-%S')
-        file_path = os.path.join(dir_path, date)
+        file_path = os.path.join(dir_path, f"{date}.csv")
 
         self.ui.testDateLable.setText(date)
         self.ui.resultTextLable.setText("тестируется")
@@ -194,11 +198,11 @@ class Window(QtWidgets.QMainWindow):
         self.updateEcg(file_path)
 
     def updateEcg(self, file_path):
-        ecg = open_file(file_path)
-        properties = analysis_ecg(ecg)
+        data = open_csv_file(file_path)
+        properties = analysis_ecg(data['ecg'])
 
         self.ui.canvasECG.clear()
-        self.ui.canvasECG.plot(properties['time'], ecg)
+        self.ui.canvasECG.plot(properties['time'], data['ecg'])
 
         self.ui.haertRateLable.setText(str(properties['heart_rate']))
         self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))

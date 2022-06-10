@@ -1,6 +1,22 @@
 import numpy as np
 from scipy import signal
 import os
+import pandas as pd
+
+
+def open_csv_file(file_path):
+    if not os.path.exists(file_path):
+        return pd.DataFrame([[0] * 512, [0] * 512, [0] * 512], columns=['ecg', 'eeg', 'gsr'])
+    data = pd.read_csv(file_path, delimiter=',')
+    data = data.iloc[0]
+    ecg = list(map(lambda x: int(x) - 128, data['ecg'].split()))
+    eeg = list(map(lambda x: int(x) - 128, data['eeg'].split()))
+    gsr = list(map(lambda x: int(x) - 128, data['gsr'].split()))
+    return {
+        'ecg': ecg,
+        'eeg': eeg,
+        'gsr': gsr
+    }
 
 
 def open_file(file_path):
