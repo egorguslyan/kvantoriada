@@ -1,16 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from signal_analysis import *
+from analysis.signal_analysis import *
 
-FILE_PATH = "datasets/31/dataCalmEKG_2.txt"
+FILE_PATH = "datasets/1/Semyon/datasCalmEKG_2.txt"
 RATE = 200
 RATIO = 0.3
-
-
-def open_file(file_path):
-    file = open(file_path, 'r')
-    data = list(map(lambda a: int(a) - 128, file.readline().split()))
-    return data
 
 
 def find_points_zeros(data, th):
@@ -26,6 +20,14 @@ def find_points_zeros(data, th):
 
 
 def median(neg, pos, n):
+    if len(neg) == 0:
+        if len(pos) == 0:
+            return []
+        else:
+            return [(n + pos[-1]) // 2]
+    else:
+        if len(pos) == 0:
+            return [neg[0] // 2]
     p = []
     start_neg = 0
     if neg[0] < pos[0]:
@@ -87,34 +89,47 @@ def distribution(a, step):
 
 def analysis_ecg(ecg):
     properties = {}
-
+    t = get_time(len(ecg), RATE)
+    properties['time'] = t
     ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
     freq, x = get_spectrum(0, 7, ecg_filtered)
 
     g, r_old = find_r_peak(15, 8, RATIO, ecg_filtered)
     var = [r_old[i] - r_old[i - 1] for i in range(1, len(r_old))]
-    r = calibrate_r_peak(r_old, ecg, max(var) // 2)
+    if len(var) > 0:
+        r = calibrate_r_peak(r_old, ecg, max(var) // 2)
 
-    r_new = convert_points_to_time(r, t)
+        r_new = convert_points_to_time(r, t)
 
-    properties["heart rate"] = int(len(r_new) * (60 / t[-1]))
-    var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
+        properties["heart_rate"] = int(len(r_new) * (60 / t[-1]))
+        var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
 
-    properties["variability"] = {
-        "min": min(var),
-        "max": max(var),
-    }
+        properties["variability"] = {
+            "min": int(min(var)),
+            "max": int(max(var)),
+        }
 
-    breath = [g[i] for i in r_old]
-    max_breath = max(breath)
-    min_breath = min(breath)
-    ampl_breath = max_breath - min_breath
+        breath = [g[i] for i in r_old]
+        max_breath = max(breath)
+        min_breath = min(breath)
+        ampl_breath = max_breath - min_breath
 
-    properties["breath"] = {
-        "max": max_breath,
-        "min": min_breath,
-        "amplitude": ampl_breath
-    }
+        properties["breath"] = {
+            "max": int(max_breath),
+            "min": int(min_breath),
+            "amplitude": int(ampl_breath)
+        }
+    else:
+        properties["heart_rate"] = 0
+        properties["variability"] = {
+            "min": 0,
+            "max": 0,
+        }
+        properties["breath"] = {
+            "max": 0,
+            "min": 0,
+            "amplitude": 0
+        }
 
     return properties
 

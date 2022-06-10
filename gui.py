@@ -4,12 +4,32 @@ from design import Ui_MainWindow
 import sys
 import pandas as pd
 from bluetooth_serial.read_serial import read
+from analysis.ecg_analiz import analysis_ecg
+from analysis.signal_analysis import open_file, open_csv_file
 import os
 import time
 import datetime
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
+
+
+class MplCanvas(FigureCanvas):
+    def __init__(self, *args, **kwargs):
+        self.fig = Figure()
+        super(MplCanvas, self).__init__(self.fig, *args, **kwargs)
+
+    def plot(self, x, y):
+        self.fig.clear()
+        self.ax = self.fig.add_subplot(111)
+        self.ax.plot(x, y)
+        self.draw()
+
+    def clear(self):
+        self.fig.clear()
+        self.draw()
 
 
 class Window(QtWidgets.QMainWindow):
@@ -29,6 +49,15 @@ class Window(QtWidgets.QMainWindow):
         self.ui.table.cellClicked.connect(self.chooseUser)
         self.ui.updateUserButton.clicked.connect(self.updateUser)
         self.ui.testButton.clicked.connect(self.testUser)
+        self.ui.repeatButton.clicked.connect(self.testUser)
+
+        self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
+
+        self.ui.canvasECG = MplCanvas()
+        self.ui.verticalLayout_3.addWidget(self.ui.canvasECG)
+
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.ui.verticalLayout_3.addItem(spacerItem)
 
         self.user = 0
 
@@ -49,7 +78,7 @@ class Window(QtWidgets.QMainWindow):
         rows = self.ui.table.rowCount()
         date = QtCore.QDate.currentDate().toString('dd.MM.yyyy')
 
-        dir_path = os.path.join(os.path.abspath(os.curdir), '..', str(int(time.time())))
+        dir_path = os.path.join(os.path.abspath(os.curdir), 'users', str(int(time.time())))
         os.mkdir(dir_path)
 
         user = [
@@ -89,6 +118,12 @@ class Window(QtWidgets.QMainWindow):
         self.ui.birthdayEdit.setDate(date)
         self.ui.birthdayEdit.show()
         self.updateAge()
+        self.ui.ecgFilesCombo.clear()
+        files = os.listdir(user['dir_path'])
+        if len(files) > 0:
+            self.ui.ecgFilesCombo.addItems(files)
+
+        self.ui.canvasECG.clear()
 
     def updateTable(self):
         self.ui.table.clear()
@@ -145,9 +180,34 @@ class Window(QtWidgets.QMainWindow):
         user = users.iloc[self.user]
         dir_path = user['dir_path']
         date = datetime.datetime.now().strftime('%d.%m.%Y %H-%M-%S')
-        file_path = os.path.join(dir_path, date)
-        for a in read('COM6', file_path):
-            pass
+        file_path = os.path.join(dir_path, f"{date}.csv")
+
+        self.ui.testDateLable.setText(date)
+        self.ui.resultTextLable.setText("тестируется")
+
+        self.ui.ecgFilesCombo.addItem(date)
+        if read('COM6', file_path):
+            self.updateEcg(file_path)
+        else:
+            self.ui.resultTextLable.setText("не удалось подключиться")
+
+    def selectFile(self, text):
+        dir_path = users.iloc[self.user]['dir_path']
+        file_path = os.path.join(dir_path, text)
+
+        self.updateEcg(file_path)
+
+    def updateEcg(self, file_path):
+        data = open_csv_file(file_path)
+        properties = analysis_ecg(data['ecg'])
+
+        self.ui.canvasECG.clear()
+        self.ui.canvasECG.plot(properties['time'], data['ecg'])
+
+        self.ui.haertRateLable.setText(str(properties['heart_rate']))
+        self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
+        self.ui.variabilityMinLable.setText(str(properties['variability']['min']))
+        self.ui.breathAmplitudeLable.setText(str(properties['breath']['amplitude']))
 
     def exit(self):
         users.to_csv('users.csv', index=False)
