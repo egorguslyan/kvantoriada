@@ -28,42 +28,44 @@ def find_alpha(size, sig, ratio):
     return points
 
 
-def analysis_eeg(eeg):  # do not use
+def analysis_eeg(eeg):
     properties = {}
     t = get_time(len(eeg), RATE)
     eeg_filtered = filter_low_high_freq(4, 70, eeg, RATE)
-    freq, x = get_spectrum(0, 70, eeg_filtered)
-
+    # freq, x = get_spectrum(0, 100, eeg_filtered)
+    size = 100
+    points = find_alpha(size, eeg_filtered, 1.9)
+    time_start, amp = find_time_and_amp(eeg_filtered, p, t, size)
+    coeff = find_coeff(eeg_filtered, points, amp, size)
     properties["spectrum"] = {
-        "freq": freq,
-        "x": x
+        "amp": coeff,
+        "start_time": time_start
     }
-
-    points = find_alpha(300, eeg_filtered, 2.3)
-    points = convert_points_to_time(points, t)
-
-    alpha_segments = []
-    start = points[0]
-    for i in range(1, len(points)):
-        if points[i] - 1 != points[i - 1]:
-            alpha_segments.append((points[i - 1] - start, start))
-            start = points[i]
-    alpha_segments.sort()
-
-    properties["alpha"] = alpha_segments[0][1]
     return properties
 
 
-def find_time_and_amp(eeg, points, t, size):
-    amps = []
-    if p:
-        time_start = round(min(convert_points_to_time(points, t)), 1)
+def find_coeff(eeg, points, amp, size):
+    freq, x = get_spectrum(4, 40, eeg)
+
+
+
+def find_time_and_amp(eeg, points, t, size, delay=3):
+    time_start = -1
+    amp = -1
+    if points:
+        count = 0
+        for i in range(1, len(points)):
+            if points[i] == points[i - 1] + 1:
+                count += 1
+                if count > RATE * delay:
+                    time_start = round(convert_points_to_time(points, t)[i - count], 1)
+                    break
+        amps = []
         for i in points:
             freq, x = get_spectrum(8, 14, eeg[i - size // 2:i + size // 2])
-            amps.append(sum(x)+30)
-    else:
-        time_start = -1
-    return time_start, amps
+            amps.append(sum(x))
+        amp = sum(amps)/len(amps)
+    return time_start, amp
 
 
 if __name__ == "__main__":
@@ -72,23 +74,19 @@ if __name__ == "__main__":
     eeg_filtered = filter_low_high_freq(4, 70, eeg, RATE)
     freq, x = get_spectrum(0, 100, eeg_filtered)
     p = find_alpha(100, eeg_filtered, 1.9)
-    tim_start, amps = find_time_and_amp(eeg_filtered, p, t, 100)
+    tim_start, amp = find_time_and_amp(eeg_filtered, p, t, 100)
 
     fig, ax = plt.subplots(3)
     ax[0].plot(t, eeg)
-    # ax[0].plot(t, eeg_filtered)
     ax[1].plot(freq, x)
-    # freq, x = get_spectrum(0, 100, eeg_filtered[500:800])
-    # ax[1].plot(freq, x)
     ax[2].plot(t, eeg_filtered)
-    ax[2].scatter(convert_points_to_time(p, t), amps)
-    plt.show()
+    ax[2].scatter(convert_points_to_time(p, t), [amp]*len(p))
 
     if tim_start > -1:
         print(tim_start, 'секунд до появления альфа-ритма')
     else:
         print('Альфа-ритм не появился')
-
+    plt.show()
     # p = convert_points_to_time(p, t)
     # alpha_segments = []
     # start = p[0]
