@@ -1,6 +1,6 @@
 #define ARR_SIZE 256
 #define GSR_TIME 10000
-#define ECG_TIME 15000
+#define ECG_TIME 20000
 #define BTN 5
 
 struct module
@@ -32,8 +32,10 @@ struct
     uint8_t pin : 5;
     uint8_t not_pin : 5;
     uint8_t state : 1;
+    uint8_t enabled : 1;
     void updpins()
     {
+        enabled = 1;
         digitalWrite(pin, state);
         digitalWrite(not_pin, !state);
     }
@@ -50,11 +52,15 @@ struct
     }
     void toggle()
     {
-        state = !state;
-        updpins();
+        if(enabled)
+        {
+            state = !state;
+            updpins();
+        }
     }
     void disable()
     {
+        enabled = 0;
         digitalWrite(pin, LOW);
         digitalWrite(not_pin, LOW);
     }
@@ -105,11 +111,11 @@ void loop()
         delay(50);
     } delay(5);
 
-    if((millis() - timer1) > (control.state ? GSR_TIME : ECG_TIME))
+    if(millis() - timer1 > GSR_TIME)
     {
         timer1 = millis();
-        if(start) control.toggle();
-        if(control.state) 
+        control.toggle();
+        if(control.state)
         {
             start = 0;
             control.disable();
@@ -132,13 +138,13 @@ void loop()
     if(control.state)
         for(i = 1; i <= gsr[0]; i++)
         {
-            sprintf(S, "%d %d %d", 0, 0, gsr[i]);
+            sprintf(S, "%d %d %d %d", control.state ? 100 : 0, 0, 0, gsr[i]);
             Serial.println(S);
         }
     else
         for(i = 1; i <= ecg[0]; i++)
         {
-            sprintf(S, "%d %d %d", ecg[i], eeg[i], 0);
+            sprintf(S, "%d %d %d %d", control.state ? 100 : 0, ecg[i], eeg[i], 0);
             Serial.println(S);
         }
     gsr[0] = ecg[0] = eeg[0] = 0;
@@ -151,9 +157,9 @@ ISR(TIMER1_OVF_vect)
     {
         intr_counter = 0;
         digitalWrite(13, HIGH);
-        GSR.enabled = control.state;
-        ECG.enabled = !control.state;
-        EEG.enabled = !control.state;
+        GSR.enabled = control.state && control.enabled;
+        ECG.enabled = !control.state && control.enabled;
+        EEG.enabled = !control.state && control.enabled;
         GSR.read();
         ECG.read();
         EEG.read();
