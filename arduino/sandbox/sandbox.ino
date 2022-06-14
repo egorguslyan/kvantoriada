@@ -1,5 +1,5 @@
 #define ARR_SIZE 256
-#define GSR_TIME 10000
+#define GSR_TIME 300
 #define ECG_TIME 20000
 #define BTN 5
 
@@ -31,7 +31,7 @@ struct
 {
     uint8_t pin : 5;
     uint8_t not_pin : 5;
-    uint8_t state : 1;
+    volatile uint8_t state : 1;
     uint8_t enabled : 1;
     void updpins()
     {
@@ -71,7 +71,7 @@ module ECG;
 module EEG;
 
 uint8_t intr_counter;
-uint8_t start;
+volatile uint8_t start;
 
 void setup()
 {
@@ -135,16 +135,18 @@ void loop()
     ECG.pop(ecg);
     EEG.pop(eeg);
     shiftOut(11, 11, 0, gsr[0]);    // volatile didn't help
+    shiftOut(11, 11, 0, ecg[0]);
+    shiftOut(11, 11, 0, eeg[0]);
     if(control.state)
         for(i = 1; i <= gsr[0]; i++)
         {
-            sprintf(S, "%d %d %d %d", control.state ? 100 : 0, 0, 0, gsr[i]);
+            sprintf(S, "%d %d %d", 0, 0, gsr[i]);
             Serial.println(S);
         }
     else
         for(i = 1; i <= ecg[0]; i++)
         {
-            sprintf(S, "%d %d %d %d", control.state ? 100 : 0, ecg[i], eeg[i], 0);
+            sprintf(S, "%d %d %d", ecg[i], eeg[i], 0);
             Serial.println(S);
         }
     gsr[0] = ecg[0] = eeg[0] = 0;
