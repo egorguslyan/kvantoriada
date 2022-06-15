@@ -53,7 +53,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.repeatButton.clicked.connect(self.testUser)
 
         self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
-        self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
+        self.ui.eegFilesCombo.activated[str].connect(self.selectFile)
 
         self.ui.canvasECG = MplCanvas()
         self.ui.verticalLayout_3.addWidget(self.ui.canvasECG)
