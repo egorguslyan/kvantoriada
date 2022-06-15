@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 # import numpy as np
-from signal_analysis import *
+from analysis.signal_analysis import *
 
 FILE_PATH = "datasets/1/Semyon/dataEEG_1.txt"
 RATE = 200
@@ -30,12 +30,14 @@ def find_alpha(size, sig, ratio):
 
 def analysis_eeg(eeg):
     properties = {}
+
     t = get_time(len(eeg), RATE)
+    properties['time'] = t
     eeg_filtered = filter_low_high_freq(4, 70, eeg, RATE)
     # freq, x = get_spectrum(0, 100, eeg_filtered)
     size = 100
     points = find_alpha(size, eeg_filtered, 1.9)
-    time_start, amp = find_time_and_amp(eeg_filtered, p, t, size)
+    time_start, amp = find_time_and_amp(eeg_filtered, points, t, size)
     coeff = find_coeff(eeg_filtered, points, amp, size)
     properties["spectrum"] = {
         "amp": coeff,
@@ -46,7 +48,6 @@ def analysis_eeg(eeg):
 
 def find_coeff(eeg, points, amp, size):
     freq, x = get_spectrum(4, 40, eeg)
-
 
 
 def find_time_and_amp(eeg, points, t, size, delay=3):
@@ -68,7 +69,7 @@ def find_time_and_amp(eeg, points, t, size, delay=3):
     return time_start, amp
 
 
-if __name__ == "__main__":
+def main():
     eeg = open_file_eeg(FILE_PATH)
     t = get_time(len(eeg), RATE)
     eeg_filtered = filter_low_high_freq(4, 70, eeg, RATE)
@@ -80,7 +81,7 @@ if __name__ == "__main__":
     ax[0].plot(t, eeg)
     ax[1].plot(freq, x)
     ax[2].plot(t, eeg_filtered)
-    ax[2].scatter(convert_points_to_time(p, t), [amp]*len(p))
+    ax[2].scatter(convert_points_to_time(p, t), [amp] * len(p))
 
     if tim_start > -1:
         print(tim_start, 'секунд до появления альфа-ритма')
@@ -96,3 +97,7 @@ if __name__ == "__main__":
     #         start = p[i]
     # alpha_segments.sort()
     # print(alpha_segments)
+
+
+if __name__ == "__main__":
+    main()

@@ -5,6 +5,7 @@ import sys
 import pandas as pd
 from bluetooth_serial.read_serial import read
 from analysis.ecg_analiz import analysis_ecg
+from analysis.eeg_analiz import analysis_eeg
 from analysis.signal_analysis import open_file, open_csv_file
 import os
 import time
@@ -52,12 +53,17 @@ class Window(QtWidgets.QMainWindow):
         self.ui.repeatButton.clicked.connect(self.testUser)
 
         self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
+        self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
 
         self.ui.canvasECG = MplCanvas()
         self.ui.verticalLayout_3.addWidget(self.ui.canvasECG)
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.ui.verticalLayout_3.addItem(spacerItem)
+
+        self.ui.canvasEEG = MplCanvas()
+        self.ui.verticalLayout_5.addWidget(self.ui.canvasEEG)
+        self.ui.verticalLayout_5.addItem(spacerItem)
 
         self.user = 0
 
@@ -122,6 +128,7 @@ class Window(QtWidgets.QMainWindow):
         files = os.listdir(user['dir_path'])
         if len(files) > 0:
             self.ui.ecgFilesCombo.addItems(files)
+            self.ui.eegFilesCombo.addItems(files)
 
         self.ui.canvasECG.clear()
 
@@ -186,8 +193,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui.resultTextLable.setText("тестируется")
 
         self.ui.ecgFilesCombo.addItem(date)
+        self.ui.eegFilesCombo.addItem(date)
+
         if read('COM6', file_path):
-            self.updateEcg(file_path)
+            self.updateECG(file_path)
+            self.updateEEG(file_path)
         else:
             self.ui.resultTextLable.setText("не удалось подключиться")
 
@@ -195,9 +205,10 @@ class Window(QtWidgets.QMainWindow):
         dir_path = users.iloc[self.user]['dir_path']
         file_path = os.path.join(dir_path, text)
 
-        self.updateEcg(file_path)
+        self.updateECG(file_path)
+        self.updateEEG(file_path)
 
-    def updateEcg(self, file_path):
+    def updateECG(self, file_path):
         data = open_csv_file(file_path)
         properties = analysis_ecg(data['ecg'])
 
@@ -208,6 +219,16 @@ class Window(QtWidgets.QMainWindow):
         self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
         self.ui.variabilityMinLable.setText(str(properties['variability']['min']))
         self.ui.breathAmplitudeLable.setText(str(properties['breath']['amplitude']))
+
+    def updateEEG(self, file_path):
+        data = open_csv_file(file_path)
+        properties = analysis_eeg(data['eeg'])
+
+        self.ui.canvasEEG.clear()
+        self.ui.canvasEEG.plot(properties['time'], data['eeg'])
+
+        self.ui.amplitudeAlphaLabel.setText(str(properties['spectrum']['amp']))
+        self.ui.startTimeAlphaLabel.setText(str(properties['spectrum']['start_time']))
 
     def exit(self):
         users.to_csv('users.csv', index=False)
