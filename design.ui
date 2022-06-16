@@ -378,7 +378,7 @@ border-color: rgb(0, 0, 0);</string>
             <item row="2" column="0">
              <widget class="QLabel" name="label_6">
               <property name="text">
-               <string>Дыхание (амплитуда): </string>
+               <string>Дыхание (амплитуда, частота): </string>
               </property>
              </widget>
             </item>
@@ -387,6 +387,20 @@ border-color: rgb(0, 0, 0);</string>
               <property name="styleSheet">
                <string notr="true">border-color: rgb(0, 0, 0);
 background-color: rgb(255, 255, 255);</string>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="text">
+               <string>цифры</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QLabel" name="breathFreqLabel">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
               </property>
               <property name="frameShape">
                <enum>QFrame::Box</enum>

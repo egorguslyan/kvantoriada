@@ -235,6 +235,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
         self.ui.variabilityMinLable.setText(str(properties['variability']['min']))
         self.ui.breathAmplitudeLable.setText(str(properties['breath']['amplitude']))
+        self.ui.breathFreqLabel.setText(str(properties['breath']['freq']))
 
     def scrollingECG(self, event):
         width = self.ui.canvasECG.frameGeometry().width()

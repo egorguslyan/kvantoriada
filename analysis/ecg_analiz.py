@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from analysis.signal_analysis import *
 
-FILE_PATH = "datasets/1/Semyon/datasCalmEKG_2.txt"
+FILE_PATH = "datasets/1/Semyon/datasCalmEKG_1.txt"
 RATE = 200
 RATIO = 0.3
 
@@ -87,6 +87,21 @@ def distribution(a, step):
     return list(range(0, len(x) * step, step)), x
 
 
+def find_breath_freq(data):
+    th = min(data) + (max(data) - min(data)) * 0.3
+    points = []
+    ind = 0
+    for i in range(len(data)):
+        if data[i] < data[ind] and data[i] < th:
+            ind = i
+        elif data[i] >= th > data[i - 1]:
+            points.append(ind)
+        elif data[i] > th:
+            ind = i
+    return points
+
+
+
 def analysis_ecg(ecg):
     properties = {}
     t = get_time(len(ecg), RATE)
@@ -114,10 +129,12 @@ def analysis_ecg(ecg):
         min_breath = min(breath)
         ampl_breath = max_breath - min_breath
 
+        freq_breath = len(find_breath_freq(breath)) * 60 / t[-1]
         properties["breath"] = {
             "max": int(max_breath),
             "min": int(min_breath),
-            "amplitude": int(ampl_breath)
+            "amplitude": int(ampl_breath),
+            'freq': int(freq_breath)
         }
     else:
         properties["heart_rate"] = 0
@@ -139,7 +156,7 @@ def main():
 
     t = get_time(len(ecg), RATE)
 
-    fig, ax = plt.subplots(6, 1)
+    fig, ax = plt.subplots(7, 1)
     ax[0].plot(t[:250], ecg[:250])
 
     ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
@@ -174,11 +191,15 @@ def main():
     max_breath = max(breath)
     min_breath = min(breath)
     ampl_breath = max_breath - min_breath
-
+    points = find_breath_freq(breath)
+    print(points)
     ax[5].plot(g)
     ax[5].plot(r_old, breath)
     ax[5].plot([0, len(g)], [max_breath] * 2)
     ax[5].plot([0, len(g)], [min_breath] * 2)
+
+    ax[6].plot(breath)
+    ax[6].scatter(points, [10] * len(points))
 
     plt.show()
 
