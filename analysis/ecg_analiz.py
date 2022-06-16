@@ -134,7 +134,7 @@ def analysis_ecg(ecg):
     return properties
 
 
-if __name__ == "__main__":
+def main():
     ecg = open_file(FILE_PATH)
 
     t = get_time(len(ecg), RATE)
@@ -181,3 +181,7 @@ if __name__ == "__main__":
     ax[5].plot([0, len(g)], [min_breath] * 2)
 
     plt.show()
+
+
+if __name__ == "__main__":
+    main()
