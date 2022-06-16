@@ -25,12 +25,26 @@ class MplCanvas(FigureCanvas):
     def plot(self, x, y):
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
-        self.ax.plot(x, y)
+        self.data = self.ax.plot(x, y)
         self.draw()
 
     def clear(self):
         self.fig.clear()
         self.draw()
+
+    def get_xdata(self):
+        return self.data[0].get_xdata()
+
+    def get_ydata(self):
+        return self.data[0].get_ydata()
+
+    def scroll(self, s, ratio):
+        x = self.get_xdata()
+        y = self.get_ydata()
+        s *= len(x)
+        s = int(s)
+        size = int(len(x) * ratio // 2)
+        self.plot(x[max(0, s - size):min(len(x), s + size)], y[max(0, s - size):min(len(x), s + size)])
 
 
 class Window(QtWidgets.QMainWindow):
@@ -57,12 +71,14 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.canvasECG = MplCanvas()
         self.ui.verticalLayout_3.addWidget(self.ui.canvasECG)
+        self.ui.canvasECG.mpl_connect("scroll_event", self.scrollingECG)
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.ui.verticalLayout_3.addItem(spacerItem)
 
         self.ui.canvasEEG = MplCanvas()
         self.ui.verticalLayout_5.addWidget(self.ui.canvasEEG)
+        self.ui.canvasEEG.mpl_connect("scroll_event", self.scrollingEEG)
         self.ui.verticalLayout_5.addItem(spacerItem)
 
         self.user = 0
@@ -219,6 +235,18 @@ class Window(QtWidgets.QMainWindow):
         self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
         self.ui.variabilityMinLable.setText(str(properties['variability']['min']))
         self.ui.breathAmplitudeLable.setText(str(properties['breath']['amplitude']))
+
+    def scrollingECG(self, event):
+        width = self.ui.canvasECG.frameGeometry().width()
+        s = event.x / width
+        if event.button == 'up':
+            self.ui.canvasECG.scroll(s, 0.8)
+
+    def scrollingEEG(self, event):
+        width = self.ui.canvasEEG.frameGeometry().width()
+        s = event.x / width
+        if event.button == 'up':
+            self.ui.canvasEEG.scroll(s, 0.8)
 
     def updateEEG(self, file_path):
         data = open_csv_file(file_path)
