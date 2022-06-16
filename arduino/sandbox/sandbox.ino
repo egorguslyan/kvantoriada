@@ -1,3 +1,6 @@
+#include <EEPROM.h>
+#include "random_key.h"
+
 #define ARR_SIZE 256
 #define GSR_TIME 300
 #define ECG_TIME 20000
@@ -71,7 +74,32 @@ module ECG;
 module EEG;
 
 uint8_t intr_counter;
-volatile uint8_t start;
+
+uint8_t eeprom_byte_check(uint8_t b, uint8_t useful_bits)
+{
+    uint8_t m, i;
+    m = 0b01111111 & (0b11111111 << useful_bits);
+    if((eeprom_key & mask) != (b & mask))
+        return EXIT_FAILURE;
+    m = 0;
+    for(i = 0; i < 7; i++)
+        m ^= bitRead(b, i);
+    if(m != bitRead(b, 7))
+        return EXIT_FAILURE;
+    return EXIT_SUCCESS;
+}
+
+uint8_t eeprom_byte_form(uint8_t b, uint8_t useful_bits)
+{
+    uint8_t r, m, i;
+    m = 0b11111111 << useful_bits;
+    r = (eeprom_key & m) + (b & (m ^ 0b11111111));
+    m = 0;
+    for(i = 0; i < 7; i++)
+        m ^= bitRead(r, i);
+    bitWrite(r, 7, m);
+    return r;
+}
 
 void setup()
 {
@@ -105,31 +133,18 @@ void loop()
     volatile uint8_t gsr[ARR_SIZE], ecg[ARR_SIZE], eeg[ARR_SIZE];
     uint8_t i, btn, prevBtn;
 
+    // Нагрузка
     if(millis() - timer0 > 100)
     {
         timer0 = millis();
         delay(50);
     } delay(5);
 
-    if(millis() - timer1 > GSR_TIME)
+    if(millis() - timer1 > (control.state ? GSR_TIME : ECG_TIME))
     {
         timer1 = millis();
         control.toggle();
-        if(control.state)
-        {
-            start = 0;
-            control.disable();
-        }
     }
-
-    btn = digitalRead(BTN);
-    if(!prevBtn && btn)
-    {
-        start = 1;
-        timer1 = millis();
-        control.set(1);
-    }
-    prevBtn = btn;
 
     GSR.pop(gsr);
     ECG.pop(ecg);
@@ -155,7 +170,7 @@ void loop()
 ISR(TIMER1_OVF_vect)
 {
     intr_counter++;
-    if((intr_counter >= 10) && start)
+    if(intr_counter >= 10)
     {
         intr_counter = 0;
         digitalWrite(13, HIGH);
