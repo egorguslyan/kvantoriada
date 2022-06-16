@@ -1,9 +1,16 @@
 #include <EEPROM.h>
+/*    Mem map    **
+    0) GSR1
+    1) GSR2
+    2) E*G1
+    3) E*G2
+**               */
+
 #include "random_key.h"
 
 #define ARR_SIZE 256
-#define GSR_TIME 300
-#define ECG_TIME 20000
+#define GSR_TIME 5
+#define ECG_TIME 20
 #define BTN 5
 
 struct module
@@ -32,6 +39,8 @@ struct module
 
 struct
 {
+    uint16_t seconds0 : 9;
+    uint16_t seconds1 : 9;
     uint8_t pin : 5;
     uint8_t not_pin : 5;
     volatile uint8_t state : 1;
@@ -79,7 +88,7 @@ uint8_t eeprom_byte_check(uint8_t b, uint8_t useful_bits)
 {
     uint8_t m, i;
     m = 0b01111111 & (0b11111111 << useful_bits);
-    if((eeprom_key & mask) != (b & mask))
+    if((eeprom_key & m) != (b & m))
         return EXIT_FAILURE;
     m = 0;
     for(i = 0; i < 7; i++)
@@ -103,6 +112,7 @@ uint8_t eeprom_byte_form(uint8_t b, uint8_t useful_bits)
 
 void setup()
 {
+    uint8_t eepromData, i;
     pinMode(BTN, INPUT);
     pinMode(13, OUTPUT);
     control.pin = A3;
@@ -115,6 +125,52 @@ void setup()
     ECG.setup();
     EEG.pin = A0;
     EEG.setup();
+    for(i = 0; i < 4; i++)
+    {
+        eepromData = EEPROM.read(i);
+        if(eeprom_byte_check(eepromData, 5))
+        {
+            if(i < 4)
+            {
+                if(i % 2)
+                {
+                    eepromData = eeprom_byte_form(
+                        ((i / 2) ? ECG_TIME : GSR_TIME) & 0b11111,
+                        5
+                    );
+                }
+                else
+                {
+                    eepromData = eeprom_byte_form(
+                        ((((i / 2) ? ECG_TIME : GSR_TIME) >> 5) & 0b1111) + (1 << 4),
+                        5
+                    );
+                }
+            }
+            EEPROM.write(i, eepromData);
+        }
+        switch(i)
+        {
+            case 0: {
+                control.seconds0 &= 0b111100000;
+                control.seconds0 |= eepromData & 0b11111;
+            } break;
+            case 2: {
+                control.seconds1 &= 0b111100000;
+                control.seconds1 |= eepromData & 0b11111;
+            } break;
+            case 1: {
+                control.seconds0 &= 0b000011111;
+                control.seconds0 |= (eepromData & 0b1111) << 5;
+                GSR.enabled = (eepromData & 0b10000) >> 4;
+            } break;
+            case 3: {
+                control.seconds1 &= 0b000011111;
+                control.seconds1 |= (eepromData & 0b1111) << 5;
+                ECG.enabled = EEG.enabled = (eepromData & 0b10000) >> 4;
+            } break;
+        }
+    }
     noInterrupts(); {
         TCCR1A = 0;
         TCCR1B = 0;
@@ -140,7 +196,7 @@ void loop()
         delay(50);
     } delay(5);
 
-    if(millis() - timer1 > (control.state ? GSR_TIME : ECG_TIME))
+    if(millis() - timer1 > ((uint32_t)(control.state ? control.seconds0 : control.seconds1) * 1000))
     {
         timer1 = millis();
         control.toggle();
@@ -174,12 +230,16 @@ ISR(TIMER1_OVF_vect)
     {
         intr_counter = 0;
         digitalWrite(13, HIGH);
-        GSR.enabled = control.state && control.enabled;
-        ECG.enabled = !control.state && control.enabled;
-        EEG.enabled = !control.state && control.enabled;
-        GSR.read();
-        ECG.read();
-        EEG.read();
+        if(control.enabled)
+        {
+            if(control.state)
+                GSR.read();
+            else
+            {
+                ECG.read();
+                EEG.read();
+            }
+        }
         digitalWrite(13, LOW);
     }
 }
