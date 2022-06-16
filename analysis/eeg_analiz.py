@@ -34,6 +34,7 @@ def analysis_eeg(eeg):
     t = get_time(len(eeg), RATE)
     properties['time'] = t
     eeg_filtered = filter_low_high_freq(4, 70, eeg, RATE)
+    properties['filtered'] = eeg_filtered
     # freq, x = get_spectrum(0, 100, eeg_filtered)
     size = 100
     points = find_alpha(size, eeg_filtered, 1.9)

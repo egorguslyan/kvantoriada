@@ -253,7 +253,7 @@ class Window(QtWidgets.QMainWindow):
         properties = analysis_eeg(data['eeg'])
 
         self.ui.canvasEEG.clear()
-        self.ui.canvasEEG.plot(properties['time'], data['eeg'])
+        self.ui.canvasEEG.plot(properties['time'], properties['filtered'])
 
         self.ui.amplitudeAlphaLabel.setText(str(properties['spectrum']['amp']))
         self.ui.startTimeAlphaLabel.setText(str(properties['spectrum']['start_time']))
