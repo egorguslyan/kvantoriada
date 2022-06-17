@@ -117,10 +117,15 @@ class Window(QtWidgets.QMainWindow):
         self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
         self.ui.eegFilesCombo.activated[str].connect(self.selectFile)
 
+        hint = "двойной клик - приближение\n" \
+               "правый клик - отдаление\n" \
+               "колесико мыши - перемещение по оси времени"
+
         self.ui.canvasECG = MplCanvas()
         self.ui.verticalLayout_3.addWidget(self.ui.canvasECG)
         self.ui.canvasECG.mpl_connect("button_press_event", self.changeScaleECG)
         self.ui.canvasECG.mpl_connect("scroll_event", self.scrollingECG)
+        self.ui.canvasECG.setToolTip(hint)
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.ui.verticalLayout_3.addItem(spacerItem)
@@ -129,6 +134,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.verticalLayout_5.addWidget(self.ui.canvasEEG)
         self.ui.canvasEEG.mpl_connect("button_press_event", self.changeScaleEEG)
         self.ui.canvasEEG.mpl_connect("scroll_event", self.scrollingEEG)
+        self.ui.canvasEEG.setToolTip(hint)
+
         self.ui.verticalLayout_5.addItem(spacerItem)
 
         if not users.empty:
@@ -136,7 +143,6 @@ class Window(QtWidgets.QMainWindow):
             self.updateCard()
         else:
             self.user = None
-
 
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
@@ -306,7 +312,6 @@ class Window(QtWidgets.QMainWindow):
     def changeScaleECG(self, event):
         width = self.ui.canvasECG.frameGeometry().width()
         s = event.x / width
-        print(event)
         if event.button == 1 and event.dblclick:
             self.ui.canvasECG.scale_up(s, 0.8)
         elif event.button == 3:
@@ -321,7 +326,6 @@ class Window(QtWidgets.QMainWindow):
             self.ui.canvasEEG.scale_down(s, 0.8)
 
     def scrollingECG(self, event):
-        print(event)
         self.ui.canvasECG.scroll(1 if event.button == 'up' else -1)
 
     def scrollingEEG(self, event):

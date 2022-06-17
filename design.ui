@@ -544,22 +544,8 @@ border-color: rgb(0, 0, 0);</string>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <layout class="QGridLayout" name="gridLayout_3">
-            <item row="1" column="2">
-             <widget class="QCheckBox" name="checkBox_3">
-              <property name="text">
-               <string>Подключить</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QCheckBox" name="checkBox">
-              <property name="text">
-               <string>Подключить</string>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="1">
-             <widget class="QCheckBox" name="checkBox_2">
+             <widget class="QCheckBox" name="checkEEG">
               <property name="layoutDirection">
                <enum>Qt::LeftToRight</enum>
               </property>
@@ -568,20 +554,20 @@ border-color: rgb(0, 0, 0);</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="label_8">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_7">
               <property name="text">
-               <string>ЭЭГ</string>
+               <string>ЭКГ</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_7">
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_8">
               <property name="text">
-               <string>ЭКГ</string>
+               <string>ЭЭГ</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -598,10 +584,50 @@ border-color: rgb(0, 0, 0);</string>
               </property>
              </widget>
             </item>
+            <item row="1" column="2">
+             <widget class="QCheckBox" name="checkGSR">
+              <property name="text">
+               <string>Подключить</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
+               <widget class="QSpinBox" name="timeEEG">
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+                <property name="minimum">
+                 <number>10</number>
+                </property>
+                <property name="maximum">
+                 <number>20</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>Максимальное время ожидания альфа-ритма</string>
+                </property>
+                <property name="textFormat">
+                 <enum>Qt::MarkdownText</enum>
+                </property>
+                <property name="scaledContents">
+                 <bool>true</bool>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
             <item row="2" column="0">
              <layout class="QHBoxLayout" name="horizontalLayout_5">
               <item>
-               <widget class="QSpinBox" name="spinBox">
+               <widget class="QSpinBox" name="timeECG">
                 <property name="layoutDirection">
                  <enum>Qt::LeftToRight</enum>
                 </property>
@@ -618,39 +644,53 @@ border-color: rgb(0, 0, 0);</string>
                 <property name="text">
                  <string>Время опрашивания (сек)</string>
                 </property>
+                <property name="textFormat">
+                 <enum>Qt::MarkdownText</enum>
+                </property>
                </widget>
               </item>
              </layout>
             </item>
-            <item row="2" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
-              <item>
-               <widget class="QSpinBox" name="spinBox_2">
-                <property name="minimum">
-                 <number>10</number>
-                </property>
-                <property name="maximum">
-                 <number>20</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_11">
-                <property name="text">
-                 <string>Максимальное время ожидания альфа-ритма</string>
-                </property>
-                <property name="textFormat">
-                 <enum>Qt::AutoText</enum>
-                </property>
-                <property name="scaledContents">
-                 <bool>true</bool>
-                </property>
-                <property name="wordWrap">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="checkECG">
+              <property name="text">
+               <string>Подключить</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="1" column="1">
+             <widget class="QPushButton" name="btnPassword">
+              <property name="text">
+               <string>PushButton</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLineEdit" name="password"/>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Режим врача</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
