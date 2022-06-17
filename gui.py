@@ -3,15 +3,17 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from design import Ui_MainWindow
 import sys
 import pandas as pd
-from bluetooth_serial.read_serial import read
-from analysis.ecg_analiz import analysis_ecg
-from analysis.eeg_analiz import analysis_eeg
-from analysis.signal_analysis import open_file, open_csv_file
 import os
+import shutil
 import time
 import datetime
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
+from bluetooth_serial.read_serial import read
+from analysis.ecg_analiz import analysis_ecg
+from analysis.eeg_analiz import analysis_eeg
+from analysis.signal_analysis import open_csv_file
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
@@ -21,6 +23,13 @@ class MplCanvas(FigureCanvas):
     def __init__(self, *args, **kwargs):
         self.fig = Figure()
         super(MplCanvas, self).__init__(self.fig, *args, **kwargs)
+
+        self.ax = None
+        self.data = None
+        self.x = None
+        self.y = None
+        self.begin = 0
+        self.end = 0
 
     def plot(self, x, y):
         self.fig.clear()
@@ -38,13 +47,52 @@ class MplCanvas(FigureCanvas):
     def get_ydata(self):
         return self.data[0].get_ydata()
 
-    def scroll(self, s, ratio):
-        x = self.get_xdata()
-        y = self.get_ydata()
-        s *= len(x)
-        s = int(s)
-        size = int(len(x) * ratio // 2)
-        self.plot(x[max(0, s - size):min(len(x), s + size)], y[max(0, s - size):min(len(x), s + size)])
+    def scale_up(self, s, ratio):
+        length = self.end - self.begin
+        s = int(s * length)
+        self.end = self.begin + min(length, int(s + length * ratio / 2))
+        self.begin = self.begin + max(0, int(s - length * ratio / 2))
+
+        self.plot(self.x[self.begin:self.end], self.y[self.begin:self.end])
+        self.save_ylim()
+
+    def scale_down(self, s, ratio):
+        length = self.end - self.begin
+        s = int(s * length)
+
+        self.end = min(len(self.x), int(self.begin + s + length / ratio / 2))
+        self.begin = max(0, int(self.begin + s - length / ratio / 2))
+
+        self.plot(self.x[self.begin:self.end], self.y[self.begin:self.end])
+        self.save_ylim()
+
+    def scroll(self, direction):
+        length = self.end - self.begin
+        if direction == -1:
+            delta_begin = min(self.begin, int(length * 0.1))
+        else:
+            delta_begin = length
+
+        if direction == 1:
+            delta_end = min(len(self.x) - self.end, int(length * 0.1))
+        else:
+            delta_end = length
+
+        self.begin += direction * min(delta_begin, delta_end)
+        self.end += direction * min(delta_end, delta_begin)
+
+        self.plot(self.x[self.begin:self.end], self.y[self.begin:self.end])
+        self.save_ylim()
+
+    def save_ylim(self):
+        self.ax.set_ylim(min(self.y), max(self.y))
+        self.draw()
+
+    def save_data(self):
+        self.x = self.get_xdata()
+        self.y = self.get_ydata()
+        self.begin = 0
+        self.end = len(self.x)
 
 
 class Window(QtWidgets.QMainWindow):
@@ -71,6 +119,7 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.canvasECG = MplCanvas()
         self.ui.verticalLayout_3.addWidget(self.ui.canvasECG)
+        self.ui.canvasECG.mpl_connect("button_press_event", self.changeScaleECG)
         self.ui.canvasECG.mpl_connect("scroll_event", self.scrollingECG)
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -78,10 +127,16 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.canvasEEG = MplCanvas()
         self.ui.verticalLayout_5.addWidget(self.ui.canvasEEG)
+        self.ui.canvasEEG.mpl_connect("button_press_event", self.changeScaleEEG)
         self.ui.canvasEEG.mpl_connect("scroll_event", self.scrollingEEG)
         self.ui.verticalLayout_5.addItem(spacerItem)
 
-        self.user = 0
+        if not users.empty:
+            self.user = 0
+            self.updateCard()
+        else:
+            self.user = None
+
 
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
@@ -100,7 +155,7 @@ class Window(QtWidgets.QMainWindow):
         rows = self.ui.table.rowCount()
         date = QtCore.QDate.currentDate().toString('dd.MM.yyyy')
 
-        dir_path = os.path.join(os.path.abspath(os.curdir), 'users', str(int(time.time())))
+        dir_path = os.path.join('users', str(int(time.time())))
         os.mkdir(dir_path)
 
         user = [
@@ -111,14 +166,13 @@ class Window(QtWidgets.QMainWindow):
 
         self.updateTable()
 
-
     def deleteUser(self):
         global users
 
         row = self.ui.table.currentRow()
         if row > -1:
             user = users.iloc[self.user]
-            os.rmdir(user['dir_path'])
+            shutil.rmtree(user['dir_path'])
 
             users.drop(index=[row], axis=0, inplace=True)
             users = users.reset_index(drop=True)
@@ -230,6 +284,7 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.canvasECG.clear()
         self.ui.canvasECG.plot(properties['time'], data['ecg'])
+        self.ui.canvasECG.save_data()
 
         self.ui.haertRateLable.setText(str(properties['heart_rate']))
         self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
@@ -237,27 +292,41 @@ class Window(QtWidgets.QMainWindow):
         self.ui.breathAmplitudeLable.setText(str(properties['breath']['amplitude']))
         self.ui.breathFreqLabel.setText(str(properties['breath']['freq']))
 
-    def scrollingECG(self, event):
-        width = self.ui.canvasECG.frameGeometry().width()
-        s = event.x / width
-        if event.button == 'up':
-            self.ui.canvasECG.scroll(s, 0.8)
-
-    def scrollingEEG(self, event):
-        width = self.ui.canvasEEG.frameGeometry().width()
-        s = event.x / width
-        if event.button == 'up':
-            self.ui.canvasEEG.scroll(s, 0.8)
-
     def updateEEG(self, file_path):
         data = open_csv_file(file_path)
         properties = analysis_eeg(data['eeg'])
 
         self.ui.canvasEEG.clear()
         self.ui.canvasEEG.plot(properties['time'], properties['filtered'])
+        self.ui.canvasEEG.save_data()
 
         self.ui.amplitudeAlphaLabel.setText(str(properties['spectrum']['amp']))
         self.ui.startTimeAlphaLabel.setText(str(properties['spectrum']['start_time']))
+
+    def changeScaleECG(self, event):
+        width = self.ui.canvasECG.frameGeometry().width()
+        s = event.x / width
+        print(event)
+        if event.button == 1 and event.dblclick:
+            self.ui.canvasECG.scale_up(s, 0.8)
+        elif event.button == 3:
+            self.ui.canvasECG.scale_down(s, 0.8)
+
+    def changeScaleEEG(self, event):
+        width = self.ui.canvasEEG.frameGeometry().width()
+        s = event.x / width
+        if event.button == 1 and event.dblclick:
+            self.ui.canvasEEG.scale_up(s, 0.8)
+        elif event.button == 3:
+            self.ui.canvasEEG.scale_down(s, 0.8)
+
+    def scrollingECG(self, event):
+        print(event)
+        self.ui.canvasECG.scroll(1 if event.button == 'up' else -1)
+
+    def scrollingEEG(self, event):
+        self.ui.canvasEEG.scroll(1 if event.button == 'up' else -1)
+
 
     def exit(self):
         users.to_csv('users.csv', index=False)

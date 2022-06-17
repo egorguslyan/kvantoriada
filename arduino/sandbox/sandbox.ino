@@ -6,7 +6,11 @@
     3) E*G2
 **               */
 
-#include "random_key.h"
+#if __has_include("random_key.h")
+    #include "random_key.h"
+#else
+    #error "Сгенерируйте ключ с помощью gen.bat или gen.sh"
+#endif
 
 #define ARR_SIZE 256
 #define GSR_TIME 5
@@ -185,7 +189,7 @@ void setup()
 void loop()
 {
     char S[10];
-    static uint32_t timer0, timer1;
+    static uint32_t timer0, timer1, timer2;
     volatile uint8_t gsr[ARR_SIZE], ecg[ARR_SIZE], eeg[ARR_SIZE];
     uint8_t i, btn, prevBtn;
 
@@ -201,6 +205,16 @@ void loop()
         timer1 = millis();
         control.toggle();
     }
+
+    control.enabled = GSR.enabled = ECG.enabled = EEG.enabled
+        = !(millis() - timer2 > ((uint32_t)(control.seconds0 + control.seconds1) * 1000));
+    if(!control.enabled)
+        control.disable();
+
+    btn = digitalRead(BTN);
+    if(btn && !prevBtn)
+        timer1 = timer2 = millis();
+    prevBtn = btn;
 
     GSR.pop(gsr);
     ECG.pop(ecg);
