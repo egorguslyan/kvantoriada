@@ -183,6 +183,12 @@ class Window(QtWidgets.QMainWindow):
             users.drop(index=[row], axis=0, inplace=True)
             users = users.reset_index(drop=True)
 
+            if len(users) > 0:
+                self.user = 0
+                self.updateCard()
+            else:
+                self.user = None
+
             self.updateTable()
             self.ui.table.selectionModel().clearCurrentIndex()
 
@@ -192,19 +198,20 @@ class Window(QtWidgets.QMainWindow):
         self.updateCard()
 
     def updateCard(self):
-        user = users.iloc[self.user]
-        self.ui.nameEdit.setText(user['name'])
-        self.ui.secondNameEdit.setText(user['secondName'])
-        self.ui.middleNameEdit.setText(user['middleName'])
-        date = QtCore.QDate.fromString(user['birthday'], 'dd.MM.yyyy')
-        self.ui.birthdayEdit.setDate(date)
-        self.ui.birthdayEdit.show()
-        self.updateAge()
-        self.ui.ecgFilesCombo.clear()
-        files = os.listdir(user['dir_path'])
-        if len(files) > 0:
-            self.ui.ecgFilesCombo.addItems(files)
-            self.ui.eegFilesCombo.addItems(files)
+        if self.user is not None:
+            user = users.iloc[self.user]
+            self.ui.nameEdit.setText(user['name'])
+            self.ui.secondNameEdit.setText(user['secondName'])
+            self.ui.middleNameEdit.setText(user['middleName'])
+            date = QtCore.QDate.fromString(user['birthday'], 'dd.MM.yyyy')
+            self.ui.birthdayEdit.setDate(date)
+            self.ui.birthdayEdit.show()
+            self.updateAge()
+            self.ui.ecgFilesCombo.clear()
+            files = os.listdir(user['dir_path'])
+            if len(files) > 0:
+                self.ui.ecgFilesCombo.addItems(files)
+                self.ui.eegFilesCombo.addItems(files)
 
         self.ui.canvasECG.clear()
 
