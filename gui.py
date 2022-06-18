@@ -31,6 +31,8 @@ class MplCanvas(FigureCanvas):
         self.begin = 0
         self.end = 0
 
+        self.fig.set_facecolor("#ffe6ea")
+
     def plot(self, x, y):
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
@@ -48,6 +50,9 @@ class MplCanvas(FigureCanvas):
         return self.data[0].get_ydata()
 
     def scale_up(self, s, ratio):
+        if self.begin is None or self.end is None:
+            return
+
         length = self.end - self.begin
         s = int(s * length)
         self.end = self.begin + min(length, int(s + length * ratio / 2))
@@ -57,6 +62,9 @@ class MplCanvas(FigureCanvas):
         self.save_ylim()
 
     def scale_down(self, s, ratio):
+        if self.begin is None or self.end is None:
+            return
+
         length = self.end - self.begin
         s = int(s * length)
 
@@ -67,6 +75,9 @@ class MplCanvas(FigureCanvas):
         self.save_ylim()
 
     def scroll(self, direction):
+        if self.begin is None or self.end is None:
+            return
+
         length = self.end - self.begin
         if direction == -1:
             delta_begin = min(self.begin, int(length * 0.1))
@@ -217,7 +228,7 @@ class Window(QtWidgets.QMainWindow):
 
     def updateTable(self):
         self.ui.table.clear()
-        self.ui.table.setHorizontalHeaderLabels(['', 'Спортсмен'])
+        # self.ui.table.setHorizontalHeaderLabels(['', 'Спортсмен'])
 
         if len(users) > 0:
             self.ui.table.setRowCount(len(users))
@@ -234,10 +245,10 @@ class Window(QtWidgets.QMainWindow):
         global users
 
         if self.ui.updateUserButton.text() == 'Изменить':
-            self.ui.secondNameEdit.setEnabled(True)
-            self.ui.nameEdit.setEnabled(True)
-            self.ui.middleNameEdit.setEnabled(True)
-            self.ui.birthdayEdit.setEnabled(True)
+            self.ui.secondNameEdit.setReadOnly(False)
+            self.ui.nameEdit.setReadOnly(False)
+            self.ui.middleNameEdit.setReadOnly(False)
+            self.ui.birthdayEdit.setReadOnly(False)
             self.ui.newUserButton.setEnabled(False)
             self.ui.deleteUserButton.setEnabled(False)
             self.ui.testButton.setEnabled(False)
@@ -245,10 +256,10 @@ class Window(QtWidgets.QMainWindow):
 
             self.ui.updateUserButton.setText('Сохранить')
         else:
-            self.ui.secondNameEdit.setEnabled(False)
-            self.ui.nameEdit.setEnabled(False)
-            self.ui.middleNameEdit.setEnabled(False)
-            self.ui.birthdayEdit.setEnabled(False)
+            self.ui.secondNameEdit.setReadOnly(True)
+            self.ui.nameEdit.setReadOnly(True)
+            self.ui.middleNameEdit.setReadOnly(True)
+            self.ui.birthdayEdit.setReadOnly(True)
             self.ui.newUserButton.setEnabled(True)
             self.ui.deleteUserButton.setEnabled(True)
             self.ui.testButton.setEnabled(True)
@@ -302,7 +313,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.haertRateLable.setText(str(properties['heart_rate']))
         self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
         self.ui.variabilityMinLable.setText(str(properties['variability']['min']))
-        self.ui.breathAmplitudeLable.setText(str(properties['breath']['amplitude']))
+        self.ui.breathAmplitudeLabel.setText(str(properties['breath']['amplitude']))
         self.ui.breathFreqLabel.setText(str(properties['breath']['freq']))
 
     def updateEEG(self, file_path):
@@ -337,7 +348,6 @@ class Window(QtWidgets.QMainWindow):
 
     def scrollingEEG(self, event):
         self.ui.canvasEEG.scroll(1 if event.button == 'up' else -1)
-
 
     def exit(self):
         users.to_csv('users.csv', index=False)
