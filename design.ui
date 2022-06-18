@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1102</width>
-    <height>583</height>
+    <width>783</width>
+    <height>461</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -306,8 +306,35 @@
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout">
-            <item row="1" column="2">
-             <widget class="QLabel" name="variabilityMaxLable">
+            <item row="1" column="3">
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Дыхание (амплитуда, частота): </string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>ЧСС:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="ResultLabel" name="haertRateLable">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -320,8 +347,36 @@ border-color: rgb(0, 0, 0);</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="haertRateLable">
+            <item row="2" column="1">
+             <widget class="ResultLabel" name="breathAmplitudeLable">
+              <property name="styleSheet">
+               <string notr="true">border-color: rgb(0, 0, 0);
+background-color: rgb(255, 255, 255);</string>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="text">
+               <string>цифры</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="ResultLabel" name="variabilityMaxLable">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="text">
+               <string>цифры</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="ResultLabel" name="breathFreqLabel">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -342,62 +397,7 @@ border-color: rgb(0, 0, 0);</string>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLabel" name="variabilityMinLable">
-              <property name="styleSheet">
-               <string notr="true">background-color: rgb(255, 255, 255);
-border-color: rgb(0, 0, 0);</string>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::Box</enum>
-              </property>
-              <property name="text">
-               <string>цифры</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
-             <spacer name="horizontalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>ЧСС:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Дыхание (амплитуда, частота): </string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLabel" name="breathAmplitudeLable">
-              <property name="styleSheet">
-               <string notr="true">border-color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);</string>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::Box</enum>
-              </property>
-              <property name="text">
-               <string>цифры</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QLabel" name="breathFreqLabel">
+             <widget class="ResultLabel" name="variabilityMinLable">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -459,7 +459,7 @@ border-color: rgb(0, 0, 0);</string>
           <item>
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="2" column="1">
-             <widget class="QLabel" name="startTimeAlphaLabel">
+             <widget class="ResultLabel" name="startTimeAlphaLabel">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -477,6 +477,9 @@ border-color: rgb(0, 0, 0);</string>
               <property name="text">
                <string>Время начала</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
              </widget>
             </item>
             <item row="1" column="0">
@@ -487,7 +490,7 @@ border-color: rgb(0, 0, 0);</string>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLabel" name="amplitudeAlphaLabel">
+             <widget class="ResultLabel" name="amplitudeAlphaLabel">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -515,7 +518,7 @@ border-color: rgb(0, 0, 0);</string>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
-                <height>20</height>
+                <height>0</height>
                </size>
               </property>
              </spacer>
@@ -551,6 +554,9 @@ border-color: rgb(0, 0, 0);</string>
               </property>
               <property name="text">
                <string>Подключить</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -588,6 +594,9 @@ border-color: rgb(0, 0, 0);</string>
              <widget class="QCheckBox" name="checkGSR">
               <property name="text">
                <string>Подключить</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -655,6 +664,9 @@ border-color: rgb(0, 0, 0);</string>
              <widget class="QCheckBox" name="checkECG">
               <property name="text">
                <string>Подключить</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -742,6 +754,13 @@ border-color: rgb(0, 0, 0);</string>
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ResultLabel</class>
+   <extends>QLabel</extends>
+   <header>resultlabel</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>secondNameEdit</tabstop>
   <tabstop>nameEdit</tabstop>
@@ -762,12 +781,12 @@ border-color: rgb(0, 0, 0);</string>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>726</x>
-     <y>94</y>
+     <x>1077</x>
+     <y>87</y>
     </hint>
     <hint type="destinationlabel">
-     <x>726</x>
-     <y>122</y>
+     <x>1077</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -798,8 +817,8 @@ border-color: rgb(0, 0, 0);</string>
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>627</x>
-     <y>152</y>
+     <x>562</x>
+     <y>141</y>
     </hint>
    </hints>
   </connection>
