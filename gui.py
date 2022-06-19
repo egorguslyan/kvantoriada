@@ -11,9 +11,10 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 from bluetooth_serial.read_serial import read
-from analysis.ecg_analiz import analysis_ecg
-from analysis.eeg_analiz import analysis_eeg
+from analysis.ecg_analysis import analysis_ecg
+from analysis.eeg_analysis import analysis_eeg
 from analysis.signal_analysis import open_csv_file
+from analysis.prediction import prediction
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
@@ -67,7 +68,6 @@ class MplCanvas(FigureCanvas):
 
         length = self.end - self.begin
         s = int(s * length)
-
         self.end = min(len(self.x), int(self.begin + s + length / ratio / 2))
         self.begin = max(0, int(self.begin + s - length / ratio / 2))
 
@@ -133,21 +133,23 @@ class Window(QtWidgets.QMainWindow):
                "колесико мыши - перемещение по оси времени"
 
         self.ui.canvasECG = MplCanvas()
-        self.ui.verticalLayout_3.addWidget(self.ui.canvasECG)
+        self.ui.horizontalLayout_18.addWidget(self.ui.canvasECG)
         self.ui.canvasECG.mpl_connect("button_press_event", self.changeScaleECG)
         self.ui.canvasECG.mpl_connect("scroll_event", self.scrollingECG)
         self.ui.canvasECG.setToolTip(hint)
 
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.ui.verticalLayout_3.addItem(spacerItem)
+        # spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        # self.ui.verticalLayout_3.addItem(spacerItem)
 
         self.ui.canvasEEG = MplCanvas()
-        self.ui.verticalLayout_5.addWidget(self.ui.canvasEEG)
+        self.ui.verticalLayout_6.addWidget(self.ui.canvasEEG)
         self.ui.canvasEEG.mpl_connect("button_press_event", self.changeScaleEEG)
         self.ui.canvasEEG.mpl_connect("scroll_event", self.scrollingEEG)
         self.ui.canvasEEG.setToolTip(hint)
 
-        self.ui.verticalLayout_5.addItem(spacerItem)
+        # self.ui.verticalLayout_5.addItem(spacerItem)
+
+        self.ui.btnPassword.clicked.connect(self.editingResult)
 
         if not users.empty:
             self.user = 0
@@ -226,6 +228,8 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.canvasECG.clear()
 
+        self.ui.breathFreqLabel.setEditable(False)
+
     def updateTable(self):
         self.ui.table.clear()
         # self.ui.table.setHorizontalHeaderLabels(['', 'Спортсмен'])
@@ -290,17 +294,19 @@ class Window(QtWidgets.QMainWindow):
         self.ui.eegFilesCombo.addItem(date)
 
         if read('COM6', file_path):
-            self.updateECG(file_path)
-            self.updateEEG(file_path)
+            self.analysis(file_path)
         else:
             self.ui.resultTextLable.setText("не удалось подключиться")
 
     def selectFile(self, text):
         dir_path = users.iloc[self.user]['dir_path']
         file_path = os.path.join(dir_path, text)
+        self.analysis(file_path)
 
-        self.updateECG(file_path)
-        self.updateEEG(file_path)
+    def analysis(self, file_path):
+        ecg = self.updateECG(file_path)
+        eeg = self.updateEEG(file_path)
+        prediction(ecg, eeg)
 
     def updateECG(self, file_path):
         data = open_csv_file(file_path)
@@ -316,6 +322,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.breathAmplitudeLabel.setText(str(properties['breath']['amplitude']))
         self.ui.breathFreqLabel.setText(str(properties['breath']['freq']))
 
+        return properties
+
     def updateEEG(self, file_path):
         data = open_csv_file(file_path)
         properties = analysis_eeg(data['eeg'])
@@ -326,6 +334,8 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.amplitudeAlphaLabel.setText(str(properties['spectrum']['amp']))
         self.ui.startTimeAlphaLabel.setText(str(properties['spectrum']['start_time']))
+
+        return properties
 
     def changeScaleECG(self, event):
         width = self.ui.canvasECG.frameGeometry().width()
@@ -348,6 +358,9 @@ class Window(QtWidgets.QMainWindow):
 
     def scrollingEEG(self, event):
         self.ui.canvasEEG.scroll(1 if event.button == 'up' else -1)
+
+    def editingResult(self):
+        self.ui.breathFreqLabel.setEditable(True)
 
     def exit(self):
         users.to_csv('users.csv', index=False)

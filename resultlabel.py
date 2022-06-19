@@ -6,20 +6,33 @@ class ResultLabel(QtWidgets.QLabel):
         super().__init__()
         self.color = 1
         self.setStyleSheet("QLabel { background-color : white; }")
-        self.colors__ = ['blue', 'green', 'red']
+        self.__colors = ['#5555ff', '#89ad3b', '#c73636']
+        self.__results = {
+            'good': 1,
+            'depressed': 0,
+            'excited': 2
+        }
+
+        self.isEditable = False
 
     def mouseDoubleClickEvent(self, event):
         print(event.button())
 
     def wheelEvent(self, event):
-        print(event.angleDelta().y())
-        if event.angleDelta().y() == 120:
-            self.color += 1
-        else:
-            self.color -= 1
+        if self.isEditable:
+            if event.angleDelta().y() == 120:
+                self.color += 1
+            else:
+                self.color -= 1
 
-        self.color %= 3
-        self.set_background_color()
+            self.color %= 3
+            self.set_background_color()
+
+    def setEditable(self, mode):
+        self.isEditable = mode
+
+    def setColor(self, result):
+        self.color = self.__results[result]
 
     def set_background_color(self):
-        self.setStyleSheet("QLabel { background-color : " + self.colors__[self.color] + "; }")
+        self.setStyleSheet("QLabel { background-color : " + self.__colors[self.color] + "; }")

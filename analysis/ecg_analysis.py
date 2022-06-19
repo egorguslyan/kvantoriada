@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from analysis.signal_analysis import *
 
 FILE_PATH = "datasets/1/Semyon/datasCalmEKG_1.txt"
@@ -101,13 +100,12 @@ def find_breath_freq(data):
     return points
 
 
-
 def analysis_ecg(ecg):
     properties = {}
     t = get_time(len(ecg), RATE)
     properties['time'] = t
     ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
-    freq, x = get_spectrum(0, 7, ecg_filtered)
+    # freq, x = get_spectrum(0, 7, ecg_filtered)
 
     g, r_old = find_r_peak(15, 8, RATIO, ecg_filtered)
     var = [r_old[i] - r_old[i - 1] for i in range(1, len(r_old))]
@@ -122,6 +120,7 @@ def analysis_ecg(ecg):
         properties["variability"] = {
             "min": int(min(var)),
             "max": int(max(var)),
+            "var": var
         }
 
         breath = [g[i] for i in r_old]
@@ -134,18 +133,20 @@ def analysis_ecg(ecg):
             "max": int(max_breath),
             "min": int(min_breath),
             "amplitude": int(ampl_breath),
-            'freq': int(freq_breath)
+            "freq": int(freq_breath)
         }
     else:
         properties["heart_rate"] = 0
         properties["variability"] = {
             "min": 0,
             "max": 0,
+            "var": [0]
         }
         properties["breath"] = {
             "max": 0,
             "min": 0,
-            "amplitude": 0
+            "amplitude": 0,
+            "freq": 0
         }
 
     return properties
