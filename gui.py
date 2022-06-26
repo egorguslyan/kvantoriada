@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QTableWidgetItem
 from design import Ui_MainWindow
 import sys
@@ -60,7 +60,7 @@ class MplCanvas(FigureCanvas):
         self.begin = self.begin + max(0, int(s - length * ratio / 2))
 
         self.plot(self.x[self.begin:self.end], self.y[self.begin:self.end])
-        self.save_ylim()
+        self.set_ylim()
 
     def scale_down(self, s, ratio):
         if self.begin is None or self.end is None:
@@ -72,7 +72,7 @@ class MplCanvas(FigureCanvas):
         self.begin = max(0, int(self.begin + s - length / ratio / 2))
 
         self.plot(self.x[self.begin:self.end], self.y[self.begin:self.end])
-        self.save_ylim()
+        self.set_ylim()
 
     def scroll(self, direction):
         if self.begin is None or self.end is None:
@@ -93,10 +93,13 @@ class MplCanvas(FigureCanvas):
         self.end += direction * min(delta_end, delta_begin)
 
         self.plot(self.x[self.begin:self.end], self.y[self.begin:self.end])
-        self.save_ylim()
+        self.set_ylim()
 
-    def save_ylim(self):
-        self.ax.set_ylim(min(self.y), max(self.y))
+    def set_ylim(self):
+        min_value = min(self.y)
+        max_value = max(self.y)
+        amplitude = max_value - min_value
+        self.ax.set_ylim(min_value - amplitude * 0.1, max_value + amplitude * 0.1)
         self.draw()
 
     def save_data(self):
@@ -133,7 +136,7 @@ class Window(QtWidgets.QMainWindow):
                "колесико мыши - перемещение по оси времени"
 
         self.ui.canvasECG = MplCanvas()
-        self.ui.horizontalLayout_18.addWidget(self.ui.canvasECG)
+        self.ui.verticalLayout_8.addWidget(self.ui.canvasECG)
         self.ui.canvasECG.mpl_connect("button_press_event", self.changeScaleECG)
         self.ui.canvasECG.mpl_connect("scroll_event", self.scrollingECG)
         self.ui.canvasECG.setToolTip(hint)
@@ -142,7 +145,7 @@ class Window(QtWidgets.QMainWindow):
         # self.ui.verticalLayout_3.addItem(spacerItem)
 
         self.ui.canvasEEG = MplCanvas()
-        self.ui.verticalLayout_6.addWidget(self.ui.canvasEEG)
+        self.ui.verticalLayout_7.addWidget(self.ui.canvasEEG)
         self.ui.canvasEEG.mpl_connect("button_press_event", self.changeScaleEEG)
         self.ui.canvasEEG.mpl_connect("scroll_event", self.scrollingEEG)
         self.ui.canvasEEG.setToolTip(hint)
@@ -315,6 +318,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasECG.clear()
         self.ui.canvasECG.plot(properties['time'], data['ecg'])
         self.ui.canvasECG.save_data()
+        self.ui.canvasECG.set_ylim()
 
         self.ui.haertRateLable.setText(str(properties['heart_rate']))
         self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
@@ -331,6 +335,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasEEG.clear()
         self.ui.canvasEEG.plot(properties['time'], properties['filtered'])
         self.ui.canvasEEG.save_data()
+        self.ui.canvasEEG.set_ylim()
 
         self.ui.amplitudeAlphaLabel.setText(str(properties['spectrum']['amp']))
         self.ui.startTimeAlphaLabel.setText(str(properties['spectrum']['start_time']))

@@ -1075,7 +1075,7 @@ border-color: rgb(0, 0, 0);</string>
              <enum>QTabWidget::Triangular</enum>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <property name="documentMode">
              <bool>false</bool>
@@ -1084,21 +1084,12 @@ border-color: rgb(0, 0, 0);</string>
              <attribute name="title">
               <string>ЭКГ</string>
              </attribute>
-             <layout class="QHBoxLayout" name="horizontalLayout_18">
-              <item>
-               <widget class="QGraphicsView" name="graphicsView_3">
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(255, 255, 255);</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <layout class="QVBoxLayout" name="verticalLayout_8"/>
             </widget>
             <widget class="QWidget" name="tab_5">
              <attribute name="title">
               <string>Гистограмма</string>
              </attribute>
-             <layout class="QHBoxLayout" name="horizontalLayout_17"/>
             </widget>
            </widget>
           </item>
@@ -1169,16 +1160,6 @@ border-color: rgb(0, 0, 0);</string>
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="1" column="1">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Амплитуда:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="2">
              <layout class="QHBoxLayout" name="horizontalLayout_15">
               <item>
@@ -1203,6 +1184,26 @@ border-color: rgb(0, 0, 0);</string>
                </widget>
               </item>
              </layout>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Время начала:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Амплитуда:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
             </item>
             <item row="2" column="2">
              <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -1229,8 +1230,8 @@ border-color: rgb(0, 0, 0);</string>
               </item>
              </layout>
             </item>
-            <item row="1" column="3">
-             <spacer name="horizontalSpacer_7">
+            <item row="1" column="0">
+             <spacer name="horizontalSpacer_9">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -1242,18 +1243,8 @@ border-color: rgb(0, 0, 0);</string>
               </property>
              </spacer>
             </item>
-            <item row="2" column="1">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Время начала:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <spacer name="horizontalSpacer_9">
+            <item row="1" column="3">
+             <spacer name="horizontalSpacer_7">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -1282,21 +1273,13 @@ border-color: rgb(0, 0, 0);</string>
              <attribute name="title">
               <string>ЭЭГ</string>
              </attribute>
-             <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+             <layout class="QVBoxLayout" name="verticalLayout_7"/>
             </widget>
             <widget class="QWidget" name="tab_3">
              <attribute name="title">
               <string>Спектр</string>
              </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_6">
-              <item>
-               <widget class="QGraphicsView" name="graphicsView">
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(255, 255, 255);</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <layout class="QVBoxLayout" name="verticalLayout_6"/>
             </widget>
            </widget>
           </item>
