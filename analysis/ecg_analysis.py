@@ -105,24 +105,28 @@ def variability(var):
     min_value = min(var)
     amplitude = max_value - min_value
 
-    step = amplitude / 10
+    step = 50
 
-    hist = [0] * (int(2000 / step) + 1)
+    hist = [0] * (int(2000 / step))
     for e in var:
         hist[int(e / step)] += 1
 
     amo = max(hist)
     mo = step * (hist.index(amo))
     amo = amo * 100 / len(var)
-    index_baevskogo = amo / (2 * mo * amplitude / 10 ** 6)
+    if mo * amplitude != 0:
+        index_baevskogo = amo / (2 * mo * amplitude / 10 ** 6)
+    else:
+        index_baevskogo = 0
 
     return {
+        'histogram': hist,
         'min': int(min_value),
         'max': int(max_value),
-        'amplitude': amplitude,
+        'amplitude': int(amplitude),
         'amo': amo,
         'mo': mo,
-        'index': index_baevskogo
+        'index': int(index_baevskogo)
     }
 
 
@@ -159,11 +163,7 @@ def analysis_ecg(ecg):
         }
     else:
         properties["heart_rate"] = 0
-        properties["variability"] = {
-            "min": 0,
-            "max": 0,
-            "var": [0]
-        }
+        properties["variability"] = variability([0] * 2)
         properties["breath"] = {
             "max": 0,
             "min": 0,

@@ -6,7 +6,11 @@ import pandas as pd
 
 def open_csv_file(file_path):
     if not os.path.exists(file_path):
-        return pd.DataFrame([[0] * 512, [0] * 512, [0] * 512], columns=['ecg', 'eeg', 'gsr'])
+        return {
+            'ecg': [0] * 512,
+            'eeg': [0] * 512,
+            'gsr': [0] * 512
+        }
     data = pd.read_csv(file_path, delimiter=',')
     data = data.iloc[0]
     ecg = list(map(lambda x: int(x) - 128, data['ecg'].split()))

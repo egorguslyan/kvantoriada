@@ -34,6 +34,12 @@ class MplCanvas(FigureCanvas):
 
         self.fig.set_facecolor("#ffe6ea")
 
+        hint = "двойной клик - приближение\n" \
+               "правый клик - отдаление\n" \
+               "колесико мыши - перемещение по оси времени"
+
+        self.setToolTip(hint)
+
     def plot(self, x, y):
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
@@ -131,26 +137,18 @@ class Window(QtWidgets.QMainWindow):
         self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
         self.ui.eegFilesCombo.activated[str].connect(self.selectFile)
 
-        hint = "двойной клик - приближение\n" \
-               "правый клик - отдаление\n" \
-               "колесико мыши - перемещение по оси времени"
-
         self.ui.canvasECG = MplCanvas()
         self.ui.verticalLayout_8.addWidget(self.ui.canvasECG)
         self.ui.canvasECG.mpl_connect("button_press_event", self.changeScaleECG)
         self.ui.canvasECG.mpl_connect("scroll_event", self.scrollingECG)
-        self.ui.canvasECG.setToolTip(hint)
-
-        # spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        # self.ui.verticalLayout_3.addItem(spacerItem)
 
         self.ui.canvasEEG = MplCanvas()
         self.ui.verticalLayout_7.addWidget(self.ui.canvasEEG)
         self.ui.canvasEEG.mpl_connect("button_press_event", self.changeScaleEEG)
         self.ui.canvasEEG.mpl_connect("scroll_event", self.scrollingEEG)
-        self.ui.canvasEEG.setToolTip(hint)
 
-        # self.ui.verticalLayout_5.addItem(spacerItem)
+        self.ui.canvasVar = MplCanvas()
+        self.ui.verticalLayout_10.addWidget(self.ui.canvasVar)
 
         self.ui.btnPassword.clicked.connect(self.editingResult)
 
@@ -320,9 +318,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasECG.save_data()
         self.ui.canvasECG.set_ylim()
 
+        self.ui.canvasVar.plot(range(0, 2000, 50), properties['variability']['histogram'])
+
         self.ui.haertRateLable.setText(str(properties['heart_rate']))
-        self.ui.variabilityMaxLable.setText(str(properties['variability']['max']))
-        self.ui.variabilityMinLable.setText(str(properties['variability']['min']))
+        self.ui.variabilityAmplitudeLable.setText(str(properties['variability']['amplitude']))
+        self.ui.variabilityIndexLable.setText(str(properties['variability']['index']))
         self.ui.breathAmplitudeLabel.setText(str(properties['breath']['amplitude']))
         self.ui.breathFreqLabel.setText(str(properties['breath']['freq']))
 
