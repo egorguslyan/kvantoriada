@@ -34,8 +34,8 @@ class MplCanvas(FigureCanvas):
 
         self.fig.set_facecolor("#ffe6ea")
 
-        hint = "двойной клик - приближение\n" \
-               "правый клик - отдаление\n" \
+        hint = "двойной левый клик - приближение\n" \
+               "двойной правый клик - отдаление\n" \
                "колесико мыши - перемещение по оси времени"
 
         self.setToolTip(hint)
@@ -114,6 +114,17 @@ class MplCanvas(FigureCanvas):
         self.begin = 0
         self.end = len(self.x)
 
+    def mouseDoubleClickEvent(self, event):
+        width = self.frameGeometry().width()
+        s = event.x() / width
+        if event.button() == 1:
+            self.scale_up(s, 0.8)
+        elif event.button() == 2:
+            self.scale_down(s, 0.8)
+
+    def wheelEvent(self, event):
+        self.scroll(1 if event.angleDelta().y() == 120 else -1)
+
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -139,13 +150,9 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.canvasECG = MplCanvas()
         self.ui.verticalLayout_8.addWidget(self.ui.canvasECG)
-        self.ui.canvasECG.mpl_connect("button_press_event", self.changeScaleECG)
-        self.ui.canvasECG.mpl_connect("scroll_event", self.scrollingECG)
 
         self.ui.canvasEEG = MplCanvas()
         self.ui.verticalLayout_7.addWidget(self.ui.canvasEEG)
-        self.ui.canvasEEG.mpl_connect("button_press_event", self.changeScaleEEG)
-        self.ui.canvasEEG.mpl_connect("scroll_event", self.scrollingEEG)
 
         self.ui.canvasVar = MplCanvas()
         self.ui.verticalLayout_10.addWidget(self.ui.canvasVar)
@@ -318,7 +325,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasECG.save_data()
         self.ui.canvasECG.set_ylim()
 
+        self.ui.canvasVar.clear()
         self.ui.canvasVar.plot(range(0, 2000, 50), properties['variability']['histogram'])
+        self.ui.canvasVar.save_data()
+        self.ui.canvasVar.set_ylim()
 
         self.ui.haertRateLable.setText(str(properties['heart_rate']))
         self.ui.variabilityAmplitudeLable.setText(str(properties['variability']['amplitude']))
