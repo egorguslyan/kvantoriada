@@ -13,6 +13,8 @@ class ResultLabel(QtWidgets.QLabel):
             'excited': 2
         }
 
+        self.__cnt = 0
+
         self.isEditable = False
 
     def mouseDoubleClickEvent(self, event):
@@ -20,6 +22,10 @@ class ResultLabel(QtWidgets.QLabel):
 
     def wheelEvent(self, event):
         if self.isEditable:
+            if self.__cnt < 5:
+                self.__cnt += 1
+                return
+            self.__cnt = 0
             if event.angleDelta().y() == 120:
                 self.color += 1
             else:

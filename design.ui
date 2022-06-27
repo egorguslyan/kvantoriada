@@ -860,6 +860,9 @@ alternate-background-color: rgb(170, 85, 255);</string>
               <property name="sizeAdjustPolicy">
                <enum>QComboBox::AdjustToContents</enum>
               </property>
+              <property name="frame">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item>

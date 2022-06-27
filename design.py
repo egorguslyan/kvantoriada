@@ -334,6 +334,7 @@ class Ui_MainWindow(object):
         self.ecgFilesCombo.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "")
         self.ecgFilesCombo.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToContents)
+        self.ecgFilesCombo.setFrame(True)
         self.ecgFilesCombo.setObjectName("ecgFilesCombo")
         self.horizontalLayout_3.addWidget(self.ecgFilesCombo)
         spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)

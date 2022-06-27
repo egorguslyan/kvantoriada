@@ -12,7 +12,7 @@ def prediction(ecg, eeg):
         res += 0.2
     print('alpha',  eeg['spectrum']['start_time'])
 
-    if ecg['variability']['index'] > 150:
+    if ecg['variability']['index'] > 120:
         res += 0.2
     print('Variability', ecg['variability']['index'], ecg['variability']['amo'], ecg['variability']['mo'])
     print('RESULT', res)
