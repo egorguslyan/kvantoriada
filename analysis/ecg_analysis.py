@@ -100,6 +100,32 @@ def find_breath_freq(data):
     return points
 
 
+def variability(var):
+    max_value = max(var)
+    min_value = min(var)
+    amplitude = max_value - min_value
+
+    step = amplitude / 10
+
+    hist = [0] * (int(2000 / step) + 1)
+    for e in var:
+        hist[int(e / step)] += 1
+
+    amo = max(hist)
+    mo = step * (hist.index(amo))
+    amo = amo * 100 / len(var)
+    index_baevskogo = amo / (2 * mo * amplitude / 10 ** 6)
+
+    return {
+        'min': int(min_value),
+        'max': int(max_value),
+        'amplitude': amplitude,
+        'amo': amo,
+        'mo': mo,
+        'index': index_baevskogo
+    }
+
+
 def analysis_ecg(ecg):
     properties = {}
     t = get_time(len(ecg), RATE)
@@ -117,11 +143,7 @@ def analysis_ecg(ecg):
         properties["heart_rate"] = int(len(r_new) * (60 / t[-1]))
         var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
 
-        properties["variability"] = {
-            "min": int(min(var)),
-            "max": int(max(var)),
-            "var": var
-        }
+        properties["variability"] = variability(var)
 
         breath = [g[i] for i in r_old]
         max_breath = max(breath)

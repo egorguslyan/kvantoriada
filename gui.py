@@ -309,7 +309,7 @@ class Window(QtWidgets.QMainWindow):
     def analysis(self, file_path):
         ecg = self.updateECG(file_path)
         eeg = self.updateEEG(file_path)
-        prediction(ecg, eeg)
+        self.ui.resultTextLable.setText(prediction(ecg, eeg))
 
     def updateECG(self, file_path):
         data = open_csv_file(file_path)
