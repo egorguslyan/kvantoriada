@@ -4,7 +4,7 @@
 /* После изменения стандартных значений времени
    нужно обязательно запустить gen.bat или gen.sh */
 #define GSR_TIME 5
-#define ECG_TIME 20
+#define ECG_TIME 10
 
 #include <EEPROM.h>
 /*    Mem map    **
@@ -185,7 +185,11 @@ void setup()
     noInterrupts();
     timer0_millis = GSR_T + ECG_T;
     interrupts();
-    Serial.begin(9600);
+    Serial.begin(38400);
+    control.disable();
+    GSR.enabled =
+    ECG.enabled =
+    EEG.enabled = 0;
     delay(10);
 }
 
@@ -213,6 +217,8 @@ void loop()
     control.enabled = !(millis() - timer2 > (GSR_T + ECG_T));
     if(!control.enabled)
     {
+        if(GSR.enabled || ECG.enabled || EEG.enabled)
+            Serial.print('f');
         control.disable();
         GSR.enabled =
         ECG.enabled =
@@ -227,10 +233,10 @@ void loop()
 
     btn = digitalRead(BTN);
     if(btn && !prevBtn)
-        timer1 = timer2 = millis();
+            timer1 = timer2 = millis();
     prevBtn = btn;
 
-    if(millis() - timer3 > 1)
+    if(millis() - timer3 > 5)
     {
         timer3 = millis();
         digitalWrite(13, HIGH);
