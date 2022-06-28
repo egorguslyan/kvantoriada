@@ -51,8 +51,6 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasVar = MplCanvas()
         self.ui.verticalLayout_10.addWidget(self.ui.canvasVar)
 
-        self.ui.btnPassword.clicked.connect(self.editingResult)
-
         if not users.empty:
             self.user = 0
             self.updateCard()
@@ -80,9 +78,9 @@ class Window(QtWidgets.QMainWindow):
         os.mkdir(dir_path)
 
         user = [
-            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path]
+            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path, 'None']
         ]
-        user = pd.DataFrame(user, columns=['name', 'secondName', 'middleName', 'birthday', 'dir_path'])
+        user = pd.DataFrame(user, columns=['name', 'secondName', 'middleName', 'birthday', 'dir_path', 'password'])
         users = pd.concat([users, user], ignore_index=True)
 
         self.updateTable()
@@ -128,9 +126,20 @@ class Window(QtWidgets.QMainWindow):
                 self.ui.ecgFilesCombo.addItems(files)
                 self.ui.eegFilesCombo.addItems(files)
 
-        self.ui.canvasECG.clear()
+            self.ui.btnPassword.clicked.connect(self.editingResult)
+            self.ui.btnPassword.clicked.disconnect()
 
-        self.ui.breathFreqLabel.setEditable(False)
+            if user['password'] != 'None':
+                self.ui.btnPassword.clicked.connect(self.editingResult)
+                self.ui.btnPassword.setText('Войти')
+            else:
+                self.ui.btnPassword.clicked.connect(self.createPassword)
+                self.ui.btnPassword.setText('Создать')
+
+        self.ui.canvasECG.clear()
+        self.ui.canvasEEG.clear()
+        self.ui.canvasVar.clear()
+        self.changeEditingLabel(False)
 
     def updateTable(self):
         self.ui.table.clear()
@@ -224,7 +233,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasVar.save_data()
         self.ui.canvasVar.set_ylim()
 
-        self.ui.haertRateLable.setText(str(properties['heart_rate']))
+        self.ui.heartRateLable.setText(str(properties['heart_rate']))
         self.ui.variabilityAmplitudeLable.setText(str(properties['variability']['amplitude']))
         self.ui.variabilityIndexLable.setText(str(properties['variability']['index']))
         self.ui.breathAmplitudeLabel.setText(str(properties['breath']['amplitude']))
@@ -268,8 +277,49 @@ class Window(QtWidgets.QMainWindow):
     def scrollingEEG(self, event):
         self.ui.canvasEEG.scroll(1 if event.button == 'up' else -1)
 
+    def changeEditingLabel(self, flag):
+        # self.ui.heartRateLable.setEditable(flag)
+        # self.ui.variabilityAmplitudeLable.setEditable(flag)
+        # self.ui.variabilityIndexLable.setEditable(flag)
+        # self.ui.breathFreqLabel.setEditable(flag)
+        # self.ui.breathAmplitudeLabel.setEditable(flag)
+        #
+        # self.ui.startTimeAlphaLabel.setEditable(flag)
+        # self.ui.amplitudeAlphaLabel.setEditable(flag)
+        self.ui.resultTextLable.setEditable(flag)
+
+    def editingMode(self):
+        self.changeEditingLabel(True)
+
     def editingResult(self):
-        self.ui.breathFreqLabel.setEditable(True)
+        user = users.iloc[self.user]
+
+        if self.ui.password.text() == user['password']:
+            self.editingMode()
+        else:
+            self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
+
+        self.ui.password.setText('')
+
+    def createPassword(self):
+        user = users.iloc[self.user]
+        if user['password'] == 'None':
+            if self.ui.password.text() != '':
+                user['password'] = self.ui.password.text()
+                users.at[self.user] = user
+                self.ui.btnPassword.setText('Подтвердить')
+            else:
+                self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
+        else:
+            if user['password'] == self.ui.password.text():
+                self.ui.btnPassword.clicked.disconnect()
+                self.ui.btnPassword.clicked.connect(self.editingResult)
+                self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
+                self.ui.btnPassword.setText('Войти')
+            else:
+                self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
+
+        self.ui.password.setText('')
 
     def exit(self):
         users.to_csv('users.csv', index=False)
