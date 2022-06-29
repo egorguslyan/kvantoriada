@@ -54,8 +54,9 @@ class Window(QtWidgets.QMainWindow):
         self.ui.saveButton = QtWidgets.QPushButton(self.ui.centralwidget)
         self.ui.saveButton.setStyleSheet("background-color: #e1a91a;")
         self.ui.saveButton.setObjectName("saveButton")
-        self.ui.saveButton.setText('Сохранить изменения')
+        self.ui.saveButton.setText('Сохранить')
         self.ui.saveButton.setVisible(False)
+        self.ui.saveButton.clicked.connect(self.saveChanges)
         self.ui.horizontalLayout_9.insertWidget(2, self.ui.saveButton)
 
         if not users.empty:
@@ -140,8 +141,10 @@ class Window(QtWidgets.QMainWindow):
             self.ui.ecgFilesCombo.clear()
             files = os.listdir(user['dir_path'])
             if len(files) > 0:
-                self.ui.ecgFilesCombo.addItems(files)
-                self.ui.eegFilesCombo.addItems(files)
+                for file in files:
+                    if file.find('r_') == -1:
+                        self.ui.ecgFilesCombo.addItem(file)
+                        self.ui.eegFilesCombo.addItem(file)
 
             self.ui.btnPassword.clicked.connect(self.editingResult)
             self.ui.btnPassword.clicked.disconnect()
@@ -162,6 +165,9 @@ class Window(QtWidgets.QMainWindow):
         self.file_path = None
         self.ui.saveButton.setVisible(False)
         self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
+
+        self.ui.tab.setStyleSheet("background-color: rgb(255, 230, 234);\n"
+                                  "alternate-background-color: rgb(170, 85, 255);")
 
     def clearLabels(self):
         self.ui.heartRateLabel.clear()
@@ -280,6 +286,21 @@ class Window(QtWidgets.QMainWindow):
         user['last_result'] = status['result']['text']
         users.at[self.user] = user
 
+        self.makeResultFile(file_path)
+
+    def makeResultFile(self, file_path):
+        result = [
+            ['heart_rate', self.ui.heartRateLabel.color, self.ui.heartRateLabel.text()],
+            ['breath_freq', self.ui.breathFreqLabel.color, self.ui.breathFreqLabel.text()],
+            ['variability_index', self.ui.variabilityIndexLabel.color, self.ui.variabilityIndexLabel.text()],
+            ['start_time', self.ui.startTimeAlphaLabel.color, self.ui.startTimeAlphaLabel.text()],
+            ['result', self.ui.resultTextLabel.color, '']
+        ]
+        result_table = pd.DataFrame(result, columns=['ind', 'result', 'value'])
+        dir_path, file = os.path.split(file_path)
+        # print(os.path.join(dir_path, 'r_' + file))
+        result_table.to_csv(os.path.join(dir_path, 'r_' + file), index=False)
+
     def updateECG(self, file_path):
         data = open_csv_file(file_path)
         properties = analysis_ecg(data['ecg'])
@@ -329,8 +350,14 @@ class Window(QtWidgets.QMainWindow):
         self.ui.resultTextLabel.setEditable(flag)
 
     def editingMode(self):
+        self.ui.tab.setStyleSheet("background-color: rgb(255, 196, 197);\n"
+                                  "alternate-background-color: rgb(170, 85, 255);")
         self.changeEditingLabel(True)
         self.ui.saveButton.setVisible(True)
+
+    def saveChanges(self):
+        print('save')
+        self.makeResultFile(self.file_path)
 
     def editingResult(self):
         user = users.iloc[self.user]
