@@ -351,9 +351,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_12.setObjectName("horizontalLayout_12")
         self.variabilityIndexLabel = ResultLabel(self.ecg)
+        self.variabilityIndexLabel.setMinimumSize(QtCore.QSize(30, 0))
+        self.variabilityIndexLabel.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         self.variabilityIndexLabel.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "border-color: rgb(0, 0, 0);")
         self.variabilityIndexLabel.setFrameShape(QtWidgets.QFrame.Box)
+        self.variabilityIndexLabel.setOpenExternalLinks(False)
         self.variabilityIndexLabel.setObjectName("variabilityIndexLabel")
         self.horizontalLayout_12.addWidget(self.variabilityIndexLabel)
         self.label_15 = QtWidgets.QLabel(self.ecg)
@@ -365,9 +368,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.heartRateLabel = ResultLabel(self.ecg)
+        self.heartRateLabel.setMinimumSize(QtCore.QSize(30, 0))
         self.heartRateLabel.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "border-color: rgb(0, 0, 0);")
         self.heartRateLabel.setFrameShape(QtWidgets.QFrame.Box)
+        self.heartRateLabel.setText("")
         self.heartRateLabel.setObjectName("heartRateLabel")
         self.horizontalLayout.addWidget(self.heartRateLabel)
         self.label_13 = QtWidgets.QLabel(self.ecg)
@@ -381,6 +386,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_14 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_14.setObjectName("horizontalLayout_14")
         self.breathFreqLabel = ResultLabel(self.ecg)
+        self.breathFreqLabel.setMinimumSize(QtCore.QSize(30, 0))
         self.breathFreqLabel.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "border-color: rgb(0, 0, 0);")
         self.breathFreqLabel.setFrameShape(QtWidgets.QFrame.Box)
@@ -402,6 +408,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_13 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_13.setObjectName("horizontalLayout_13")
         self.breathAmplitudeLabel = ResultLabel(self.ecg)
+        self.breathAmplitudeLabel.setMinimumSize(QtCore.QSize(30, 0))
         self.breathAmplitudeLabel.setStyleSheet("border-color: rgb(0, 0, 0);\n"
 "background-color: rgb(255, 255, 255);")
         self.breathAmplitudeLabel.setFrameShape(QtWidgets.QFrame.Box)
@@ -414,6 +421,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_11.setObjectName("horizontalLayout_11")
         self.variabilityAmplitudeLabel = ResultLabel(self.ecg)
+        self.variabilityAmplitudeLabel.setMinimumSize(QtCore.QSize(30, 0))
         self.variabilityAmplitudeLabel.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "border-color: rgb(0, 0, 0);")
         self.variabilityAmplitudeLabel.setFrameShape(QtWidgets.QFrame.Box)
@@ -479,6 +487,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_15 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_15.setObjectName("horizontalLayout_15")
         self.amplitudeAlphaLabel = ResultLabel(self.eeg)
+        self.amplitudeAlphaLabel.setMinimumSize(QtCore.QSize(30, 0))
         self.amplitudeAlphaLabel.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "border-color: rgb(0, 0, 0);")
         self.amplitudeAlphaLabel.setFrameShape(QtWidgets.QFrame.Box)
@@ -499,6 +508,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_16 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_16.setObjectName("horizontalLayout_16")
         self.startTimeAlphaLabel = ResultLabel(self.eeg)
+        self.startTimeAlphaLabel.setMinimumSize(QtCore.QSize(30, 0))
         self.startTimeAlphaLabel.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "border-color: rgb(0, 0, 0);")
         self.startTimeAlphaLabel.setFrameShape(QtWidgets.QFrame.Box)
@@ -692,11 +702,10 @@ class Ui_MainWindow(object):
         self.repeatButton.setText(_translate("MainWindow", "Повторить"))
         self.tab.setTabText(self.tab.indexOf(self.card), _translate("MainWindow", "Карточка"))
         self.label_20.setText(_translate("MainWindow", "Выберите файл"))
-        self.variabilityIndexLabel.setText(_translate("MainWindow", "цифры"))
+        self.variabilityIndexLabel.setText(_translate("MainWindow", "qq"))
         self.label_15.setText(_translate("MainWindow", "у.е."))
-        self.heartRateLabel.setText(_translate("MainWindow", "цифры"))
         self.label_13.setText(_translate("MainWindow", "уд/мин"))
-        self.label_5.setText(_translate("MainWindow", "Вариабельность (амплитуда, индекс Баевского):"))
+        self.label_5.setText(_translate("MainWindow", "Вариабельность (амплитуда, стресс-индекс):"))
         self.breathFreqLabel.setText(_translate("MainWindow", "цифры"))
         self.label_17.setText(_translate("MainWindow", "вд/мин"))
         self.label_6.setText(_translate("MainWindow", "Дыхание (амплитуда, частота): "))

@@ -78,9 +78,17 @@ class Window(QtWidgets.QMainWindow):
         os.mkdir(dir_path)
 
         user = [
-            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path, 'None']
+            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path, 'None', '']
         ]
-        user = pd.DataFrame(user, columns=['name', 'secondName', 'middleName', 'birthday', 'dir_path', 'password'])
+        user = pd.DataFrame(user, columns=[
+            'name',
+            'secondName',
+            'middleName',
+            'birthday',
+            'dir_path',
+            'password',
+            'last_result'
+        ])
         users = pd.concat([users, user], ignore_index=True)
 
         self.updateTable()
@@ -170,6 +178,12 @@ class Window(QtWidgets.QMainWindow):
                 )
                 self.ui.table.setItem(i, 1, name)
 
+                result = QTableWidgetItem(user['last_result'])
+                result.setFlags(
+                    QtCore.Qt.ItemIsEnabled
+                )
+                self.ui.table.setItem(i, 0, result)
+
     def updateUser(self):
         global users
 
@@ -241,6 +255,16 @@ class Window(QtWidgets.QMainWindow):
         self.ui.variabilityIndexLabel.setColor(status['variability']['index'])
         
         self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
+
+        result = QTableWidgetItem(status['result']['text'])
+        result.setFlags(
+            QtCore.Qt.ItemIsEnabled
+        )
+        self.ui.table.setItem(self.user, 0, result)
+
+        user = users.iloc[self.user]
+        user['last_result'] = status['result']['text']
+        users.at[self.user] = user
 
     def updateECG(self, file_path):
         data = open_csv_file(file_path)

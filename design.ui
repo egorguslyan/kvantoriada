@@ -896,6 +896,15 @@ alternate-background-color: rgb(170, 85, 255);</string>
              <layout class="QHBoxLayout" name="horizontalLayout_12">
               <item>
                <widget class="ResultLabel" name="variabilityIndexLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>30</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::NoContextMenu</enum>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -904,7 +913,10 @@ border-color: rgb(0, 0, 0);</string>
                  <enum>QFrame::Box</enum>
                 </property>
                 <property name="text">
-                 <string>цифры</string>
+                 <string>qq</string>
+                </property>
+                <property name="openExternalLinks">
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -934,6 +946,12 @@ border-color: rgb(0, 0, 0);</string>
              <layout class="QHBoxLayout" name="horizontalLayout">
               <item>
                <widget class="ResultLabel" name="heartRateLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>30</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -942,7 +960,7 @@ border-color: rgb(0, 0, 0);</string>
                  <enum>QFrame::Box</enum>
                 </property>
                 <property name="text">
-                 <string>цифры</string>
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -958,7 +976,7 @@ border-color: rgb(0, 0, 0);</string>
             <item row="1" column="1">
              <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>Вариабельность (амплитуда, индекс Баевского):</string>
+               <string>Вариабельность (амплитуда, стресс-индекс):</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -969,6 +987,12 @@ border-color: rgb(0, 0, 0);</string>
              <layout class="QHBoxLayout" name="horizontalLayout_14">
               <item>
                <widget class="ResultLabel" name="breathFreqLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>30</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -1024,6 +1048,12 @@ border-color: rgb(0, 0, 0);</string>
              <layout class="QHBoxLayout" name="horizontalLayout_13">
               <item>
                <widget class="ResultLabel" name="breathAmplitudeLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>30</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">border-color: rgb(0, 0, 0);
 background-color: rgb(255, 255, 255);</string>
@@ -1049,6 +1079,12 @@ background-color: rgb(255, 255, 255);</string>
              <layout class="QHBoxLayout" name="horizontalLayout_11">
               <item>
                <widget class="ResultLabel" name="variabilityAmplitudeLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>30</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -1177,6 +1213,12 @@ border-color: rgb(0, 0, 0);</string>
              <layout class="QHBoxLayout" name="horizontalLayout_15">
               <item>
                <widget class="ResultLabel" name="amplitudeAlphaLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>30</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -1222,6 +1264,12 @@ border-color: rgb(0, 0, 0);</string>
              <layout class="QHBoxLayout" name="horizontalLayout_16">
               <item>
                <widget class="ResultLabel" name="startTimeAlphaLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>30</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
