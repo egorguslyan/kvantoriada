@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 # import numpy as np
 from analysis.signal_analysis import *
 
-FILE_PATH = "datasets/1/Semyon/dataEEG_1.txt"
+FILE_PATH = "datasets/1/Misha/dataEEG_1.txt"
 RATE = 200
 
 
@@ -48,7 +48,27 @@ def analysis_eeg(eeg):
 
 
 def find_coeff(eeg, points, amp, size):
-    freq, x = get_spectrum(4, 40, eeg)
+    prom = []
+    for i in points:
+        eeg[i] = 1000
+    curr = []
+    for i in range(len(eeg)):
+        if eeg[i] != 1000:
+            curr.append(i)
+        elif curr:
+            prom.append(curr)
+            curr = []
+    if curr:
+        prom.append(curr)
+    am = []
+    for ee in prom:
+        freq, x = get_spectrum(8, 14, ee)
+        am.append(sum(x)*size/len(ee))
+    ampl = sum(am)/len(am)
+    if amp > 0:
+        return amp/ampl
+    else:
+        return -1
 
 
 def find_time_and_amp(eeg, points, t, size, delay=3):
@@ -77,6 +97,8 @@ def main():
     freq, x = get_spectrum(0, 100, eeg_filtered)
     p = find_alpha(100, eeg_filtered, 1.9)
     tim_start, amp = find_time_and_amp(eeg_filtered, p, t, 100)
+    coeff = find_coeff(eeg_filtered, p, amp, 100)
+    print(coeff)
 
     fig, ax = plt.subplots(3)
     ax[0].plot(t, eeg)
