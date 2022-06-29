@@ -1,18 +1,33 @@
+// #define BLUETOOTH_ENABLE
 #define DEBUG_LED 13
 #define BTN 5
+#define LEDW 2
+#define LEDY 3
+#define LEDR 4
 
 /* После изменения стандартных значений времени
    нужно обязательно запустить gen.bat или gen.sh */
 #define GSR_TIME 5
 #define ECG_TIME 10
+#define EEG_TIME 15
 
 #include <EEPROM.h>
 /*    Mem map    **
-    0) GSR1
-    1) GSR2
-    2) E*G1
-    3) E*G2
+    0) TIMG
+    1) E*TG
+    2) TIMC
+    3) E*TC
+    4) TIME
+    5) E*TE
 **               */
+#include <SoftwareSerial.h>
+#include <GyverOLED.h>
+
+GyverOLED<SSD1306_128x32, OLED_BUFFER> oled;
+
+#ifdef(BLUETOOTH_ENABLE)
+SoftwareSerial Serial(8, 7); // RX, TX
+#endif
 
 #if __has_include("random_key.h")
     #include "random_key.h"
@@ -20,8 +35,12 @@
     #error "Сгенерируйте ключ с помощью gen.bat или gen.sh"
 #endif
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+
 #define GSR_T ((uint32_t)control.seconds0 * 1000)
+#define E_T   ((uint32_t)max(control.seconds1, control.seconds2) * 1000)
 #define ECG_T ((uint32_t)control.seconds1 * 1000)
+#define EEG_T ((uint32_t)control.seconds2 * 1000)
 
 struct module
 {
@@ -41,10 +60,14 @@ struct
 {
     uint16_t seconds0 : 9;
     uint16_t seconds1 : 9;
+    uint16_t seconds2 : 9;
     uint8_t pin : 5;
     uint8_t not_pin : 5;
     uint8_t state : 1;
     uint8_t enabled : 1;
+    uint8_t enabled0 : 1;
+    uint8_t enabled1 : 1;
+    uint8_t enabled2 : 1;
     void updpins()
     {
         enabled = 1;
@@ -80,11 +103,11 @@ struct
 
 enum
 {
-    SER_GSR = 'G',
-    SER_ECG = 'C',
-    SER_EEG = 'E',
+    KEY_GSR = 'G',
+    KEY_ECG = 'C',
+    KEY_EEG = 'E',
 };
-const char SERKEYS[3] = {SER_GSR, SER_ECG, SER_EEG};
+const char SERKEYS[3] = {KEY_GSR, KEY_ECG, KEY_EEG};
 
 module GSR;
 module ECG;
@@ -118,12 +141,40 @@ uint8_t eeprom_byte_form(uint8_t b, uint8_t useful_bits)
     return r;
 }
 
+uint8_t eeprom_byte_write(uint8_t i)
+{
+    uint8_t eepromData;
+    uint16_t default_time;
+    if(i < 6)
+    {
+        switch(i / 2)
+        {
+            case KEY_GSR: default_time = GSR_TIME; break;
+            case KEY_ECG: default_time = ECG_TIME; break;
+            case KEY_EEG: default_time = EEG_TIME; break;
+        }
+        if(i % 2 == 0)
+        {
+            eepromData = eeprom_byte_form(default_time & 0b11111, 5);
+        }
+        else
+        {
+            eepromData = eeprom_byte_form(((default_time >> 5) & 0b1111) + (1 << 4), 5);
+        }
+    }
+    EEPROM.write(i, eepromData);
+    return eepromData;
+}
+
 extern volatile unsigned long timer0_millis;
 
 void setup()
 {
     uint8_t eepromData, i;
     pinMode(BTN, INPUT);
+    pinMode(LEDR, OUTPUT);
+    pinMode(LEDY, OUTPUT);
+    pinMode(LEDW, OUTPUT);
     pinMode(13, OUTPUT);
     control.pin = A3;
     control.not_pin = 12;
@@ -136,54 +187,46 @@ void setup()
     EEG.pin = A0;
     EEG.setup();
     control.seconds0 = control.seconds1 = 0;
-    for(i = 0; i < 4; i++)
+    for(i = 0; i < 6; i++)
     {
         eepromData = EEPROM.read(i);
         if(eeprom_byte_check(eepromData, 5))
         {
-            if(i < 4)
-            {
-                if(i % 2)
-                {
-                    eepromData = eeprom_byte_form(
-                        ((i / 2) ? ECG_TIME : GSR_TIME) & 0b11111,
-                        5
-                    );
-                }
-                else
-                {
-                    eepromData = eeprom_byte_form(
-                        ((((i / 2) ? ECG_TIME : GSR_TIME) >> 5) & 0b1111) + (1 << 4),
-                        5
-                    );
-                }
-            }
-            EEPROM.write(i, eepromData);
+            eeprom_byte_write(i);
         }
         switch(i)
         {
-            case 1: {
+            case 0: {
                 control.seconds0 &= 0b111100000;
                 control.seconds0 |= eepromData & 0b11111;
             } break;
-            case 3: {
+            case 2: {
                 control.seconds1 &= 0b111100000;
                 control.seconds1 |= eepromData & 0b11111;
             } break;
-            case 0: {
+            case 4: {
+                control.seconds2 &= 0b111100000;
+                control.seconds2 |= eepromData & 0b11111;
+            } break;
+            case 1: {
                 control.seconds0 &= 0b000011111;
                 control.seconds0 |= (eepromData & 0b1111) << 5;
-                GSR.enabled = (eepromData & 0b10000) >> 4;
+                control.enabled0 = (eepromData & 0b10000) >> 4;
             } break;
-            case 2: {
+            case 3: {
                 control.seconds1 &= 0b000011111;
                 control.seconds1 |= (eepromData & 0b1111) << 5;
-                ECG.enabled = EEG.enabled = (eepromData & 0b10000) >> 4;
+                control.enabled1 = (eepromData & 0b10000) >> 4;
+            } break;
+            case 5: {
+                control.seconds2 &= 0b000011111;
+                control.seconds2 |= (eepromData & 0b1111) << 5;
+                control.enabled2 = (eepromData & 0b10000) >> 4;
             } break;
         }
     }
     noInterrupts();
-    timer0_millis = GSR_T + ECG_T;
+    timer0_millis = GSR_T + E_T;
     interrupts();
     Serial.begin(38400);
     control.disable();
@@ -195,10 +238,11 @@ void setup()
 
 void loop()
 {
-    char S[10];
-    static uint32_t timer0 = 0, timer1 = 0, timer2 = 0, timer3 = 0;
-    uint8_t gsr, ecg, eeg;
-    const uint8_t *mod[3] = {&gsr, &ecg, &eeg};
+    char S[30], *s[5];
+    static uint32_t timer0 = 0, timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0;
+    uint8_t gsr, ecg, eeg, e, e0, e1, e2;
+    const uint8_t *val[3] = {&gsr, &ecg, &eeg};
+    uint16_t t0, t1, t2;
     uint8_t i, btn, prevBtn;
 
     // Нагрузка
@@ -208,33 +252,89 @@ void loop()
     //     delay(50);
     // } delay(5);
 
-    if(millis() - timer1 > (control.state ? GSR_T : ECG_T))
+    if(millis() - timer1 > (control.state ? GSR_T : E_T))
     {
         timer1 = millis();
         control.toggle();
     }
 
-    control.enabled = !(millis() - timer2 > (GSR_T + ECG_T));
+    control.enabled = !(millis() - timer2 > (GSR_T + E_T));
     if(!control.enabled)
     {
         if(GSR.enabled || ECG.enabled || EEG.enabled)
             Serial.print('f');
-        control.disable();
         GSR.enabled =
         ECG.enabled =
         EEG.enabled = 0;
+        control.disable();
     }
     else
     {
-        GSR.enabled = control.state;
-        ECG.enabled = !control.state;
-        EEG.enabled = !control.state;
+        GSR.enabled = control.enabled0 && (millis - timer2 > E_T);
+        ECG.enabled = control.enabled1 && (millis - timer2 < ECG_T);
+        EEG.enabled = control.enabled2 && (millis - timer2 < EEG_T);
     }
+    digitalWrite(LEDR, !control.enabled);
+    analogWrite(LEDY, (128 * ECG.enabled) + (127 * EEG.enabled));
+    digitalWrite(LEDW, control.state && control.enabled);
 
-    btn = digitalRead(BTN);
-    if(btn && !prevBtn)
+    // btn = digitalRead(BTN);
+    // if(btn && !prevBtn)
+    //         timer1 = timer2 = millis();
+    // prevBtn = btn;
+
+    if(Serial.available())
+        if(Serial.read() == 'e')
+        {
+            memset(S, 0, sizeof(char) * 30);
+            Serial.readBytesUntil(';', S, 30);
+            sscanf(S, "%d,%d,%d,%d", &t0, &t1, &t2, &e);
+            e0 = bitRead(e, 0);
+            e1 = bitRead(e, 1);
+            e2 = bitRead(e, 2);
+            sprintf(S, "%d %d %d %d %d %d", t0, t1, t2, e0, e1, e2);
+            Serial.println(S);
+            if(t0 != control.seconds0)
+            {
+                eeprom_byte_write(0);
+                eeprom_byte_write(1);
+                if(e0 != control.enabled0)
+                    control.enabled0 = e0;
+                control.seconds0 = t0;
+            }
+            else if(e0 != control.enabled0)
+            {
+                eeprom_byte_write(1);
+                control.enabled0 = e0;
+            }
+            if(t1 != control.seconds1)
+            {
+                eeprom_byte_write(2);
+                eeprom_byte_write(3);
+                if(e1 != control.enabled1)
+                    control.enabled1 = e1;
+                control.seconds1 = t1;
+            }
+            else if(e1 != control.enabled1)
+            {
+                eeprom_byte_write(3);
+                control.enabled1 = e1;
+            }
+            if(t2 != control.seconds2)
+            {
+                eeprom_byte_write(4);
+                eeprom_byte_write(5);
+                if(e2 != control.enabled2)
+                    control.enabled2 = e2;
+                control.seconds2 = t2;
+            }
+            else if(e2 != control.enabled2)
+            {
+                eeprom_byte_write(5);
+                control.enabled2 = e2;
+            }
             timer1 = timer2 = millis();
-    prevBtn = btn;
+        }
 
     if(millis() - timer3 > 5)
     {
@@ -246,11 +346,12 @@ void loop()
         digitalWrite(13, LOW);
     }
 
+    uint8_t mod[3] = {GSR.enabled, ECG.enabled, EEG.enabled};
     for(i = 0; i < 3; i++)
-        if(*mod[i] != 0)
+        if(mod[i] != 0)
         {
             Serial.print(SERKEYS[i]);
-            Serial.print(*mod[i]);
+            Serial.print(*val[i]);
             Serial.print(';');
         }
 }
