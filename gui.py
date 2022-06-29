@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QTableWidgetItem
 from design import Ui_MainWindow
 import sys
@@ -51,11 +51,21 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasVar = MplCanvas()
         self.ui.verticalLayout_10.addWidget(self.ui.canvasVar)
 
+        self.ui.saveButton = QtWidgets.QPushButton(self.ui.centralwidget)
+        self.ui.saveButton.setStyleSheet("background-color: #e1a91a;")
+        self.ui.saveButton.setObjectName("saveButton")
+        self.ui.saveButton.setText('Сохранить')
+        self.ui.saveButton.setVisible(False)
+        self.ui.saveButton.clicked.connect(self.saveChanges)
+        self.ui.horizontalLayout_9.insertWidget(2, self.ui.saveButton)
+
         if not users.empty:
             self.user = 0
             self.updateCard()
         else:
             self.user = None
+
+        self.file_path = None
 
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
@@ -67,7 +77,7 @@ class Window(QtWidgets.QMainWindow):
         elif now.month() == birthday.month() and now.day() < birthday.day():
             age -= 1
 
-        self.ui.ageNumberLable.setText(str(age))
+        self.ui.ageNumberLabel.setText(str(age))
 
     def addNewUser(self):
         global users
@@ -78,9 +88,17 @@ class Window(QtWidgets.QMainWindow):
         os.mkdir(dir_path)
 
         user = [
-            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path, 'None']
+            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path, 'None', '']
         ]
-        user = pd.DataFrame(user, columns=['name', 'secondName', 'middleName', 'birthday', 'dir_path', 'password'])
+        user = pd.DataFrame(user, columns=[
+            'name',
+            'secondName',
+            'middleName',
+            'birthday',
+            'dir_path',
+            'password',
+            'last_result'
+        ])
         users = pd.concat([users, user], ignore_index=True)
 
         self.updateTable()
@@ -123,8 +141,10 @@ class Window(QtWidgets.QMainWindow):
             self.ui.ecgFilesCombo.clear()
             files = os.listdir(user['dir_path'])
             if len(files) > 0:
-                self.ui.ecgFilesCombo.addItems(files)
-                self.ui.eegFilesCombo.addItems(files)
+                for file in files:
+                    if file.find('r_') == -1:
+                        self.ui.ecgFilesCombo.addItem(file)
+                        self.ui.eegFilesCombo.addItem(file)
 
             self.ui.btnPassword.clicked.connect(self.editingResult)
             self.ui.btnPassword.clicked.disconnect()
@@ -139,7 +159,27 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasECG.clear()
         self.ui.canvasEEG.clear()
         self.ui.canvasVar.clear()
+
         self.changeEditingLabel(False)
+        self.clearLabels()
+        self.file_path = None
+        self.ui.saveButton.setVisible(False)
+        self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
+
+        self.ui.tab.setStyleSheet("background-color: rgb(255, 230, 234);\n"
+                                  "alternate-background-color: rgb(170, 85, 255);")
+
+    def clearLabels(self):
+        self.ui.heartRateLabel.clear()
+        self.ui.breathFreqLabel.clear()
+        self.ui.breathAmplitudeLabel.clear()
+        self.ui.variabilityIndexLabel.clear()
+        self.ui.variabilityAmplitudeLabel.clear()
+
+        self.ui.amplitudeAlphaLabel.clear()
+        self.ui.startTimeAlphaLabel.clear()
+
+        self.ui.resultTextLabel.clear()
 
     def updateTable(self):
         self.ui.table.clear()
@@ -155,6 +195,12 @@ class Window(QtWidgets.QMainWindow):
                     QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                 )
                 self.ui.table.setItem(i, 1, name)
+
+                result = QTableWidgetItem(user['last_result'])
+                result.setFlags(
+                    QtCore.Qt.ItemIsEnabled
+                )
+                self.ui.table.setItem(i, 0, result)
 
     def updateUser(self):
         global users
@@ -198,8 +244,8 @@ class Window(QtWidgets.QMainWindow):
         date = datetime.datetime.now().strftime('%d.%m.%Y %H-%M-%S')
         file_path = os.path.join(dir_path, f"{date}.csv")
 
-        self.ui.testDateLable.setText(date)
-        self.ui.resultTextLable.setText("тестируется")
+        self.ui.testDateLabel.setText(date)
+        self.ui.resultTextLabel.setText("тестируется")
 
         self.ui.ecgFilesCombo.addItem(date)
         self.ui.eegFilesCombo.addItem(date)
@@ -207,7 +253,7 @@ class Window(QtWidgets.QMainWindow):
         if read('COM6', file_path):
             self.analysis(file_path)
         else:
-            self.ui.resultTextLable.setText("не удалось подключиться")
+            self.ui.resultTextLabel.setText("не удалось подключиться")
 
     def selectFile(self, text):
         dir_path = users.iloc[self.user]['dir_path']
@@ -215,9 +261,45 @@ class Window(QtWidgets.QMainWindow):
         self.analysis(file_path)
 
     def analysis(self, file_path):
+        self.file_path = file_path
+
         ecg = self.updateECG(file_path)
         eeg = self.updateEEG(file_path)
-        self.ui.resultTextLable.setText(prediction(ecg, eeg))
+
+        status = prediction(ecg, eeg)
+        self.ui.resultTextLabel.setText(status['result']['text'])
+        self.ui.resultTextLabel.setColor(status['result']['color'])
+
+        self.ui.heartRateLabel.setColor(status['heart_rate'])
+        self.ui.breathFreqLabel.setColor(status['breath']['freq'])
+        self.ui.variabilityIndexLabel.setColor(status['variability']['index'])
+        
+        self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
+
+        result = QTableWidgetItem(status['result']['text'])
+        result.setFlags(
+            QtCore.Qt.ItemIsEnabled
+        )
+        self.ui.table.setItem(self.user, 0, result)
+
+        user = users.iloc[self.user]
+        user['last_result'] = status['result']['text']
+        users.at[self.user] = user
+
+        self.makeResultFile(file_path)
+
+    def makeResultFile(self, file_path):
+        result = [
+            ['heart_rate', self.ui.heartRateLabel.color, self.ui.heartRateLabel.text()],
+            ['breath_freq', self.ui.breathFreqLabel.color, self.ui.breathFreqLabel.text()],
+            ['variability_index', self.ui.variabilityIndexLabel.color, self.ui.variabilityIndexLabel.text()],
+            ['start_time', self.ui.startTimeAlphaLabel.color, self.ui.startTimeAlphaLabel.text()],
+            ['result', self.ui.resultTextLabel.color, '']
+        ]
+        result_table = pd.DataFrame(result, columns=['ind', 'result', 'value'])
+        dir_path, file = os.path.split(file_path)
+        # print(os.path.join(dir_path, 'r_' + file))
+        result_table.to_csv(os.path.join(dir_path, 'r_' + file), index=False)
 
     def updateECG(self, file_path):
         data = open_csv_file(file_path)
@@ -233,9 +315,9 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasVar.save_data()
         self.ui.canvasVar.set_ylim()
 
-        self.ui.heartRateLable.setText(str(properties['heart_rate']))
-        self.ui.variabilityAmplitudeLable.setText(str(properties['variability']['amplitude']))
-        self.ui.variabilityIndexLable.setText(str(properties['variability']['index']))
+        self.ui.heartRateLabel.setText(str(properties['heart_rate']))
+        self.ui.variabilityAmplitudeLabel.setText(str(properties['variability']['amplitude']))
+        self.ui.variabilityIndexLabel.setText(str(properties['variability']['index']))
         self.ui.breathAmplitudeLabel.setText(str(properties['breath']['amplitude']))
         self.ui.breathFreqLabel.setText(str(properties['breath']['freq']))
 
@@ -255,47 +337,34 @@ class Window(QtWidgets.QMainWindow):
 
         return properties
 
-    def changeScaleECG(self, event):
-        width = self.ui.canvasECG.frameGeometry().width()
-        s = event.x / width
-        if event.button == 1 and event.dblclick:
-            self.ui.canvasECG.scale_up(s, 0.8)
-        elif event.button == 3:
-            self.ui.canvasECG.scale_down(s, 0.8)
-
-    def changeScaleEEG(self, event):
-        width = self.ui.canvasEEG.frameGeometry().width()
-        s = event.x / width
-        if event.button == 1 and event.dblclick:
-            self.ui.canvasEEG.scale_up(s, 0.8)
-        elif event.button == 3:
-            self.ui.canvasEEG.scale_down(s, 0.8)
-
-    def scrollingECG(self, event):
-        self.ui.canvasECG.scroll(1 if event.button == 'up' else -1)
-
-    def scrollingEEG(self, event):
-        self.ui.canvasEEG.scroll(1 if event.button == 'up' else -1)
-
     def changeEditingLabel(self, flag):
-        # self.ui.heartRateLable.setEditable(flag)
-        # self.ui.variabilityAmplitudeLable.setEditable(flag)
-        # self.ui.variabilityIndexLable.setEditable(flag)
-        # self.ui.breathFreqLabel.setEditable(flag)
-        # self.ui.breathAmplitudeLabel.setEditable(flag)
-        #
-        # self.ui.startTimeAlphaLabel.setEditable(flag)
-        # self.ui.amplitudeAlphaLabel.setEditable(flag)
-        self.ui.resultTextLable.setEditable(flag)
+        self.ui.heartRateLabel.setEditable(flag)
+        self.ui.variabilityAmplitudeLabel.setEditable(flag)
+        self.ui.variabilityIndexLabel.setEditable(flag)
+        self.ui.breathFreqLabel.setEditable(flag)
+        self.ui.breathAmplitudeLabel.setEditable(flag)
+
+        self.ui.startTimeAlphaLabel.setEditable(flag)
+        self.ui.amplitudeAlphaLabel.setEditable(flag)
+
+        self.ui.resultTextLabel.setEditable(flag)
 
     def editingMode(self):
+        self.ui.tab.setStyleSheet("background-color: rgb(255, 196, 197);\n"
+                                  "alternate-background-color: rgb(170, 85, 255);")
         self.changeEditingLabel(True)
+        self.ui.saveButton.setVisible(True)
+
+    def saveChanges(self):
+        print('save')
+        self.makeResultFile(self.file_path)
 
     def editingResult(self):
         user = users.iloc[self.user]
 
-        if self.ui.password.text() == user['password']:
+        if self.ui.password.text() == user['password'] and self.file_path is not None:
             self.editingMode()
+            self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
         else:
             self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
 
