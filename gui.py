@@ -51,11 +51,20 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasVar = MplCanvas()
         self.ui.verticalLayout_10.addWidget(self.ui.canvasVar)
 
+        self.ui.saveButton = QtWidgets.QPushButton(self.ui.centralwidget)
+        self.ui.saveButton.setStyleSheet("background-color: #e1a91a;")
+        self.ui.saveButton.setObjectName("saveButton")
+        self.ui.saveButton.setText('Сохранить изменения')
+        self.ui.saveButton.setVisible(False)
+        self.ui.horizontalLayout_9.insertWidget(2, self.ui.saveButton)
+
         if not users.empty:
             self.user = 0
             self.updateCard()
         else:
             self.user = None
+
+        self.file_path = None
 
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
@@ -150,6 +159,9 @@ class Window(QtWidgets.QMainWindow):
 
         self.changeEditingLabel(False)
         self.clearLabels()
+        self.file_path = None
+        self.ui.saveButton.setVisible(False)
+        self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
 
     def clearLabels(self):
         self.ui.heartRateLabel.clear()
@@ -243,6 +255,8 @@ class Window(QtWidgets.QMainWindow):
         self.analysis(file_path)
 
     def analysis(self, file_path):
+        self.file_path = file_path
+
         ecg = self.updateECG(file_path)
         eeg = self.updateEEG(file_path)
 
@@ -316,12 +330,14 @@ class Window(QtWidgets.QMainWindow):
 
     def editingMode(self):
         self.changeEditingLabel(True)
+        self.ui.saveButton.setVisible(True)
 
     def editingResult(self):
         user = users.iloc[self.user]
 
-        if self.ui.password.text() == user['password']:
+        if self.ui.password.text() == user['password'] and self.file_path is not None:
             self.editingMode()
+            self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
         else:
             self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
 
