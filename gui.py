@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QTableWidgetItem
 from design import Ui_MainWindow
 import sys
@@ -67,7 +67,7 @@ class Window(QtWidgets.QMainWindow):
         elif now.month() == birthday.month() and now.day() < birthday.day():
             age -= 1
 
-        self.ui.ageNumberLable.setText(str(age))
+        self.ui.ageNumberLabel.setText(str(age))
 
     def addNewUser(self):
         global users
@@ -139,7 +139,21 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasECG.clear()
         self.ui.canvasEEG.clear()
         self.ui.canvasVar.clear()
+
         self.changeEditingLabel(False)
+        self.clearLabels()
+
+    def clearLabels(self):
+        self.ui.heartRateLabel.clear()
+        self.ui.breathFreqLabel.clear()
+        self.ui.breathAmplitudeLabel.clear()
+        self.ui.variabilityIndexLabel.clear()
+        self.ui.variabilityAmplitudeLabel.clear()
+
+        self.ui.amplitudeAlphaLabel.clear()
+        self.ui.startTimeAlphaLabel.clear()
+
+        self.ui.resultTextLabel.clear()
 
     def updateTable(self):
         self.ui.table.clear()
@@ -198,8 +212,8 @@ class Window(QtWidgets.QMainWindow):
         date = datetime.datetime.now().strftime('%d.%m.%Y %H-%M-%S')
         file_path = os.path.join(dir_path, f"{date}.csv")
 
-        self.ui.testDateLable.setText(date)
-        self.ui.resultTextLable.setText("тестируется")
+        self.ui.testDateLabel.setText(date)
+        self.ui.resultTextLabel.setText("тестируется")
 
         self.ui.ecgFilesCombo.addItem(date)
         self.ui.eegFilesCombo.addItem(date)
@@ -207,7 +221,7 @@ class Window(QtWidgets.QMainWindow):
         if read('COM6', file_path):
             self.analysis(file_path)
         else:
-            self.ui.resultTextLable.setText("не удалось подключиться")
+            self.ui.resultTextLabel.setText("не удалось подключиться")
 
     def selectFile(self, text):
         dir_path = users.iloc[self.user]['dir_path']
@@ -217,7 +231,16 @@ class Window(QtWidgets.QMainWindow):
     def analysis(self, file_path):
         ecg = self.updateECG(file_path)
         eeg = self.updateEEG(file_path)
-        self.ui.resultTextLable.setText(prediction(ecg, eeg))
+
+        status = prediction(ecg, eeg)
+        self.ui.resultTextLabel.setText(status['result']['text'])
+        self.ui.resultTextLabel.setColor(status['result']['color'])
+
+        self.ui.heartRateLabel.setColor(status['heart_rate'])
+        self.ui.breathFreqLabel.setColor(status['breath']['freq'])
+        self.ui.variabilityIndexLabel.setColor(status['variability']['index'])
+        
+        self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
 
     def updateECG(self, file_path):
         data = open_csv_file(file_path)
@@ -233,9 +256,9 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasVar.save_data()
         self.ui.canvasVar.set_ylim()
 
-        self.ui.heartRateLable.setText(str(properties['heart_rate']))
-        self.ui.variabilityAmplitudeLable.setText(str(properties['variability']['amplitude']))
-        self.ui.variabilityIndexLable.setText(str(properties['variability']['index']))
+        self.ui.heartRateLabel.setText(str(properties['heart_rate']))
+        self.ui.variabilityAmplitudeLabel.setText(str(properties['variability']['amplitude']))
+        self.ui.variabilityIndexLabel.setText(str(properties['variability']['index']))
         self.ui.breathAmplitudeLabel.setText(str(properties['breath']['amplitude']))
         self.ui.breathFreqLabel.setText(str(properties['breath']['freq']))
 
@@ -278,15 +301,16 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasEEG.scroll(1 if event.button == 'up' else -1)
 
     def changeEditingLabel(self, flag):
-        # self.ui.heartRateLable.setEditable(flag)
-        # self.ui.variabilityAmplitudeLable.setEditable(flag)
-        # self.ui.variabilityIndexLable.setEditable(flag)
-        # self.ui.breathFreqLabel.setEditable(flag)
-        # self.ui.breathAmplitudeLabel.setEditable(flag)
-        #
-        # self.ui.startTimeAlphaLabel.setEditable(flag)
-        # self.ui.amplitudeAlphaLabel.setEditable(flag)
-        self.ui.resultTextLable.setEditable(flag)
+        self.ui.heartRateLabel.setEditable(flag)
+        self.ui.variabilityAmplitudeLabel.setEditable(flag)
+        self.ui.variabilityIndexLabel.setEditable(flag)
+        self.ui.breathFreqLabel.setEditable(flag)
+        self.ui.breathAmplitudeLabel.setEditable(flag)
+
+        self.ui.startTimeAlphaLabel.setEditable(flag)
+        self.ui.amplitudeAlphaLabel.setEditable(flag)
+
+        self.ui.resultTextLabel.setEditable(flag)
 
     def editingMode(self):
         self.changeEditingLabel(True)
