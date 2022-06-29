@@ -278,28 +278,6 @@ class Window(QtWidgets.QMainWindow):
 
         return properties
 
-    def changeScaleECG(self, event):
-        width = self.ui.canvasECG.frameGeometry().width()
-        s = event.x / width
-        if event.button == 1 and event.dblclick:
-            self.ui.canvasECG.scale_up(s, 0.8)
-        elif event.button == 3:
-            self.ui.canvasECG.scale_down(s, 0.8)
-
-    def changeScaleEEG(self, event):
-        width = self.ui.canvasEEG.frameGeometry().width()
-        s = event.x / width
-        if event.button == 1 and event.dblclick:
-            self.ui.canvasEEG.scale_up(s, 0.8)
-        elif event.button == 3:
-            self.ui.canvasEEG.scale_down(s, 0.8)
-
-    def scrollingECG(self, event):
-        self.ui.canvasECG.scroll(1 if event.button == 'up' else -1)
-
-    def scrollingEEG(self, event):
-        self.ui.canvasEEG.scroll(1 if event.button == 'up' else -1)
-
     def changeEditingLabel(self, flag):
         self.ui.heartRateLabel.setEditable(flag)
         self.ui.variabilityAmplitudeLabel.setEditable(flag)
