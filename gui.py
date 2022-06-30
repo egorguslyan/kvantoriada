@@ -163,11 +163,11 @@ class Window(QtWidgets.QMainWindow):
             if len(files) > 0:
                 for file in files:
                     if file.find('_r') == -1:
-                        filename, file_extension = os.path.splitext(file)
+                        filename, _ = os.path.splitext(file)
                         self.ui.ecgFilesCombo.addItem(filename)
                         self.ui.eegFilesCombo.addItem(filename)
 
-                        if files.count(filename + '_r' + file_extension) == 0:
+                        if files.count(f'{filename}_r.csv') == 0:
                             self.ui.ecgFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
                             self.ui.eegFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
                         i += 1
@@ -259,9 +259,19 @@ class Window(QtWidgets.QMainWindow):
             self.updateTable()
 
     def testUser(self):
+        time_format = '%d.%m.%Y %H-%M-%S'
+
         user = users.iloc[self.user]
         dir_path = user['dir_path']
-        date = datetime.datetime.now().strftime('%d.%m.%Y %H-%M-%S')
+
+        files = os.listdir(user['dir_path'])
+        last_file = files[-1]
+        filename, _ = os.path.splitext(last_file)
+        date = datetime.datetime.now().strftime(time_format)
+        if (datetime.datetime.now() - datetime.datetime.strptime(filename, time_format)).seconds < 300:
+            date = filename
+            print(datetime.datetime.now() - datetime.datetime.strptime(filename, time_format))
+
         file_path = os.path.join(dir_path, f"{date}.csv")
 
         self.ui.testDateLabel.setText(date)
@@ -322,9 +332,9 @@ class Window(QtWidgets.QMainWindow):
             ['result', self.ui.resultTextLabel.color, '']
         ]
         result_table = pd.DataFrame(result, columns=['ind', 'result', 'value'])
-        filename, file_extension = os.path.splitext(file_path)
+        filename, _ = os.path.splitext(file_path)
         # print(filename + '_r' + file_extension)
-        result_table.to_csv(filename + '_r' + file_extension, index=False)
+        result_table.to_csv(f"{filename}_r.csv", index=False)
 
     def updateECG(self, file_path):
         data = open_csv_file(file_path)
