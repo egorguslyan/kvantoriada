@@ -280,7 +280,7 @@ void loop()
 {
     char S[30], *s[5];
     static uint32_t timer0 = 0, timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0;
-    static uint16_t gsr, ecg, eeg;
+    static uint16_t gsr, ecg, eeg, spam_f;
     uint16_t t0, t1, t2;
     const uint16_t *val[3] = {&gsr, &ecg, &eeg};
     uint8_t i, btn, prevBtn, e, e0, e1, e2;
@@ -307,8 +307,8 @@ void loop()
     control.enabled = !(millis() - timer2 > (GSR_T + E_T));
     if(!control.enabled)
     {
-        // if(GSR.enabled || ECG.enabled || EEG.enabled)
-            serial.print('f');
+        if(GSR.enabled || ECG.enabled || EEG.enabled)
+            spam_f = 10;
         GSR.enabled =
         ECG.enabled =
         EEG.enabled = 0;
@@ -328,6 +328,12 @@ void loop()
     if(btn && !prevBtn && !control.enabled)
         serial.print('s');
     prevBtn = btn;
+
+    if(spam_f)
+    {
+        spam_f -= 10;
+        serial.print('f');
+    }
 
     if(serial.available())
         if(serial.read() == 'e')
