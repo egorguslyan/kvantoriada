@@ -280,10 +280,11 @@ void loop()
 {
     char S[30], *s[5];
     static uint32_t timer0 = 0, timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0;
-    static uint16_t gsr, ecg, eeg, spam_f;
+    static uint16_t gsr, ecg, eeg;
     uint16_t t0, t1, t2;
     const uint16_t *val[3] = {&gsr, &ecg, &eeg};
-    uint8_t i, btn, prevBtn, e, e0, e1, e2;
+    uint8_t i, btn, e, e0, e1, e2;
+    static uint8_t prevBtn, spam_f;
 
     // Нагрузка
     // if(millis() - timer0 > 100)
