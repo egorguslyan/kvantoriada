@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QTableWidgetItem
 from design import Ui_MainWindow
 import sys
@@ -9,6 +9,7 @@ import time
 import datetime
 
 from mplcanvas import MplCanvas
+from resultlabel import Result
 
 from bluetooth_serial.read_serial import read
 from analysis.ecg_analysis import analysis_ecg
@@ -58,6 +59,12 @@ class Window(QtWidgets.QMainWindow):
         self.ui.saveButton.setVisible(False)
         self.ui.saveButton.clicked.connect(self.saveChanges)
         self.ui.horizontalLayout_9.insertWidget(2, self.ui.saveButton)
+
+        self.ui.resultTextLabel = Result(self.ui.card)
+        self.ui.resultTextLabel.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.ui.resultTextLabel.setFrameShape(QtWidgets.QFrame.Box)
+        self.ui.resultTextLabel.setObjectName("resultTextLabel")
+        self.ui.formLayout_3.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.ui.resultTextLabel)
 
         if not users.empty:
             self.user = 0
@@ -140,11 +147,18 @@ class Window(QtWidgets.QMainWindow):
             self.updateAge()
             self.ui.ecgFilesCombo.clear()
             files = os.listdir(user['dir_path'])
+            i = 0
             if len(files) > 0:
                 for file in files:
-                    if file.find('r_') == -1:
-                        self.ui.ecgFilesCombo.addItem(file)
-                        self.ui.eegFilesCombo.addItem(file)
+                    if file.find('_r') == -1:
+                        filename, file_extension = os.path.splitext(file)
+                        self.ui.ecgFilesCombo.addItem(filename)
+                        self.ui.eegFilesCombo.addItem(filename)
+
+                        if files.count(filename + '_r' + file_extension) == 0:
+                            self.ui.ecgFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
+                            self.ui.eegFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
+                        i += 1
 
             self.ui.btnPassword.clicked.connect(self.editingResult)
             self.ui.btnPassword.clicked.disconnect()
@@ -194,13 +208,7 @@ class Window(QtWidgets.QMainWindow):
                 name.setFlags(
                     QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                 )
-                self.ui.table.setItem(i, 1, name)
-
-                result = QTableWidgetItem(user['last_result'])
-                result.setFlags(
-                    QtCore.Qt.ItemIsEnabled
-                )
-                self.ui.table.setItem(i, 0, result)
+                self.ui.table.setItem(i, 0, name)
 
     def updateUser(self):
         global users
@@ -258,7 +266,7 @@ class Window(QtWidgets.QMainWindow):
     def selectFile(self, text):
         dir_path = users.iloc[self.user]['dir_path']
         file_path = os.path.join(dir_path, text)
-        self.analysis(file_path)
+        self.analysis(file_path + '.csv')
 
     def analysis(self, file_path):
         self.file_path = file_path
@@ -267,7 +275,6 @@ class Window(QtWidgets.QMainWindow):
         eeg = self.updateEEG(file_path)
 
         status = prediction(ecg, eeg)
-        self.ui.resultTextLabel.setText(status['result']['text'])
         self.ui.resultTextLabel.setColor(status['result']['color'])
 
         self.ui.heartRateLabel.setColor(status['heart_rate'])
@@ -276,17 +283,11 @@ class Window(QtWidgets.QMainWindow):
         
         self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
 
-        result = QTableWidgetItem(status['result']['text'])
-        result.setFlags(
-            QtCore.Qt.ItemIsEnabled
-        )
-        self.ui.table.setItem(self.user, 0, result)
-
         user = users.iloc[self.user]
-        user['last_result'] = status['result']['text']
+        user['last_result'] = status['result']['color']
         users.at[self.user] = user
 
-        self.makeResultFile(file_path)
+        # self.makeResultFile(file_path)
 
     def makeResultFile(self, file_path):
         result = [

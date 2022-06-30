@@ -7,7 +7,7 @@ class ResultLabel(QtWidgets.QLabel):
         self.color = 1
         self.setStyleSheet("QLabel { background-color : white; }")
         self.__colors = ['#5555ff', '#89ad3b', '#c73636', '#ffffff']
-        self.__results = {
+        self._results = {
             'good': 1,
             'depressed': 0,
             'excited': 2,
@@ -23,7 +23,7 @@ class ResultLabel(QtWidgets.QLabel):
 
     def wheelEvent(self, event):
         if self.isEditable:
-            if self.__cnt < 5:
+            if self.__cnt < 2:
                 self.__cnt += 1
                 return
             self.__cnt = 0
@@ -33,13 +33,14 @@ class ResultLabel(QtWidgets.QLabel):
                 self.color -= 1
 
             self.color %= 3
-            self.set_background_color()
+            self.setColor(self.color)
 
     def setEditable(self, mode):
         self.isEditable = mode
 
     def setColor(self, result):
-        self.color = self.__results[result]
+        if isinstance(result, str):
+            self.color = self._results[result]
         self.set_background_color()
 
     def set_background_color(self):
@@ -48,3 +49,20 @@ class ResultLabel(QtWidgets.QLabel):
     def clear(self):
         self.setText('')
         self.setColor('clear')
+
+
+class Result(ResultLabel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def setColor(self, result):
+        if isinstance(result, str):
+            self.color = self._results[result]
+        self.set_background_color()
+        results = {
+            1: "Норма",
+            0: "Подавлен",
+            2: "Возбужден",
+            3: ""
+        }
+        self.setText(results[self.color])

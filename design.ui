@@ -84,20 +84,6 @@ color: rgb(255, 255, 127);</string>
         </attribute>
         <column>
          <property name="text">
-          <string/>
-         </property>
-         <property name="foreground">
-          <brush brushstyle="NoBrush">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </property>
-        </column>
-        <column>
-         <property name="text">
           <string>Спортсмен</string>
          </property>
          <property name="foreground">
@@ -782,19 +768,6 @@ alternate-background-color: rgb(170, 85, 255);</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="ResultLabel" name="resultTextLabel">
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(255, 255, 255);</string>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::Box</enum>
-                </property>
-                <property name="text">
-                 <string>какой-то результат</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
             <item>
@@ -853,8 +826,13 @@ alternate-background-color: rgb(170, 85, 255);</string>
             </item>
             <item>
              <widget class="QComboBox" name="ecgFilesCombo">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
+selection-color: rgb(0, 0, 0);
+selection-background-color: rgb(167, 255, 253);
 </string>
               </property>
               <property name="sizeAdjustPolicy">
@@ -929,19 +907,6 @@ border-color: rgb(0, 0, 0);</string>
               </item>
              </layout>
             </item>
-            <item row="1" column="0">
-             <spacer name="horizontalSpacer_8">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
             <item row="0" column="2">
              <layout class="QHBoxLayout" name="horizontalLayout">
               <item>
@@ -1013,19 +978,6 @@ border-color: rgb(0, 0, 0);</string>
                </widget>
               </item>
              </layout>
-            </item>
-            <item row="1" column="4">
-             <spacer name="horizontalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
             </item>
             <item row="2" column="1">
              <widget class="QLabel" name="label_6">
@@ -1106,10 +1058,39 @@ border-color: rgb(0, 0, 0);</string>
               </item>
              </layout>
             </item>
+            <item row="0" column="0" rowspan="3">
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="4" rowspan="3">
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </item>
           <item>
            <widget class="QTabWidget" name="tabWidget_2">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
             <property name="styleSheet">
              <string notr="true"/>
             </property>
@@ -1160,8 +1141,13 @@ border-color: rgb(0, 0, 0);</string>
             </item>
             <item>
              <widget class="QComboBox" name="eegFilesCombo">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
+selection-color: rgb(0, 0, 0);
+selection-background-color: rgb(167, 255, 253);
 </string>
               </property>
               <property name="sizeAdjustPolicy">
@@ -1291,8 +1277,8 @@ border-color: rgb(0, 0, 0);</string>
               </item>
              </layout>
             </item>
-            <item row="1" column="0">
-             <spacer name="horizontalSpacer_9">
+            <item row="1" column="3" rowspan="2">
+             <spacer name="horizontalSpacer_7">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -1304,8 +1290,8 @@ border-color: rgb(0, 0, 0);</string>
               </property>
              </spacer>
             </item>
-            <item row="1" column="3">
-             <spacer name="horizontalSpacer_7">
+            <item row="1" column="0" rowspan="2">
+             <spacer name="horizontalSpacer_9">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>

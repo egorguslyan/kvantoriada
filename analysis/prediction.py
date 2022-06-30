@@ -33,6 +33,6 @@ def prediction(ecg, eeg):
     print('Variability', ecg['variability']['index'], ecg['variability']['amo'], ecg['variability']['mo'])
 
     print('RESULT', res)
-    status['result'] = {'text': 'Возбуждение', 'color': 'excited'} if res > 0.5 else {'text': 'Спокоен', 'color': 'good'}
+    status['result'] = {'color': 'excited'} if res > 0.5 else {'color': 'good'}
 
     return status
