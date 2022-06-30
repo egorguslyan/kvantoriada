@@ -280,7 +280,8 @@ void loop()
 {
     char S[30], *s[5];
     static uint32_t timer0 = 0, timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0;
-    uint16_t t0, t1, t2, gsr, ecg, eeg;
+    static uint16_t gsr, ecg, eeg;
+    uint16_t t0, t1, t2;
     const uint16_t *val[3] = {&gsr, &ecg, &eeg};
     uint8_t i, btn, prevBtn, e, e0, e1, e2;
 
