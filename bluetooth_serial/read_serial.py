@@ -19,8 +19,8 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
     if com not in available_ports:
         return False
 
-    with serial.Serial(com, 38400, timeout=0.1) as my_serial, open(r'log.txt', 'w') as log:
-        ecg = eeg = gsr = []
+    with serial.Serial(com, 38400, timeout=0.1) as my_serial, open('log.txt', 'w') as log:
+        ecg, eeg, gsr = [], [], []
         while my_serial.in_waiting <= 0:
             pass
         a = chr(int.from_bytes(my_serial.read(), "little"))
@@ -39,8 +39,8 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
             while a != 'G' and a != 'C' and a != 'E' and a != 'f':
                 if my_serial.in_waiting > 0:
                     a = chr(int.from_bytes(my_serial.read(), "little"))
-                    print(a)
-                    log.write('2', a)
+                    print('2', a)
+                    log.write(a)
 
             if a == 'f':
                 log.write(a)

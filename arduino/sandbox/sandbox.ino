@@ -122,6 +122,9 @@ uint8_t intr_counter;
 
 void plotter(uint16_t y)
 {
+    // переворот
+    y = 1023 - y;
+
     static uint16_t y0 = 0;
     uint8_t i, mapped;
     // for (j = 0; j < 4; j++) {
