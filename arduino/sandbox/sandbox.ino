@@ -307,7 +307,7 @@ void loop()
     control.enabled = !(millis() - timer2 > (GSR_T + E_T));
     if(!control.enabled)
     {
-        if(GSR.enabled || ECG.enabled || EEG.enabled)
+        // if(GSR.enabled || ECG.enabled || EEG.enabled)
             serial.print('f');
         GSR.enabled =
         ECG.enabled =
