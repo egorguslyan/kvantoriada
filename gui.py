@@ -75,16 +75,22 @@ class Window(QtWidgets.QMainWindow):
         self.ui.resultTextLabel.setObjectName("resultTextLabel")
         self.ui.formLayout_3.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.ui.resultTextLabel)
 
+        self.ui.deleteFile.clicked.connect(self.deleteFile)
+        self.ui.deleteFile_2.clicked.connect(self.deleteFile)
+
+        self.file_path = None
+        self.updateComports()
+
+        self.dlg = SubDialog()
+
         if not users.empty:
             self.user = 0
             self.updateCard()
         else:
             self.user = None
 
-        self.file_path = None
-        self.updateComports()
-
-        self.dlg = SubDialog()
+    def test(self, e):
+        print(e)
 
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
@@ -148,40 +154,6 @@ class Window(QtWidgets.QMainWindow):
         self.updateCard()
 
     def updateCard(self):
-        if self.user is not None:
-            user = users.iloc[self.user]
-            self.ui.nameEdit.setText(user['name'])
-            self.ui.secondNameEdit.setText(user['secondName'])
-            self.ui.middleNameEdit.setText(user['middleName'])
-            date = QtCore.QDate.fromString(user['birthday'], 'dd.MM.yyyy')
-            self.ui.birthdayEdit.setDate(date)
-            self.ui.birthdayEdit.show()
-            self.updateAge()
-            self.ui.ecgFilesCombo.clear()
-            files = os.listdir(user['dir_path'])
-            i = 0
-            if len(files) > 0:
-                for file in files:
-                    if file.find('_r') == -1:
-                        filename, _ = os.path.splitext(file)
-                        self.ui.ecgFilesCombo.addItem(filename)
-                        self.ui.eegFilesCombo.addItem(filename)
-
-                        if files.count(f'{filename}_r.csv') == 0:
-                            self.ui.ecgFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
-                            self.ui.eegFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
-                        i += 1
-
-            self.ui.btnPassword.clicked.connect(self.editingResult)
-            self.ui.btnPassword.clicked.disconnect()
-
-            if user['password'] != 'None':
-                self.ui.btnPassword.clicked.connect(self.editingResult)
-                self.ui.btnPassword.setText('Войти')
-            else:
-                self.ui.btnPassword.clicked.connect(self.createPassword)
-                self.ui.btnPassword.setText('Создать')
-
         self.ui.canvasECG.clear()
         self.ui.canvasEEG.clear()
         self.ui.canvasVar.clear()
@@ -194,6 +166,48 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.tab.setStyleSheet("background-color: rgb(255, 230, 234);\n"
                                   "alternate-background-color: rgb(170, 85, 255);")
+
+        if self.user is not None:
+            user = users.iloc[self.user]
+            self.ui.nameEdit.setText(user['name'])
+            self.ui.secondNameEdit.setText(user['secondName'])
+            self.ui.middleNameEdit.setText(user['middleName'])
+            date = QtCore.QDate.fromString(user['birthday'], 'dd.MM.yyyy')
+            self.ui.birthdayEdit.setDate(date)
+            self.ui.birthdayEdit.show()
+            self.updateAge()
+            self.ui.ecgFilesCombo.clear()
+            self.ui.eegFilesCombo.clear()
+            files = os.listdir(user['dir_path'])
+            i = 0
+            if files:
+                for file in files:
+                    if file.find('_r') == -1:
+                        filename, _ = os.path.splitext(file)
+                        self.ui.ecgFilesCombo.addItem(filename)
+                        self.ui.eegFilesCombo.addItem(filename)
+
+                        if files.count(f'{filename}_r.csv') == 0:
+                            self.ui.ecgFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
+                            self.ui.eegFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
+                        i += 1
+            self.ui.deleteFile.setVisible(False)
+            self.ui.deleteFile_2.setVisible(False)
+
+            comboBox = self.ui.ecgFilesCombo
+            files_combo = [comboBox.itemText(i) for i in range(comboBox.count())]
+            if files_combo:
+                self.selectFile(files_combo[-1])
+
+            self.ui.btnPassword.clicked.connect(self.editingResult)
+            self.ui.btnPassword.clicked.disconnect()
+
+            if user['password'] != 'None':
+                self.ui.btnPassword.clicked.connect(self.editingResult)
+                self.ui.btnPassword.setText('Войти')
+            else:
+                self.ui.btnPassword.clicked.connect(self.createPassword)
+                self.ui.btnPassword.setText('Создать')
 
     def clearLabels(self):
         self.ui.heartRateLabel.clear()
@@ -292,15 +306,34 @@ class Window(QtWidgets.QMainWindow):
         else:
             self.ui.resultTextLabel.setText("не удалось подключиться")
 
-    def selectFile(self, text):
-        self.ui.ecgFilesCombo.setCurrentText(text)
-        self.ui.eegFilesCombo.setCurrentText(text)
+    def selectFile(self, file):
         dir_path = users.iloc[self.user]['dir_path']
-        file_path = os.path.join(dir_path, text)
-        self.analysis(file_path + '.csv')
+        filename = os.path.join(dir_path, file)
+        self.analysis(f"{filename}.csv")
 
-        self.dlg.show()
-        self.dlg.exec()
+        if not os.path.exists(f"{filename}_r.csv"):
+            self.dlg.show()
+            self.dlg.exec()
+
+        self.ui.deleteFile.setVisible(True)
+        self.ui.deleteFile_2.setVisible(True)
+
+    def deleteFile(self):
+        user = users.iloc[self.user]
+
+        filename = self.ui.ecgFilesCombo.currentText()
+        file = f"{filename}.csv"
+        file_path = os.path.join(user["dir_path"], file)
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            r_file = f"{filename}_r.csv"
+            r_file_path = os.path.join(user["dir_path"], r_file)
+            if os.path.exists(r_file_path):
+                os.remove(r_file_path)
+        files = [self.ui.ecgFilesCombo.itemText(i) for i in range(self.ui.ecgFilesCombo.count())]
+        self.ui.ecgFilesCombo.removeItem(files.index(filename))
+        self.ui.eegFilesCombo.removeItem(files.index(filename))
 
     def analysis(self, file_path):
         self.file_path = file_path
@@ -337,6 +370,10 @@ class Window(QtWidgets.QMainWindow):
         result_table.to_csv(f"{filename}_r.csv", index=False)
 
     def updateECG(self, file_path):
+        file = os.path.split(file_path)[-1]
+        filename, _ = os.path.splitext(file)
+        self.ui.ecgFilesCombo.setCurrentText(filename)
+
         data = open_csv_file(file_path)
         properties = analysis_ecg(data['ecg'])
 
@@ -359,6 +396,10 @@ class Window(QtWidgets.QMainWindow):
         return properties
 
     def updateEEG(self, file_path):
+        file = os.path.split(file_path)[-1]
+        filename, _ = os.path.splitext(file)
+        self.ui.eegFilesCombo.setCurrentText(filename)
+
         data = open_csv_file(file_path)
         properties = analysis_eeg(data['eeg'])
 

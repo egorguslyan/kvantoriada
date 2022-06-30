@@ -844,6 +844,16 @@ selection-background-color: rgb(167, 255, 253);
              </widget>
             </item>
             <item>
+             <widget class="QPushButton" name="deleteFile">
+              <property name="styleSheet">
+               <string notr="true">background-color:rgb(229, 62, 62)</string>
+              </property>
+              <property name="text">
+               <string>Удалить файл</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer_5">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -1156,6 +1166,16 @@ selection-background-color: rgb(167, 255, 253);
              </widget>
             </item>
             <item>
+             <widget class="QPushButton" name="deleteFile_2">
+              <property name="styleSheet">
+               <string notr="true">background-color:rgb(229, 62, 62)</string>
+              </property>
+              <property name="text">
+               <string>Удалить файл</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer_6">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -1308,10 +1328,10 @@ border-color: rgb(0, 0, 0);</string>
           <item>
            <widget class="QTabWidget" name="tabWidget">
             <property name="tabPosition">
-             <enum>QTabWidget::West</enum>
+             <enum>QTabWidget::North</enum>
             </property>
             <property name="tabShape">
-             <enum>QTabWidget::Triangular</enum>
+             <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="currentIndex">
              <number>0</number>
