@@ -55,7 +55,7 @@ struct module
         pinMode(pin, INPUT);
         enabled = 0;
     }
-    uint8_t read()
+    uint16_t read()
     {
         return analogRead(pin);
     }
