@@ -205,7 +205,7 @@ extern volatile unsigned long timer0_millis;
 void setup()
 {
     uint8_t eepromData, i;
-
+    
     // Базовые I/O
     pinMode(BTN0, INPUT_PULLUP);
     pinMode(LEDR, OUTPUT);
@@ -307,7 +307,7 @@ void loop()
     control.enabled = !(millis() - timer2 > (GSR_T + E_T));
     if(!control.enabled)
     {
-        //if(GSR.enabled || ECG.enabled || EEG.enabled)
+        if(GSR.enabled || ECG.enabled || EEG.enabled)
             serial.print('f');
         GSR.enabled =
         ECG.enabled =
@@ -324,7 +324,7 @@ void loop()
     analogWrite(LEDY, (128 * ECG.enabled) + (127 * EEG.enabled));
     digitalWrite(LEDW, control.state && control.enabled);
 
-    btn = !digitalRead(BTN0);
+    btn = digitalRead(BTN0);
     if(btn && !prevBtn && !control.enabled)
         serial.print('s');
     prevBtn = btn;
@@ -399,7 +399,7 @@ void loop()
             }
     }
 
-    if(millis() - timer4 > 5)
+    if(millis() - timer4 > 50)
     {
         timer4 = millis();
         plotter(ecg);
