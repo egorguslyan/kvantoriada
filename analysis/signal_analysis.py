@@ -13,9 +13,11 @@ def open_csv_file(file_path):
         }
     data = pd.read_csv(file_path, delimiter=',')
     data = data.iloc[0]
-    ecg = list(map(lambda x: int(x) - 128, data['ecg'].split()))
-    eeg = list(map(lambda x: int(x) - 128, data['eeg'].split()))
-    gsr = list(map(lambda x: int(x) - 128, data['gsr'].split()))
+    ecg = list(map(lambda x: int(x) - 512, data['ecg'].split()))
+    eeg = list(map(lambda x: int(x) - 512, data['eeg'].split()))
+    gsr = list(map(lambda x: int(x) - 512, data['gsr'].split()))
+    print(ecg)
+    print(eeg)
     return {
         'ecg': ecg,
         'eeg': eeg,

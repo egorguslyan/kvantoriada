@@ -60,7 +60,7 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
                 elif a == 'E':
                     eeg.append(i)
 
-        gsr = [0]
+        gsr = [0, 0]
         ecg = ' '.join(map(str, ecg))
         eeg = ' '.join(map(str, eeg))
         gsr = ' '.join(map(str, gsr))
@@ -70,4 +70,5 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
     return True
 
 
-print(read("COM4", "res.csv", 15))
+if __name__ == "__main__":
+    print(read("COM4", "res.csv", 15))

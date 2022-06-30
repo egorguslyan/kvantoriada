@@ -15,53 +15,63 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
     config = [timeECG, timeEEG, timeGSR, enable]
     str_cfg = 'e' + ','.join(map(str, config)) + ';'
 
+    log = open(r'log.txt', 'w')
+
     available_ports = get_available_ports()
     if com not in available_ports:
         return False
 
-    try:
-        with serial.Serial(com, 38400, timeout=0.1) as my_serial:
-            ecg = eeg = gsr = []
+    with serial.Serial(com, 38400, timeout=0.1) as my_serial:
+        ecg = eeg = gsr = []
+        while my_serial.in_waiting <= 0:
+            a = chr(int.from_bytes(my_serial.read(), "little"))
+            log.write(a)
+            while a != 's':
+                if my_serial.in_waiting > 0:
+                    a = chr(int.from_bytes(my_serial.read(), "little"))
+                    log.write(a)
+            my_serial.write(str_cfg.encode('ascii'))
+        while True:
             while my_serial.in_waiting <= 0:
-                time.sleep(1)
-                my_serial.write(str_cfg.encode('ascii'))
-            while True:
+                pass
+            a = chr(int.from_bytes(my_serial.read(), "little"))
+            log.write(a)
+            while a != 'G' and a != 'C' and a != 'E' and a != 'f':
+                if my_serial.in_waiting > 0:
+                    a = chr(int.from_bytes(my_serial.read(), "little"))
+                    log.write(a)
+
+            if a == 'f':
+                log.write(a)
+                break
+
+            v = ' '
+            while v != ';':
+                i = 0
                 while my_serial.in_waiting <= 0:
                     pass
-                a = chr(int.from_bytes(my_serial.read(), "little"))
-                while a != 'G' and a != 'C' and a != 'E' and a != 'f':
+                v = chr(int.from_bytes(my_serial.read(), "little"))
+                log.write(v)
+                while v != ',' and v != ';':
                     if my_serial.in_waiting > 0:
-                        a = chr(int.from_bytes(my_serial.read(), "little"))
+                        i *= 10
+                        i += int(v)
+                        v = chr(int.from_bytes(my_serial.read(), "little"))
+                        log.write(v)
+                log.write('(' + str(i) + ')')
+                if a == 'G':
+                    gsr.append(i)
+                elif a == 'C':
+                    ecg.append(i)
+                elif a == 'E':
+                    eeg.append(i)
 
-                if a == 'f':
-                    break
-
-                v = ' '
-                while v != ';':
-                    i = 0
-                    while my_serial.in_waiting <= 0:
-                        pass
-                    v = chr(int.from_bytes(my_serial.read(), "little"))
-                    while v != ',' and v != ';':
-                        if my_serial.in_waiting > 0:
-                            i *= 10
-                            i += int(v)
-                            v = chr(int.from_bytes(my_serial.read(), "little"))
-                    if a == 'G':
-                        gsr.append(i)
-                    elif a == 'C':
-                        ecg.append(i)
-                    elif a == 'E':
-                        eeg.append(i)
-
-            gsr = [0]
-            ecg = ' '.join(map(str, ecg))
-            eeg = ' '.join(map(str, eeg))
-            gsr = ' '.join(map(str, gsr))
-            data = pd.DataFrame([[ecg, eeg, gsr]], columns=['ecg', 'eeg', 'gsr'])
-            data.to_csv(file_path, index=False)
-    except serial.serialutil.SerialException:
-        return False
+        gsr = [0, 0]
+        ecg = ' '.join(map(str, ecg))
+        eeg = ' '.join(map(str, eeg))
+        gsr = ' '.join(map(str, gsr))
+        data = pd.DataFrame([[ecg, eeg, gsr]], columns=['ecg', 'eeg', 'gsr'])
+        data.to_csv(file_path, index=False)
 
     return True
 

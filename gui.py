@@ -84,6 +84,8 @@ class Window(QtWidgets.QMainWindow):
         self.file_path = None
         self.updateComports()
 
+        self.dlg = SubDialog()
+
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
         now = QtCore.QDate.currentDate()
@@ -263,24 +265,32 @@ class Window(QtWidgets.QMainWindow):
         file_path = os.path.join(dir_path, f"{date}.csv")
 
         self.ui.testDateLabel.setText(date)
-        self.ui.resultTextLabel.setText("тестируется")
 
         self.ui.ecgFilesCombo.addItem(date)
         self.ui.eegFilesCombo.addItem(date)
 
-        if read(self.ui.comportsCombo.currentText(), file_path):
+        timeECG = int(self.ui.timeECG.text())
+        timeEEG = int(self.ui.timeEEG.text())
+        enableECG = int(self.ui.checkECG.isChecked())
+        enableEEG = int(self.ui.checkEEG.isChecked())
+        enableGSR = int(self.ui.checkGSR.isChecked())
+
+        if read(self.ui.comportsCombo.currentText(), file_path,
+                timeECG=timeECG, timeEEG=timeEEG,
+                enableECG=enableECG, enableEEG=enableEEG, enableGSR=enableGSR):
             self.analysis(file_path)
         else:
             self.ui.resultTextLabel.setText("не удалось подключиться")
 
     def selectFile(self, text):
+        self.ui.ecgFilesCombo.setCurrentText(text)
+        self.ui.eegFilesCombo.setCurrentText(text)
         dir_path = users.iloc[self.user]['dir_path']
         file_path = os.path.join(dir_path, text)
         self.analysis(file_path + '.csv')
 
-        dlg = SubDialog()
-        dlg.show()
-        dlg.exec()
+        self.dlg.show()
+        self.dlg.exec()
 
     def analysis(self, file_path):
         self.file_path = file_path
@@ -294,7 +304,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.heartRateLabel.setColor(status['heart_rate'])
         self.ui.breathFreqLabel.setColor(status['breath']['freq'])
         self.ui.variabilityIndexLabel.setColor(status['variability']['index'])
-        
+
         self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
 
         user = users.iloc[self.user]
@@ -413,6 +423,7 @@ class Window(QtWidgets.QMainWindow):
     def exit(self):
         users.to_csv('users.csv', index=False)
         self.close()
+        self.dlg.close()
 
     def closeEvent(self, event):
         self.exit()
