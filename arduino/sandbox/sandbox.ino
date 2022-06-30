@@ -388,6 +388,14 @@ void loop()
         ecg = ECG.read();
         eeg = EEG.read();
         digitalWrite(13, LOW);
+        uint8_t mod[3] = {GSR.enabled, ECG.enabled, EEG.enabled};
+        for(i = 0; i < 3; i++)
+            if(mod[i] != 0)
+            {
+                serial.print(SERKEYS[i]);
+                serial.print(*val[i]);
+                serial.print(';');
+            }
     }
 
     if(millis() - timer4 > 50)
@@ -395,13 +403,4 @@ void loop()
         timer4 = millis();
         plotter(ecg);
     }
-
-    uint8_t mod[3] = {GSR.enabled, ECG.enabled, EEG.enabled};
-    for(i = 0; i < 3; i++)
-        if(mod[i] != 0)
-        {
-            serial.print(SERKEYS[i]);
-            serial.print(*val[i]);
-            serial.print(';');
-        }
 }
