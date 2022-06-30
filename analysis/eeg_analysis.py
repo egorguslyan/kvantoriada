@@ -34,14 +34,14 @@ def analysis_eeg(eeg):
     t = get_time(len(eeg), RATE)
     properties['time'] = t
     eeg_filtered = filter_low_high_freq(4, 50, eeg, RATE)
-    properties['filtered'] = eeg_filtered
+    properties['filtered'] = eeg_filtered.copy()
     # freq, x = get_spectrum(0, 100, eeg_filtered)
     size = 100
     points = find_alpha(size, eeg_filtered, 1.9)
     time_start, amp = find_time_and_amp(eeg_filtered, points, t, size)
     coeff = find_coeff(eeg_filtered, points, amp, size)
     properties["spectrum"] = {
-        "amp": coeff,
+        "amp": "{0:.2f}".format(coeff),
         "start_time": time_start
     }
     return properties
