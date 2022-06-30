@@ -61,11 +61,11 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
                             log.write(v)
                     log.write('(' + str(i) + ')')
                     if a == 'G':
-                        gsr.append(i)
+                        gsr.append(i // 4)
                     elif a == 'C':
-                        ecg.append(i)
+                        ecg.append(i // 4)
                     elif a == 'E':
-                        eeg.append(i)
+                        eeg.append(i // 4)
 
             gsr = [0, 0]
             ecg = ' '.join(map(str, ecg))
