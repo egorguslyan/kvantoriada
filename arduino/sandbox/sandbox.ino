@@ -1,9 +1,11 @@
-// #define BLUETOOTH_ENABLE
+#define BLUETOOTH_ENABLE 0
 #define DEBUG_LED 13
 #define BTN 5
 #define LEDW 2
 #define LEDY 3
 #define LEDR 4
+#define P0 A6
+#define P1 A7
 
 /* После изменения стандартных значений времени
    нужно обязательно запустить gen.bat или gen.sh */
@@ -25,7 +27,7 @@
 
 GyverOLED<SSD1306_128x32, OLED_BUFFER> oled;
 
-#ifdef(BLUETOOTH_ENABLE)
+#if(BLUETOOTH_ENABLE)
 SoftwareSerial Serial(8, 7); // RX, TX
 #endif
 
@@ -49,10 +51,11 @@ struct module
     void setup()
     {
         pinMode(pin, INPUT);
+        enabled = 0;
     }
     uint8_t read()
     {
-        return enabled ? analogRead(pin) : 0;
+        return analogRead(pin);
     }
 };
 
@@ -97,7 +100,7 @@ struct
     {
         enabled = 0;
         digitalWrite(pin, LOW);
-        digitalWrite(not_pin, LOW);
+        digitalWrite(not_pin, HIGH);
     }
 } control;
 
@@ -114,6 +117,35 @@ module ECG;
 module EEG;
 
 uint8_t intr_counter;
+
+void plotter(uint16_t y)
+{
+    static uint16_t y0 = 0;
+    uint8_t i, mapped;
+    // for (j = 0; j < 4; j++) {
+    //     for (i = 0; i < 127; i++) {
+    //         oled._oled_buffer[j + i*4]=oled._oled_buffer[j + (i + 1)*4];
+    //     }
+    //     oled._oled_buffer[j + 127*4]=0;
+    // }
+    for(i = 0; i < 127; i++)
+    {
+        memcpy(
+            &oled._oled_buffer[i * 4],
+            &oled._oled_buffer[(i + 1) * 4],
+            sizeof(uint8_t) * 4
+        );
+    }
+    memset(&oled._oled_buffer[127 * 4], 0, sizeof(uint8_t) * 4);
+    y = 16.0 * y / analogRead(P0); // верхний потенциометр - аттенюатор
+    mapped = (analogRead(P1) - 512) / 8; // нижний потенциометр - смещение
+    oled.line(
+        126, y0 + mapped,
+        127, y + mapped
+    );
+    y0 = y;
+    oled.update();
+}
 
 uint8_t eeprom_byte_check(uint8_t b, uint8_t useful_bits)
 {
@@ -171,22 +203,27 @@ extern volatile unsigned long timer0_millis;
 void setup()
 {
     uint8_t eepromData, i;
+    
+    // Базовые I/O
     pinMode(BTN, INPUT);
     pinMode(LEDR, OUTPUT);
     pinMode(LEDY, OUTPUT);
     pinMode(LEDW, OUTPUT);
     pinMode(13, OUTPUT);
+    // Модуль контроля
     control.pin = A3;
     control.not_pin = 12;
     control.setup();
     control.disable();
+    control.seconds0 = control.seconds1 = 0;
+    // Датчики
     GSR.pin = A2;
     GSR.setup();
     ECG.pin = A1;
     ECG.setup();
     EEG.pin = A0;
     EEG.setup();
-    control.seconds0 = control.seconds1 = 0;
+    // Чтение и коррекция EEPROM
     for(i = 0; i < 6; i++)
     {
         eepromData = EEPROM.read(i);
@@ -225,25 +262,25 @@ void setup()
             } break;
         }
     }
+    // Дисплей
+    oled.init();
+    Wire.setClock(800000L);
+    oled.clear();
+    // Отправка данных
+    Serial.begin(38400);
+    // Инициализация глобального таймера
     noInterrupts();
     timer0_millis = GSR_T + E_T;
     interrupts();
-    Serial.begin(38400);
-    control.disable();
-    GSR.enabled =
-    ECG.enabled =
-    EEG.enabled = 0;
-    delay(10);
 }
 
 void loop()
 {
     char S[30], *s[5];
     static uint32_t timer0 = 0, timer1 = 0, timer2 = 0, timer3 = 0, timer4 = 0;
-    uint8_t gsr, ecg, eeg, e, e0, e1, e2;
-    const uint8_t *val[3] = {&gsr, &ecg, &eeg};
-    uint16_t t0, t1, t2;
-    uint8_t i, btn, prevBtn;
+    uint16_t t0, t1, t2, gsr, ecg, eeg;
+    const uint16_t *val[3] = {&gsr, &ecg, &eeg};
+    uint8_t i, btn, prevBtn, e, e0, e1, e2;
 
     // Нагрузка
     // if(millis() - timer0 > 100)
@@ -251,6 +288,12 @@ void loop()
     //     timer0 = millis();
     //     delay(50);
     // } delay(5);
+
+    if(millis() - timer0 > 100)
+    {
+        timer0 = millis();
+        oled.update();
+    }
 
     if(millis() - timer1 > (control.state ? GSR_T : E_T))
     {
@@ -344,6 +387,12 @@ void loop()
         ecg = ECG.read();
         eeg = EEG.read();
         digitalWrite(13, LOW);
+    }
+
+    if(millis() - timer4 > 50)
+    {
+        timer4 = millis();
+        plotter(ecg);
     }
 
     uint8_t mod[3] = {GSR.enabled, ECG.enabled, EEG.enabled};
