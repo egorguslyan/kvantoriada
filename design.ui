@@ -1491,7 +1491,58 @@ border-color: rgb(0, 0, 0);</string>
            </layout>
           </item>
           <item>
-           <spacer name="verticalSpacer_4">
+           <widget class="Line" name="line_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="label_22">
+              <property name="text">
+               <string>Выберете COM-порт</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comportsCombo">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+selection-color: rgb(0, 0, 0);
+selection-background-color: rgb(167, 255, 253);</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="updateComButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>update_comports.png</normaloff>update_comports.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_10">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_2">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>

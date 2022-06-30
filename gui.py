@@ -12,7 +12,7 @@ import datetime
 from mplcanvas import MplCanvas
 from resultlabel import Result
 
-from bluetooth_serial.read_serial import read
+from bluetooth_serial.read_serial import read, get_available_ports
 from analysis.ecg_analysis import analysis_ecg
 from analysis.eeg_analysis import analysis_eeg
 from analysis.signal_analysis import open_csv_file
@@ -47,6 +47,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.testButton.clicked.connect(self.testUser)
         self.ui.repeatButton.clicked.connect(self.testUser)
 
+        self.ui.updateComButton.clicked.connect(self.updateComports)
+
         self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
         self.ui.eegFilesCombo.activated[str].connect(self.selectFile)
 
@@ -80,6 +82,7 @@ class Window(QtWidgets.QMainWindow):
             self.user = None
 
         self.file_path = None
+        self.updateComports()
 
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
@@ -265,7 +268,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.ecgFilesCombo.addItem(date)
         self.ui.eegFilesCombo.addItem(date)
 
-        if read('COM6', file_path):
+        if read(self.ui.comportsCombo.currentText(), file_path):
             self.analysis(file_path)
         else:
             self.ui.resultTextLabel.setText("не удалось подключиться")
@@ -274,8 +277,6 @@ class Window(QtWidgets.QMainWindow):
         dir_path = users.iloc[self.user]['dir_path']
         file_path = os.path.join(dir_path, text)
         self.analysis(file_path + '.csv')
-
-        print("click")
 
         dlg = SubDialog()
         dlg.show()
@@ -403,6 +404,11 @@ class Window(QtWidgets.QMainWindow):
                 self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
 
         self.ui.password.setText('')
+
+    def updateComports(self):
+        available_ports = get_available_ports()
+        self.ui.comportsCombo.clear()
+        self.ui.comportsCombo.addItems(available_ports)
 
     def exit(self):
         users.to_csv('users.csv', index=False)
