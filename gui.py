@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QTableWidgetItem
 from design import Ui_MainWindow
+from dialog import Ui_Dialog
 import sys
 import pandas as pd
 import os
@@ -19,6 +20,12 @@ from analysis.prediction import prediction
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
+
+
+class SubDialog(QtWidgets.QDialog, Ui_Dialog):
+    def __init__(self):
+        super(SubDialog, self).__init__()
+        self.setupUi(self)
 
 
 class Window(QtWidgets.QMainWindow):
@@ -267,6 +274,12 @@ class Window(QtWidgets.QMainWindow):
         dir_path = users.iloc[self.user]['dir_path']
         file_path = os.path.join(dir_path, text)
         self.analysis(file_path + '.csv')
+
+        print("click")
+
+        dlg = SubDialog()
+        dlg.show()
+        dlg.exec()
 
     def analysis(self, file_path):
         self.file_path = file_path
