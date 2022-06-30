@@ -42,9 +42,9 @@ SoftwareSerial serial(8, 7); // RX, TX
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
 #define GSR_T ((uint32_t)control.seconds0 * 1000)
-#define E_T   ((uint32_t)max(control.seconds1, control.seconds2) * 1000)
 #define ECG_T ((uint32_t)control.seconds1 * 1000)
 #define EEG_T ((uint32_t)control.seconds2 * 1000)
+#define E_T (max(ECG_T, EEG_T))
 
 struct module
 {
@@ -324,7 +324,7 @@ void loop()
     digitalWrite(LEDW, control.state && control.enabled);
 
     btn = digitalRead(BTN0);
-    if(btn && !prevBtn)
+    if(btn && !prevBtn && !control.enabled)
         serial.print('s');
     prevBtn = btn;
 
