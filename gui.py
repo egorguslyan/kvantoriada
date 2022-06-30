@@ -297,9 +297,9 @@ class Window(QtWidgets.QMainWindow):
             ['result', self.ui.resultTextLabel.color, '']
         ]
         result_table = pd.DataFrame(result, columns=['ind', 'result', 'value'])
-        dir_path, file = os.path.split(file_path)
-        # print(os.path.join(dir_path, 'r_' + file))
-        result_table.to_csv(os.path.join(dir_path, 'r_' + file), index=False)
+        filename, file_extension = os.path.splitext(file_path)
+        # print(filename + '_r' + file_extension)
+        result_table.to_csv(filename + '_r' + file_extension, index=False)
 
     def updateECG(self, file_path):
         data = open_csv_file(file_path)
