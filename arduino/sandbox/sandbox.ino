@@ -1,6 +1,6 @@
 #define BLUETOOTH_ENABLE 1
 #define DEBUG_LED 13
-#define BTN 5
+#define BTN0 5
 #define LEDW 2
 #define LEDY 3
 #define LEDR 4
@@ -207,7 +207,7 @@ void setup()
     uint8_t eepromData, i;
     
     // Базовые I/O
-    pinMode(BTN, INPUT_PULLUP);
+    pinMode(BTN0, INPUT_PULLUP);
     pinMode(LEDR, OUTPUT);
     pinMode(LEDY, OUTPUT);
     pinMode(LEDW, OUTPUT);
@@ -323,10 +323,10 @@ void loop()
     analogWrite(LEDY, (128 * ECG.enabled) + (127 * EEG.enabled));
     digitalWrite(LEDW, control.state && control.enabled);
 
-    // btn = digitalRead(BTN);
-    // if(btn && !prevBtn)
-    //         timer1 = timer2 = millis();
-    // prevBtn = btn;
+    btn = digitalRead(BTN0);
+    if(btn && !prevBtn)
+        serial.print('s');
+    prevBtn = btn;
 
     if(serial.available())
         if(serial.read() == 'e')

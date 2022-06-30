@@ -18,7 +18,10 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
     with serial.Serial(com, 38400, timeout=0.1) as my_serial:
         ecg = eeg = gsr = []
         while my_serial.in_waiting <= 0:
-            time.sleep(1)
+            a = chr(int.from_bytes(my_serial.read(), "little"))
+            while a != 's':
+                if my_serial.in_waiting > 0:
+                    a = chr(int.from_bytes(my_serial.read(), "little"))
             my_serial.write(str_cfg.encode('ascii'))
         while True:
             while my_serial.in_waiting <= 0:
