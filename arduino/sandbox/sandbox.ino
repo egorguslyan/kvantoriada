@@ -1,4 +1,4 @@
-#define BLUETOOTH_ENABLE 0
+#define BLUETOOTH_ENABLE 1
 #define DEBUG_LED 13
 #define BTN 5
 #define LEDW 2
@@ -22,13 +22,15 @@
     4) TIME
     5) E*TE
 **               */
-#include <SoftwareSerial.h>
 #include <GyverOLED.h>
 
 GyverOLED<SSD1306_128x32, OLED_BUFFER> oled;
 
 #if(BLUETOOTH_ENABLE)
-SoftwareSerial Serial(8, 7); // RX, TX
+#include <SoftwareSerial.h>
+SoftwareSerial serial(8, 7); // RX, TX
+#else
+#define serial Serial
 #endif
 
 #if __has_include("random_key.h")
@@ -205,7 +207,7 @@ void setup()
     uint8_t eepromData, i;
     
     // Базовые I/O
-    pinMode(BTN, INPUT);
+    pinMode(BTN, INPUT_PULLUP);
     pinMode(LEDR, OUTPUT);
     pinMode(LEDY, OUTPUT);
     pinMode(LEDW, OUTPUT);
@@ -267,10 +269,10 @@ void setup()
     Wire.setClock(800000L);
     oled.clear();
     // Отправка данных
-    Serial.begin(38400);
+    serial.begin(38400);
     // Инициализация глобального таймера
     noInterrupts();
-    timer0_millis = GSR_T + E_T;
+    timer0_millis = GSR_T + E_T + 5000;
     interrupts();
 }
 
@@ -305,7 +307,7 @@ void loop()
     if(!control.enabled)
     {
         if(GSR.enabled || ECG.enabled || EEG.enabled)
-            Serial.print('f');
+            serial.print('f');
         GSR.enabled =
         ECG.enabled =
         EEG.enabled = 0;
@@ -313,9 +315,9 @@ void loop()
     }
     else
     {
-        GSR.enabled = control.enabled0 && (millis - timer2 > E_T);
-        ECG.enabled = control.enabled1 && (millis - timer2 < ECG_T);
-        EEG.enabled = control.enabled2 && (millis - timer2 < EEG_T);
+        GSR.enabled = control.enabled0 && (millis() - timer2 > E_T);
+        ECG.enabled = control.enabled1 && (millis() - timer2 < ECG_T);
+        EEG.enabled = control.enabled2 && (millis() - timer2 < EEG_T);
     }
     digitalWrite(LEDR, !control.enabled);
     analogWrite(LEDY, (128 * ECG.enabled) + (127 * EEG.enabled));
@@ -326,17 +328,15 @@ void loop()
     //         timer1 = timer2 = millis();
     // prevBtn = btn;
 
-    if(Serial.available())
-        if(Serial.read() == 'e')
+    if(serial.available())
+        if(serial.read() == 'e')
         {
             memset(S, 0, sizeof(char) * 30);
-            Serial.readBytesUntil(';', S, 30);
+            serial.readBytesUntil(';', S, 30);
             sscanf(S, "%d,%d,%d,%d", &t0, &t1, &t2, &e);
             e0 = bitRead(e, 0);
             e1 = bitRead(e, 1);
             e2 = bitRead(e, 2);
-            sprintf(S, "%d %d %d %d %d %d", t0, t1, t2, e0, e1, e2);
-            Serial.println(S);
             if(t0 != control.seconds0)
             {
                 eeprom_byte_write(0);
@@ -376,6 +376,7 @@ void loop()
                 eeprom_byte_write(5);
                 control.enabled2 = e2;
             }
+            control.state = 0;
             timer1 = timer2 = millis();
         }
 
@@ -399,8 +400,8 @@ void loop()
     for(i = 0; i < 3; i++)
         if(mod[i] != 0)
         {
-            Serial.print(SERKEYS[i]);
-            Serial.print(*val[i]);
-            Serial.print(';');
+            serial.print(SERKEYS[i]);
+            serial.print(*val[i]);
+            serial.print(';');
         }
 }
