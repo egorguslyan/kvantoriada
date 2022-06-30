@@ -10,6 +10,8 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
     enable += (enableEEG & 1) << 2
     config = [timeECG, timeEEG, timeGSR, enable]
     str_cfg = 'e' + ','.join(map(str, config)) + ';'
+    
+    log = open(r'log.txt', 'w')
 
     available_ports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
     if com not in map(lambda x: x[0], available_ports):
@@ -19,17 +21,21 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
         ecg = eeg = gsr = []
         while my_serial.in_waiting <= 0:
             a = chr(int.from_bytes(my_serial.read(), "little"))
+            log.write(a)
             while a != 's':
                 if my_serial.in_waiting > 0:
                     a = chr(int.from_bytes(my_serial.read(), "little"))
+                    log.write(a)
             my_serial.write(str_cfg.encode('ascii'))
         while True:
             while my_serial.in_waiting <= 0:
                 pass
             a = chr(int.from_bytes(my_serial.read(), "little"))
+            log.write(a)
             while a != 'G' and a != 'C' and a != 'E' and a != 'f':
                 if my_serial.in_waiting > 0:
                     a = chr(int.from_bytes(my_serial.read(), "little"))
+                    log.write(a)
 
             if a == 'f':
                 break
@@ -40,11 +46,13 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
                 while my_serial.in_waiting <= 0:
                     pass
                 v = chr(int.from_bytes(my_serial.read(), "little"))
+                log.write(v)
                 while v != ',' and v != ';':
                     if my_serial.in_waiting > 0:
                         i *= 10
                         i += int(v)
                         v = chr(int.from_bytes(my_serial.read(), "little"))
+                        log.write(v)
                 if a == 'G':
                     gsr.append(i)
                 elif a == 'C':
