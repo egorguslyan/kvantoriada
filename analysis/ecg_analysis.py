@@ -3,7 +3,7 @@ from analysis.signal_analysis import *
 
 FILE_PATH = "datasets/1_)7"
 RATE = 200
-RATIO = 0.1
+RATIO = 0.3
 
 
 def find_points_zeros(data, th):
@@ -158,11 +158,11 @@ def analysis_ecg(data):
 
             r_new = convert_points_to_time(r, t)
 
-            properties["heart_rate"] = int(len(r_new) * (60 / t[-1]))
+            # properties["heart_rate"] = int(len(r_new) * (60 / t[-1]))
             var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
 
             properties["variability"] = variability(var)
-
+            properties['heart_rate'] = int(60 * 1000 / properties['variability']['mo'])
             breath = [g[i] for i in r_old]
             max_breath = max(breath)
             min_breath = min(breath)
