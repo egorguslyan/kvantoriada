@@ -60,8 +60,8 @@ class Result(ResultLabel):
     def setColor(self, result):
         if isinstance(result, str):
             self.color = self._results[result]
-        elif isinstance(result, int):
-            self.color = result
+        elif isinstance(result, int) or isinstance(result, float):
+            self.color = int(result)
         self.set_background_color()
         results = {
             1: "Норма",

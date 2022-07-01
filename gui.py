@@ -262,13 +262,12 @@ class Window(QtWidgets.QMainWindow):
 
             self.ui.updateUserButton.setText('Изменить')
 
-            user = [
-                self.ui.nameEdit.text(),
-                self.ui.secondNameEdit.text(),
-                self.ui.middleNameEdit.text(),
-                self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy'),
-                users.iloc[self.user]['dir_path']
-            ]
+            user = users.iloc[self.user]
+            user['name'] = self.ui.nameEdit.text()
+            user['secondName'] = self.ui.secondNameEdit.text()
+            user['middleName'] = self.ui.middleNameEdit.text()
+            user['birthday'] = self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
+
             users.at[self.user] = user
             self.updateTable()
 
@@ -279,13 +278,13 @@ class Window(QtWidgets.QMainWindow):
         dir_path = user['dir_path']
 
         date = datetime.datetime.now().strftime(time_format)
-        files = os.listdir(user['dir_path'])
-        if files:
-            last_file = files[-1]
-            filename, _ = os.path.splitext(last_file)
-            if (datetime.datetime.now() - datetime.datetime.strptime(filename, time_format)).seconds < 300:
-                os.remove(os.path.join(dir_path, f"{filename}.csv"))
-                print(datetime.datetime.now() - datetime.datetime.strptime(filename, time_format))
+        # files = os.listdir(user['dir_path'])
+        # if files:
+        #     last_file = files[-1]
+        #     filename, _ = os.path.splitext(last_file)
+        #     if (datetime.datetime.now() - datetime.datetime.strptime(filename, time_format)).seconds < 300:
+        #         os.remove(os.path.join(dir_path, f"{filename}.csv"))
+        #         print(datetime.datetime.now() - datetime.datetime.strptime(filename, time_format))
 
         file_path = os.path.join(dir_path, f"{date}.csv")
 
