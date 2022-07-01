@@ -41,9 +41,9 @@ SoftwareSerial serial(8, 7); // RX, TX
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
-#define GSR_T ((uint32_t)control.seconds0 * 1000)
-#define ECG_T ((uint32_t)control.seconds1 * 1000)
-#define EEG_T ((uint32_t)control.seconds2 * 1000)
+#define GSR_T (control.enabled0 ? ((uint32_t)control.seconds0 * 1000) : 0)
+#define ECG_T (control.enabled1 ? ((uint32_t)control.seconds1 * 1000) : 0)
+#define EEG_T (control.enabled2 ? ((uint32_t)control.seconds2 * 1000) : 0)
 #define E_T (max(ECG_T, EEG_T))
 
 struct module
@@ -316,17 +316,18 @@ void loop()
         GSR.enabled =
         ECG.enabled =
         EEG.enabled = 0;
+        control.state = 0;
         control.disable();
     }
     else
     {
-        GSR.enabled = control.enabled0 && (millis() - timer2 > E_T);
-        ECG.enabled = control.enabled1 && (millis() - timer2 < ECG_T);
-        EEG.enabled = control.enabled2 && (millis() - timer2 < EEG_T);
+        GSR.enabled = millis() - timer2 > E_T;
+        ECG.enabled = millis() - timer2 < ECG_T;
+        EEG.enabled = millis() - timer2 < EEG_T;
     }
-    digitalWrite(LEDR, !control.enabled);
-    analogWrite(LEDY, (128 * ECG.enabled) + (127 * EEG.enabled));
-    digitalWrite(LEDW, control.state && control.enabled);
+    digitalWrite(LEDW, GSR.enabled);
+    digitalWrite(LEDR, ECG.enabled);
+    digitalWrite(LEDY, EEG.enabled);
 
     btn = digitalRead(BTN0);
     if(btn && !prevBtn && !control.enabled)
@@ -348,12 +349,16 @@ void loop()
             e0 = bitRead(e, 0);
             e1 = bitRead(e, 1);
             e2 = bitRead(e, 2);
+            serial.print('D');
+            serial.print(control.enabled0);
+            serial.print(control.enabled1);
+            serial.print(control.enabled2);
+            serial.print(',');
             if(t2 != control.seconds0)
             {
                 eeprom_byte_write(0);
                 eeprom_byte_write(1);
-                if(e0 != control.enabled0)
-                    control.enabled0 = e0;
+                control.enabled0 = e0;
                 control.seconds0 = t2;
             }
             else if(e0 != control.enabled0)
@@ -365,8 +370,7 @@ void loop()
             {
                 eeprom_byte_write(2);
                 eeprom_byte_write(3);
-                if(e1 != control.enabled1)
-                    control.enabled1 = e1;
+                control.enabled1 = e1;
                 control.seconds1 = t0;
             }
             else if(e1 != control.enabled1)
@@ -378,8 +382,7 @@ void loop()
             {
                 eeprom_byte_write(4);
                 eeprom_byte_write(5);
-                if(e2 != control.enabled2)
-                    control.enabled2 = e2;
+                control.enabled2 = e2;
                 control.seconds2 = t1;
             }
             else if(e2 != control.enabled2)
@@ -387,7 +390,10 @@ void loop()
                 eeprom_byte_write(5);
                 control.enabled2 = e2;
             }
-            control.state = 0;
+            serial.print(control.enabled0);
+            serial.print(control.enabled1);
+            serial.print(control.enabled2);
+            serial.print(';');
             timer1 = timer2 = millis();
         }
 
@@ -410,7 +416,7 @@ void loop()
             }
     }
 
-    if(millis() - timer4 > 25)
+    if((millis() - timer4 > 25) && !control.state)
     {
         timer4 = millis();
         plotter(ecg);
