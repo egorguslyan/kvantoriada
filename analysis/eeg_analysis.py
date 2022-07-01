@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 # import numpy as np
 from analysis.signal_analysis import *
 
-FILE_PATH = "datasets/1/Misha/dataEEG_1.txt"
+FILE_PATH = "datasets/q"
 RATE = 200
 
 
@@ -16,34 +16,48 @@ def open_file_eeg(file_path):
 
 def find_alpha(size, sig, ratio):
     points = []
-    freq, x = get_spectrum(4, 70, sig)
+    freq, x = get_spectrum(4, 70, sig, RATE)
     max_amp = max(x)
-    freq, x = get_spectrum(8, 14, sig)
+    freq, x = get_spectrum(8, 14, sig, RATE)
     if max(x) == max_amp:
         th = ratio * max_amp
         for i in range(len(sig) - size):
-            freq, x = get_spectrum(8, 14, sig[i:i + size])
+            freq, x = get_spectrum(8, 14, sig[i:i + size], RATE)
             if max(x) > th:
                 points.append(i+size//2)
     return points
 
 
-def analysis_eeg(eeg):
-    properties = {}
+def analysis_eeg(data):
+    eeg = data[0]
+    time = data[1]
+    enable = data[2]
 
-    t = get_time(len(eeg), RATE)
-    properties['time'] = t
-    eeg_filtered = filter_low_high_freq(4, 50, eeg, RATE)
-    properties['filtered'] = eeg_filtered.copy()
-    # freq, x = get_spectrum(0, 100, eeg_filtered)
-    size = 100
-    points = find_alpha(size, eeg_filtered, 1.9)
-    time_start, amp = find_time_and_amp(eeg_filtered, points, t, size)
-    coeff = find_coeff(eeg_filtered, points, amp, size)
-    properties["spectrum"] = {
-        "amp": "{0:.2f}".format(coeff),
-        "start_time": time_start
+    properties = {
+        'time': list(range(len(eeg))),
+        'filtered': eeg,
+        'spectrum': {
+            'amp': 0,
+            'start_time': 0
+        }
     }
+
+    if enable == 1:
+        global RATE
+        RATE = len(eeg) // time
+        t = get_time(len(eeg), RATE)
+        properties['time'] = t
+        eeg_filtered = filter_low_high_freq(4, 50, eeg, RATE)
+        properties['filtered'] = eeg_filtered.copy()
+        # freq, x = get_spectrum(0, 100, eeg_filtered, RATE)
+        size = 100
+        points = find_alpha(size, eeg_filtered, 1.9)
+        time_start, amp = find_time_and_amp(eeg_filtered, points, t, size)
+        coeff = find_coeff(eeg_filtered, points, amp, size)
+        properties["spectrum"] = {
+            "amp": "{0:.2f}".format(coeff),
+            "start_time": time_start
+        }
     return properties
 
 
@@ -62,7 +76,7 @@ def find_coeff(eeg, points, amp, size):
         prom.append(curr)
     am = []
     for ee in prom:
-        freq, x = get_spectrum(8, 14, ee)
+        freq, x = get_spectrum(8, 14, ee, RATE)
         am.append(sum(x)*size/len(ee))
     ampl = sum(am)/len(am)
     if amp > 0:
@@ -71,7 +85,7 @@ def find_coeff(eeg, points, amp, size):
         return -1
 
 
-def find_time_and_amp(eeg, points, t, size, delay=3):
+def find_time_and_amp(eeg, points, t, size, delay=1):
     time_start = -1
     amp = -1
     if points:
@@ -84,7 +98,7 @@ def find_time_and_amp(eeg, points, t, size, delay=3):
                     break
         amps = []
         for i in points:
-            freq, x = get_spectrum(8, 14, eeg[i - size // 2:i + size // 2])
+            freq, x = get_spectrum(8, 14, eeg[i - size // 2:i + size // 2], RATE)
             amps.append(sum(x))
         amp = sum(amps)/len(amps)
     return time_start, amp
@@ -92,9 +106,11 @@ def find_time_and_amp(eeg, points, t, size, delay=3):
 
 def main():
     eeg = open_file_eeg(FILE_PATH)
+    global RATE
+    RATE = len(eeg) / 10
     t = get_time(len(eeg), RATE)
-    eeg_filtered = filter_low_high_freq(4, 70, eeg, RATE)
-    freq, x = get_spectrum(0, 100, eeg_filtered)
+    eeg_filtered = filter_low_high_freq(4, 50, eeg, RATE)
+    freq, x = get_spectrum(0, 100, eeg_filtered, RATE)
     p = find_alpha(100, eeg_filtered, 1.9)
     tim_start, amp = find_time_and_amp(eeg_filtered, p, t, 100)
     coeff = find_coeff(eeg_filtered, p, amp, 100)

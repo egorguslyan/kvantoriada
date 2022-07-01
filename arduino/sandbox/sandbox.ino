@@ -348,39 +348,39 @@ void loop()
             e0 = bitRead(e, 0);
             e1 = bitRead(e, 1);
             e2 = bitRead(e, 2);
-            if(t0 != control.seconds0)
+            if(t2 != control.seconds0)
             {
                 eeprom_byte_write(0);
                 eeprom_byte_write(1);
                 if(e0 != control.enabled0)
                     control.enabled0 = e0;
-                control.seconds0 = t0;
+                control.seconds0 = t2;
             }
             else if(e0 != control.enabled0)
             {
                 eeprom_byte_write(1);
                 control.enabled0 = e0;
             }
-            if(t1 != control.seconds1)
+            if(t0 != control.seconds1)
             {
                 eeprom_byte_write(2);
                 eeprom_byte_write(3);
                 if(e1 != control.enabled1)
                     control.enabled1 = e1;
-                control.seconds1 = t1;
+                control.seconds1 = t0;
             }
             else if(e1 != control.enabled1)
             {
                 eeprom_byte_write(3);
                 control.enabled1 = e1;
             }
-            if(t2 != control.seconds2)
+            if(t1 != control.seconds2)
             {
                 eeprom_byte_write(4);
                 eeprom_byte_write(5);
                 if(e2 != control.enabled2)
                     control.enabled2 = e2;
-                control.seconds2 = t2;
+                control.seconds2 = t1;
             }
             else if(e2 != control.enabled2)
             {
@@ -391,14 +391,15 @@ void loop()
             timer1 = timer2 = millis();
         }
 
-    if(millis() - timer3 > 5)
+    digitalWrite(13, HIGH);
+    gsr = GSR.read();
+    ecg = ECG.read();
+    eeg = EEG.read();
+    digitalWrite(13, LOW);
+
+    if(millis() - timer3 > 3)
     {
         timer3 = millis();
-        digitalWrite(13, HIGH);
-        gsr = GSR.read();
-        ecg = ECG.read();
-        eeg = EEG.read();
-        digitalWrite(13, LOW);
         uint8_t mod[3] = {GSR.enabled, ECG.enabled, EEG.enabled};
         for(i = 0; i < 3; i++)
             if(mod[i] != 0)
@@ -409,7 +410,7 @@ void loop()
             }
     }
 
-    if(millis() - timer4 > 50)
+    if(millis() - timer4 > 25)
     {
         timer4 = millis();
         plotter(ecg);

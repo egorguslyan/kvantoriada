@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 from analysis.signal_analysis import *
 
-FILE_PATH = "datasets/1/Semyon/datasCalmEKG_1.txt"
+FILE_PATH = "datasets/1_)7"
 RATE = 200
-RATIO = 0.3
+RATIO = 0.1
 
 
 def find_points_zeros(data, th):
@@ -130,46 +130,53 @@ def variability(var):
     }
 
 
-def analysis_ecg(ecg):
-    properties = {}
-    t = get_time(len(ecg), RATE)
-    properties['time'] = t
-    ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
-    # freq, x = get_spectrum(0, 7, ecg_filtered)
+def analysis_ecg(data):
+    ecg = data[0]
+    time = data[1]
+    enable = data[2]
+    properties = dict()
+    properties['time'] = list(range(len(ecg)))
+    properties["heart_rate"] = 0
+    properties["variability"] = variability([0] * 2)
+    properties["breath"] = {
+        "max": 0,
+        "min": 0,
+        "amplitude": 0,
+        "freq": 0
+    }
+    if enable == 1:
+        try:
+            RATE = len(ecg) // time
+            t = get_time(len(ecg), RATE)
+            properties['time'] = t
+            ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
+            # freq, x = get_spectrum(0, 7, ecg_filtered)
 
-    g, r_old = find_r_peak(15, 8, RATIO, ecg_filtered)
-    var = [r_old[i] - r_old[i - 1] for i in range(1, len(r_old))]
-    if len(var) > 0:
-        r = calibrate_r_peak(r_old, ecg, max(var) // 2)
+            g, r_old = find_r_peak(15, 8, RATIO, ecg_filtered)
+            var = [r_old[i] - r_old[i - 1] for i in range(1, len(r_old))]
+            r = calibrate_r_peak(r_old, ecg, max(var) // 2)
 
-        r_new = convert_points_to_time(r, t)
+            r_new = convert_points_to_time(r, t)
 
-        properties["heart_rate"] = int(len(r_new) * (60 / t[-1]))
-        var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
+            properties["heart_rate"] = int(len(r_new) * (60 / t[-1]))
+            var = [(r_new[i] - r_new[i - 1]) * 1000 for i in range(1, len(r_new))]
 
-        properties["variability"] = variability(var)
+            properties["variability"] = variability(var)
 
-        breath = [g[i] for i in r_old]
-        max_breath = max(breath)
-        min_breath = min(breath)
-        ampl_breath = max_breath - min_breath
+            breath = [g[i] for i in r_old]
+            max_breath = max(breath)
+            min_breath = min(breath)
+            ampl_breath = max_breath - min_breath
 
-        freq_breath = len(find_breath_freq(breath)) * 60 / t[-1]
-        properties["breath"] = {
-            "max": int(max_breath),
-            "min": int(min_breath),
-            "amplitude": int(ampl_breath),
-            "freq": int(freq_breath)
-        }
-    else:
-        properties["heart_rate"] = 0
-        properties["variability"] = variability([0] * 2)
-        properties["breath"] = {
-            "max": 0,
-            "min": 0,
-            "amplitude": 0,
-            "freq": 0
-        }
+            freq_breath = len(find_breath_freq(breath)) * 60 / t[-1]
+            properties["breath"] = {
+                "max": int(max_breath),
+                "min": int(min_breath),
+                "amplitude": int(ampl_breath),
+                "freq": int(freq_breath)
+            }
+        except:
+            pass
 
     return properties
 
@@ -185,7 +192,7 @@ def main():
     ecg_filtered = filter_low_high_freq(0.2, 30, ecg, RATE)
     ax[0].plot(t[:250], ecg_filtered[:250])
 
-    freq, x = get_spectrum(0, 7, ecg_filtered)
+    freq, x = get_spectrum(0, 7, ecg_filtered, RATE)
     ax[1].plot(freq, x)
 
     g, r_old = find_r_peak(15, 8, RATIO, ecg_filtered)

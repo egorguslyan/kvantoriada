@@ -278,13 +278,14 @@ class Window(QtWidgets.QMainWindow):
         user = users.iloc[self.user]
         dir_path = user['dir_path']
 
-        files = os.listdir(user['dir_path'])
-        last_file = files[-1]
-        filename, _ = os.path.splitext(last_file)
         date = datetime.datetime.now().strftime(time_format)
-        if (datetime.datetime.now() - datetime.datetime.strptime(filename, time_format)).seconds < 300:
-            date = filename
-            print(datetime.datetime.now() - datetime.datetime.strptime(filename, time_format))
+        files = os.listdir(user['dir_path'])
+        if files:
+            last_file = files[-1]
+            filename, _ = os.path.splitext(last_file)
+            if (datetime.datetime.now() - datetime.datetime.strptime(filename, time_format)).seconds < 300:
+                os.remove(os.path.join(dir_path, f"{filename}.csv"))
+                print(datetime.datetime.now() - datetime.datetime.strptime(filename, time_format))
 
         file_path = os.path.join(dir_path, f"{date}.csv")
 
@@ -305,7 +306,7 @@ class Window(QtWidgets.QMainWindow):
             self.analysis(file_path)
 
             user = users.iloc[self.user]
-            user['last_result'] = self.ui.resultLabel.color
+            user['last_result'] = self.ui.resultTextLabel.color
             users.at[self.user] = user
         else:
             self.ui.resultTextLabel.setText("не удалось подключиться")
@@ -393,7 +394,7 @@ class Window(QtWidgets.QMainWindow):
         properties = analysis_ecg(data['ecg'])
 
         self.ui.canvasECG.clear()
-        self.ui.canvasECG.plot(properties['time'], data['ecg'])
+        self.ui.canvasECG.plot(properties['time'], data['ecg'][0])
         self.ui.canvasECG.save_data()
         self.ui.canvasECG.set_ylim()
 

@@ -16,8 +16,8 @@ class MplCanvas(FigureCanvas):
 
         self.fig.set_facecolor("#ffe6ea")
 
-        hint = "двойной левый клик - приближение\n" \
-               "двойной правый клик - отдаление\n" \
+        hint = "левый клик - приближение\n" \
+               "правый клик - отдаление\n" \
                "колесико мыши - перемещение по оси времени"
 
         self.setToolTip(hint)
@@ -96,7 +96,7 @@ class MplCanvas(FigureCanvas):
         self.begin = 0
         self.end = len(self.x)
 
-    def mouseDoubleClickEvent(self, event):
+    def mousePressEvent(self, event):
         width = self.frameGeometry().width()
         s = event.x() / width
         if event.button() == 1:

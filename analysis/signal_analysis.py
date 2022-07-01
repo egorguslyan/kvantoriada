@@ -12,14 +12,24 @@ def open_csv_file(file_path):
             'gsr': [0] * 512
         }
     data = pd.read_csv(file_path, delimiter=',')
-    data = data.iloc[0]
-    ecg = list(map(lambda x: int(x) - 128, data['ecg'].split()))
-    eeg = list(map(lambda x: int(x) - 128, data['eeg'].split()))
-    gsr = list(map(lambda x: int(x) - 128, data['gsr'].split()))
+    signals = data.iloc[0]
+    ecg = list(map(lambda x: int(x) - 128, signals['ecg'].split()))
+    eeg = list(map(lambda x: int(x) - 128, signals['eeg'].split()))
+    gsr = list(map(lambda x: int(x) - 128, signals['gsr'].split()))
+
+    times = data.iloc[1]
+    time_ecg = int(times['ecg'])
+    time_eeg = int(times['eeg'])
+    time_gsr = int(times['gsr'])
+
+    enables = data.iloc[2]
+    enable_ecg = int(enables['ecg'])
+    enable_eeg = int(enables['eeg'])
+    enable_gsr = int(enables['gsr'])
     return {
-        'ecg': ecg,
-        'eeg': eeg,
-        'gsr': gsr
+        'ecg': [ecg, time_ecg, enable_ecg],
+        'eeg': [eeg, time_eeg, enable_eeg],
+        'gsr': [gsr, time_gsr, enable_gsr]
     }
 
 
@@ -53,8 +63,8 @@ def filter_low_high_freq(low, high, data, rate):
     return data_filtered
 
 
-def get_spectrum(low, high, data):
-    freq = np.fft.rfftfreq(len(data), 0.005)
+def get_spectrum(low, high, data, rate):
+    freq = np.fft.rfftfreq(len(data), 1 / rate)
     x = np.abs(np.fft.rfft(data) / len(data))
 
     freq_new = []
