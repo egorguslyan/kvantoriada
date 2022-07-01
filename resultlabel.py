@@ -41,6 +41,8 @@ class ResultLabel(QtWidgets.QLabel):
     def setColor(self, result):
         if isinstance(result, str):
             self.color = self._results[result]
+        elif isinstance(result, int) or isinstance(result, float):
+            self.color = int(result)
         self.set_background_color()
 
     def set_background_color(self):
@@ -58,6 +60,8 @@ class Result(ResultLabel):
     def setColor(self, result):
         if isinstance(result, str):
             self.color = self._results[result]
+        elif isinstance(result, int):
+            self.color = result
         self.set_background_color()
         results = {
             1: "Норма",

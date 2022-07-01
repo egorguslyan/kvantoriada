@@ -303,6 +303,10 @@ class Window(QtWidgets.QMainWindow):
                 timeECG=timeECG, timeEEG=timeEEG,
                 enableECG=enableECG, enableEEG=enableEEG, enableGSR=enableGSR):
             self.analysis(file_path)
+
+            user = users.iloc[self.user]
+            user['last_result'] = self.ui.resultLabel.color
+            users.at[self.user] = user
         else:
             self.ui.resultTextLabel.setText("не удалось подключиться")
 
@@ -341,18 +345,29 @@ class Window(QtWidgets.QMainWindow):
         ecg = self.updateECG(file_path)
         eeg = self.updateEEG(file_path)
 
-        status = prediction(ecg, eeg)
-        self.ui.resultTextLabel.setColor(status['result']['color'])
+        filename, _ = os.path.splitext(file_path)
+        r_file = f"{filename}_r.csv"
+        if not os.path.exists(r_file):
+            status = prediction(ecg, eeg)
+            self.ui.resultTextLabel.setColor(status['result']['color'])
 
-        self.ui.heartRateLabel.setColor(status['heart_rate'])
-        self.ui.breathFreqLabel.setColor(status['breath']['freq'])
-        self.ui.variabilityIndexLabel.setColor(status['variability']['index'])
+            self.ui.heartRateLabel.setColor(status['heart_rate'])
+            self.ui.breathFreqLabel.setColor(status['breath']['freq'])
+            self.ui.variabilityIndexLabel.setColor(status['variability']['index'])
 
-        self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
+            self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
+        else:
+            status = pd.read_csv(r_file, delimiter=',')
+            status = status.set_index('ind')
+            # print(status)
+            # print(status.loc['result'])
+            self.ui.resultTextLabel.setColor((status.loc['result'])['result'])
 
-        user = users.iloc[self.user]
-        user['last_result'] = status['result']['color']
-        users.at[self.user] = user
+            self.ui.heartRateLabel.setColor(status.loc['heart_rate']['result'])
+            self.ui.breathFreqLabel.setColor(status.loc['breath_freq']['result'])
+            self.ui.variabilityIndexLabel.setColor(status.loc['variability_index']['result'])
+
+            self.ui.startTimeAlphaLabel.setColor(status.loc['start_time']['result'])
 
         # self.makeResultFile(file_path)
 
