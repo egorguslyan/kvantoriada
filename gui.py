@@ -49,8 +49,7 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.updateComButton.clicked.connect(self.updateComports)
 
-        self.ui.ecgFilesCombo.activated[str].connect(self.selectFile)
-        self.ui.eegFilesCombo.activated[str].connect(self.selectFile)
+        self.ui.filesCombo.activated[str].connect(self.selectFile)
 
         self.ui.canvasECG = MplCanvas()
         self.ui.verticalLayout_8.addWidget(self.ui.canvasECG)
@@ -61,22 +60,24 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasVar = MplCanvas()
         self.ui.verticalLayout_10.addWidget(self.ui.canvasVar)
 
-        self.ui.saveButton = QtWidgets.QPushButton(self.ui.centralwidget)
-        self.ui.saveButton.setStyleSheet("background-color: #e1a91a;")
-        self.ui.saveButton.setObjectName("saveButton")
-        self.ui.saveButton.setText('Сохранить')
-        self.ui.saveButton.setVisible(False)
-        self.ui.saveButton.clicked.connect(self.saveChanges)
-        self.ui.horizontalLayout_9.insertWidget(2, self.ui.saveButton)
+        self.ui.canvasSpectrum = MplCanvas()
+        self.ui.verticalLayout_11.addWidget(self.ui.canvasSpectrum)
 
-        self.ui.resultTextLabel = Result(self.ui.card)
-        self.ui.resultTextLabel.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.ui.resultTextLabel.setFrameShape(QtWidgets.QFrame.Box)
-        self.ui.resultTextLabel.setObjectName("resultTextLabel")
-        self.ui.formLayout_3.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.ui.resultTextLabel)
+        # self.ui.saveButton = QtWidgets.QPushButton(self.ui.centralwidget)
+        # self.ui.saveButton.setStyleSheet("background-color: #e1a91a;")
+        # self.ui.saveButton.setObjectName("saveButton")
+        # self.ui.saveButton.setText('Сохранить')
+        # self.ui.saveButton.setVisible(False)
+        # self.ui.saveButton.clicked.connect(self.saveChanges)
+        # self.ui.horizontalLayout_9.insertWidget(2, self.ui.saveButton)
+
+        # self.ui.resultTextLabel = Result(self.ui.card)
+        # self.ui.resultTextLabel.setStyleSheet("background-color: rgb(255, 255, 255);")
+        # self.ui.resultTextLabel.setFrameShape(QtWidgets.QFrame.Box)
+        # self.ui.resultTextLabel.setObjectName("resultTextLabel")
+        # self.ui.formLayout_3.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.ui.resultTextLabel)
 
         self.ui.deleteFile.clicked.connect(self.deleteFile)
-        self.ui.deleteFile_2.clicked.connect(self.deleteFile)
 
         self.file_path = None
         self.updateComports()
@@ -176,25 +177,21 @@ class Window(QtWidgets.QMainWindow):
             self.ui.birthdayEdit.setDate(date)
             self.ui.birthdayEdit.show()
             self.updateAge()
-            self.ui.ecgFilesCombo.clear()
-            self.ui.eegFilesCombo.clear()
+            self.ui.filesCombo.clear()
             files = os.listdir(user['dir_path'])
             i = 0
             if files:
                 for file in files:
                     if file.find('_r') == -1:
                         filename, _ = os.path.splitext(file)
-                        self.ui.ecgFilesCombo.addItem(filename)
-                        self.ui.eegFilesCombo.addItem(filename)
+                        self.ui.filesCombo.addItem(filename)
 
                         if files.count(f'{filename}_r.csv') == 0:
-                            self.ui.ecgFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
-                            self.ui.eegFilesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
+                            self.ui.filesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
                         i += 1
             self.ui.deleteFile.setVisible(False)
-            self.ui.deleteFile_2.setVisible(False)
 
-            comboBox = self.ui.ecgFilesCombo
+            comboBox = self.ui.filesCombo
             files_combo = [comboBox.itemText(i) for i in range(comboBox.count())]
             if files_combo:
                 self.selectFile(files_combo[-1])
@@ -290,8 +287,7 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.testDateLabel.setText(date)
 
-        self.ui.ecgFilesCombo.addItem(date)
-        self.ui.eegFilesCombo.addItem(date)
+        self.ui.filesCombo.addItem(date)
 
         timeECG = int(self.ui.timeECG.text())
         timeEEG = int(self.ui.timeEEG.text())
@@ -320,12 +316,11 @@ class Window(QtWidgets.QMainWindow):
             self.dlg.exec()
 
         self.ui.deleteFile.setVisible(True)
-        self.ui.deleteFile_2.setVisible(True)
 
     def deleteFile(self):
         user = users.iloc[self.user]
 
-        filename = self.ui.ecgFilesCombo.currentText()
+        filename = self.ui.filesCombo.currentText()
         file = f"{filename}.csv"
         file_path = os.path.join(user["dir_path"], file)
 
@@ -335,9 +330,8 @@ class Window(QtWidgets.QMainWindow):
             r_file_path = os.path.join(user["dir_path"], r_file)
             if os.path.exists(r_file_path):
                 os.remove(r_file_path)
-        files = [self.ui.ecgFilesCombo.itemText(i) for i in range(self.ui.ecgFilesCombo.count())]
-        self.ui.ecgFilesCombo.removeItem(files.index(filename))
-        self.ui.eegFilesCombo.removeItem(files.index(filename))
+        files = [self.ui.filesCombo.itemText(i) for i in range(self.ui.filesCombo.count())]
+        self.ui.filesCombo.removeItem(files.index(filename))
 
     def analysis(self, file_path):
         self.file_path = file_path
@@ -387,7 +381,7 @@ class Window(QtWidgets.QMainWindow):
     def updateECG(self, file_path):
         file = os.path.split(file_path)[-1]
         filename, _ = os.path.splitext(file)
-        self.ui.ecgFilesCombo.setCurrentText(filename)
+        self.ui.filesCombo.setCurrentText(filename)
 
         data = open_csv_file(file_path)
         properties = analysis_ecg(data['ecg'])
@@ -413,7 +407,6 @@ class Window(QtWidgets.QMainWindow):
     def updateEEG(self, file_path):
         file = os.path.split(file_path)[-1]
         filename, _ = os.path.splitext(file)
-        self.ui.eegFilesCombo.setCurrentText(filename)
 
         data = open_csv_file(file_path)
         properties = analysis_eeg(data['eeg'])
@@ -422,6 +415,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasEEG.plot(properties['time'], properties['filtered'])
         self.ui.canvasEEG.save_data()
         self.ui.canvasEEG.set_ylim()
+
+        self.ui.canvasSpectrum.clear()
+        self.ui.canvasSpectrum.plot(properties['spectrum']['freq'], properties['spectrum']['x'])
+        self.ui.canvasSpectrum.save_data()
+        self.ui.canvasSpectrum.set_ylim()
 
         self.ui.amplitudeAlphaLabel.setText(str(properties['spectrum']['amp']))
         self.ui.startTimeAlphaLabel.setText(str(properties['spectrum']['start_time']))
