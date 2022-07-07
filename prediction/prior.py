@@ -1,4 +1,4 @@
-def prediction(ecg, eeg):
+def prior_analysis(ecg, eeg):
     res = 0
     status = {}
     if ecg['heart_rate'] > 70:

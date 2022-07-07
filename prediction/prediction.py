@@ -3,11 +3,12 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 import numpy as np
 import pandas as pd
 import pickle
 import os
+from sklearn.preprocessing import OneHotEncoder
 
 PARAMS = ['heart_rate', 'breath_freq', 'variability_index', 'start_time']
 
@@ -37,7 +38,7 @@ def get_data(file, param):
     data_file = data_file.set_index('ind')
 
     if param != 'result':
-        t = [float(data_file.loc[param]['value']), data_file.loc[param]['result']]
+        t = [float(data_file.loc[param]['value']), str(int(data_file.loc[param]['result']))]
     else:
         t = list(map(int, data_file['result'].tolist()))
         t[-1] = str(t[-1])
@@ -59,23 +60,36 @@ def get_dataset(dir_path, param):
 
 
 def split_dataset(dataset):
-    X = dataset.iloc[:, :-1].values
-    y = dataset.iloc[:, -1].values
+    X = dataset.iloc[:, :-1]
+    y = dataset.iloc[:, -1]
     return X, y
+
+
+def transform(data, ohe):
+    feature_arr = ohe.fit_transform(data[:]).toarray()
+    feature_labels = ohe.categories_
+    feature_labels = np.array(feature_labels).ravel()
+    return pd.DataFrame(feature_arr, columns=feature_labels)
 
 
 def fit(dir_path, ignor=None):
     models = dict()
 
     for param in PARAMS + ['result']:
-        X, y = split_dataset(get_dataset(dir_path, param))
+        dataset = get_dataset(dir_path, param)
         if ignor is not None:
-            X, y = list(X[:ignor]) + list(X[ignor + 1:]), list(y[:ignor]) + list(y[ignor + 1:])
+            dataset.drop(index=[ignor], axis=0, inplace=True)
+
+        X, y = split_dataset(dataset)
 
         if param != 'result':
             models[param] = SVC()
         else:
+            models['onehotencoder'] = OneHotEncoder(categories=[[0, 1, 2]] * len(PARAMS))
+            X = transform(X, models['onehotencoder'])
             models[param] = LogisticRegression()
+        X = X.values
+        y = y.values
         models[param].fit(X, y)
 
     return models
@@ -86,12 +100,22 @@ def predict(dir_path, file, models):
     print(file)
     for param in PARAMS:
         X, y = split_dataset(get_data(os.path.join(dir_path, file), param))
+        X = X.values
+        y = y.values
         y_pred.append(int(models[param].predict(X)))
         print(y, y_pred[-1])
 
     X, y = split_dataset(get_data(os.path.join(dir_path, file), 'result'))
-    print(y, models['result'].predict(X))
-    return models['result'].predict([y_pred])
+
+    X = transform(X, models['onehotencoder'])
+
+    y_pred = pd.DataFrame([y_pred], columns=PARAMS)
+    y_pred = transform(y_pred, models['onehotencoder'])
+    X = X.values
+    y = y.values
+    y_pred = y_pred.values
+    print(y, int(models['result'].predict(X)[0]))
+    return int(models['result'].predict(y_pred)[0])
 
 
 def main():

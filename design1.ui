@@ -881,7 +881,7 @@ selection-background-color: rgb(167, 255, 253);
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="analysis">
+             <widget class="QPushButton" name="predictionStatusButton">
               <property name="styleSheet">
                <string notr="true">background-color:  rgb(225, 194, 36);</string>
               </property>

@@ -10,13 +10,13 @@ import time
 import datetime
 
 from mplcanvas import MplCanvas
-from resultlabel import Result
 
 from bluetooth_serial.read_serial import read, get_available_ports
 from analysis.ecg_analysis import analysis_ecg
 from analysis.eeg_analysis import analysis_eeg
 from analysis.signal_analysis import open_csv_file
-from analysis.prediction import prediction
+from prediction.prior import prior_analysis
+from prediction.prediction import fit, predict
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
@@ -26,6 +26,7 @@ class SubDialog(QtWidgets.QDialog, Ui_Dialog):
     def __init__(self):
         super(SubDialog, self).__init__()
         self.setupUi(self)
+        self.setModal(True)
 
 
 class Window(QtWidgets.QMainWindow):
@@ -63,19 +64,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasSpectrum = MplCanvas()
         self.ui.verticalLayout_11.addWidget(self.ui.canvasSpectrum)
 
-        # self.ui.saveButton = QtWidgets.QPushButton(self.ui.centralwidget)
-        # self.ui.saveButton.setStyleSheet("background-color: #e1a91a;")
-        # self.ui.saveButton.setObjectName("saveButton")
-        # self.ui.saveButton.setText('Сохранить')
-        # self.ui.saveButton.setVisible(False)
-        # self.ui.saveButton.clicked.connect(self.saveChanges)
-        # self.ui.horizontalLayout_9.insertWidget(2, self.ui.saveButton)
-
-        # self.ui.resultTextLabel = Result(self.ui.card)
-        # self.ui.resultTextLabel.setStyleSheet("background-color: rgb(255, 255, 255);")
-        # self.ui.resultTextLabel.setFrameShape(QtWidgets.QFrame.Box)
-        # self.ui.resultTextLabel.setObjectName("resultTextLabel")
-        # self.ui.formLayout_3.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.ui.resultTextLabel)
+        self.ui.saveButton.clicked.connect(self.saveChanges)
 
         self.ui.deleteFile.clicked.connect(self.deleteFile)
 
@@ -89,9 +78,6 @@ class Window(QtWidgets.QMainWindow):
             self.updateCard()
         else:
             self.user = None
-
-    def test(self, e):
-        print(e)
 
     def updateAge(self):
         birthday = self.ui.birthdayEdit.date()
@@ -311,10 +297,6 @@ class Window(QtWidgets.QMainWindow):
         filename = os.path.join(dir_path, file)
         self.analysis(f"{filename}.csv")
 
-        if not os.path.exists(f"{filename}_r.csv"):
-            self.dlg.show()
-            self.dlg.exec()
-
         self.ui.deleteFile.setVisible(True)
 
     def deleteFile(self):
@@ -342,7 +324,10 @@ class Window(QtWidgets.QMainWindow):
         filename, _ = os.path.splitext(file_path)
         r_file = f"{filename}_r.csv"
         if not os.path.exists(r_file):
-            status = prediction(ecg, eeg)
+            self.dlg.show()
+            self.dlg.exec()
+
+            status = prior_analysis(ecg, eeg)
             self.ui.resultTextLabel.setColor(status['result']['color'])
 
             self.ui.heartRateLabel.setColor(status['heart_rate'])
