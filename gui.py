@@ -64,7 +64,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasSpectrum = MplCanvas()
         self.ui.verticalLayout_11.addWidget(self.ui.canvasSpectrum)
 
-        self.ui.saveButton.clicked.connect(self.saveChanges)
+        self.ui.saveButton.clicked.connect(self.saveResultFile)
 
         self.ui.deleteFile.clicked.connect(self.deleteFile)
 
@@ -100,7 +100,7 @@ class Window(QtWidgets.QMainWindow):
         os.mkdir(dir_path)
 
         user = [
-            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path, 'None', '']
+            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path, 'None', '', 0]
         ]
         user = pd.DataFrame(user, columns=[
             'name',
@@ -109,7 +109,8 @@ class Window(QtWidgets.QMainWindow):
             'birthday',
             'dir_path',
             'password',
-            'last_result'
+            'last_result',
+            'count_result_files'
         ])
         users = pd.concat([users, user], ignore_index=True)
 
@@ -363,6 +364,11 @@ class Window(QtWidgets.QMainWindow):
         # print(filename + '_r' + file_extension)
         result_table.to_csv(f"{filename}_r.csv", index=False)
 
+        files = [self.ui.filesCombo.itemText(i) for i in range(self.ui.filesCombo.count())]
+        filename = self.ui.filesCombo.currentText()
+        i = files.index(filename)
+        self.ui.filesCombo.setItemData(i, QtGui.QColor(255, 255, 255), QtCore.Qt.BackgroundRole)
+
     def updateECG(self, file_path):
         file = os.path.split(file_path)[-1]
         filename, _ = os.path.splitext(file)
@@ -429,7 +435,7 @@ class Window(QtWidgets.QMainWindow):
         self.changeEditingLabel(True)
         self.ui.saveButton.setVisible(True)
 
-    def saveChanges(self):
+    def saveResultFile(self):
         print('save')
         self.makeResultFile(self.file_path)
 
