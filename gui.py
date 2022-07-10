@@ -16,7 +16,7 @@ from analysis.ecg_analysis import analysis_ecg
 from analysis.eeg_analysis import analysis_eeg
 from analysis.signal_analysis import open_csv_file
 from prediction.prior import prior_analysis
-from prediction.prediction import fit, predict
+from prediction.prediction import fit, predict, crate_prediction_file
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
@@ -67,6 +67,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.saveButton.clicked.connect(self.saveResultFile)
 
         self.ui.deleteFile.clicked.connect(self.deleteFile)
+
+        self.ui.predictionStatusButton.clicked.connect(self.prediction)
 
         self.file_path = None
         self.updateComports()
@@ -169,7 +171,7 @@ class Window(QtWidgets.QMainWindow):
             i = 0
             if files:
                 for file in files:
-                    if file.find('_r') == -1:
+                    if file.find('_r') == -1 and file.find('_p') == -1:
                         filename, _ = os.path.splitext(file)
                         self.ui.filesCombo.addItem(filename)
 
@@ -349,9 +351,9 @@ class Window(QtWidgets.QMainWindow):
 
             self.ui.startTimeAlphaLabel.setColor(status.loc['start_time']['result'])
 
-        # self.makeResultFile(file_path)
+        # self.createResultFile(file_path)
 
-    def makeResultFile(self, file_path):
+    def crateResultFile(self, file_path):
         result = [
             ['heart_rate', self.ui.heartRateLabel.color, self.ui.heartRateLabel.text()],
             ['breath_freq', self.ui.breathFreqLabel.color, self.ui.breathFreqLabel.text()],
@@ -437,7 +439,7 @@ class Window(QtWidgets.QMainWindow):
 
     def saveResultFile(self):
         print('save')
-        self.makeResultFile(self.file_path)
+        self.createResultFile(self.file_path)
 
     def editingResult(self):
         user = users.iloc[self.user]
@@ -474,6 +476,39 @@ class Window(QtWidgets.QMainWindow):
         available_ports = get_available_ports()
         self.ui.comportsCombo.clear()
         self.ui.comportsCombo.addItems(available_ports)
+
+    def prediction(self):
+        user = users.iloc[self.user]
+        dir_path = user['dir_path']
+
+        file = self.ui.filesCombo.currentText()
+        filename_r = f"{file}_r.csv"
+        files = [i for i in os.listdir(dir_path) if i.find('_r') != -1]
+
+        ignor_index = None
+        if os.path.exists(os.path.join(dir_path, filename_r)):
+            ignor_index = files.index(filename_r)
+
+        models = fit(dir_path, ignor_index)
+        data = {'heart_rate': self.ui.heartRateLabel.text(),
+                'breath_freq': self.ui.breathFreqLabel.text(),
+                'variability_index': self.ui.variabilityIndexLabel.text(),
+                'start_time': self.ui.startTimeAlphaLabel.text()
+        }
+        filename_p = crate_prediction_file(dir_path, file, data)
+        status = predict(dir_path, filename_p, models)
+
+        self.ui.resultTextLabel.setColor(status['result'])
+
+        self.ui.heartRateLabel.setColor(status['heart_rate'])
+        self.ui.breathFreqLabel.setColor(status['breath_freq'])
+        self.ui.variabilityIndexLabel.setColor(status['variability_index'])
+
+        self.ui.startTimeAlphaLabel.setColor(status['start_time'])
+
+        crate_prediction_file(dir_path, file, status)
+
+        print("prediction success")
 
     def exit(self):
         users.to_csv('users.csv', index=False)

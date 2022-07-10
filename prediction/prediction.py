@@ -13,6 +13,17 @@ from sklearn.preprocessing import OneHotEncoder
 PARAMS = ['heart_rate', 'breath_freq', 'variability_index', 'start_time']
 
 
+def crate_prediction_file(dir_path, file, data):
+    t = []
+    for param in PARAMS:
+        t.append([param, 0, data[param]])
+    t.append(['result', 0, ''])
+
+    filename = os.path.join(dir_path, f"{file}_p.csv")
+    pd.DataFrame(t, columns=['ind', 'result', 'value']).to_csv(filename, index=False)
+    return f"{file}_p.csv"
+
+
 def save_model(file, model):
     with open(file, 'wb') as f:
         pickle.dump(model, f)
@@ -96,6 +107,7 @@ def fit(dir_path, ignor=None):
 
 
 def predict(dir_path, file, models):
+    result = dict()
     y_pred = []
     print(file)
     for param in PARAMS:
@@ -104,6 +116,8 @@ def predict(dir_path, file, models):
         y = y.values
         y_pred.append(int(models[param].predict(X)))
         print(y, y_pred[-1])
+
+        result[param] = y_pred[-1]
 
     X, y = split_dataset(get_data(os.path.join(dir_path, file), 'result'))
 
@@ -115,7 +129,8 @@ def predict(dir_path, file, models):
     y = y.values
     y_pred = y_pred.values
     print(y, int(models['result'].predict(X)[0]))
-    return int(models['result'].predict(y_pred)[0])
+    result['result'] = int(models['result'].predict(y_pred)[0])
+    return result
 
 
 def main():
