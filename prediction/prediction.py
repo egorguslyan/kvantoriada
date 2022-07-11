@@ -108,7 +108,7 @@ def fit(dir_path, ignor=None):
 
         if param != 'result':
             # models[param] = SVC()
-            models[param] = KNeighborsClassifier(n_neighbors=5)
+            models[param] = KNeighborsClassifier(n_neighbors=3)
         else:
             models['onehotencoder'] = OneHotEncoder(categories=[[0, 1, 2]] * len(PARAMS))
             X = transform(X, models['onehotencoder'])
