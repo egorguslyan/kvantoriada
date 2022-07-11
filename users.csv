@@ -1,4 +1,4 @@
 name,surname,middleName,birthday,dir_path,password,last_result,is_editing_result_files
-s,Second0,Middle0,17.06.2022,users\1655423484,qwerty,good,
-Egor,w,w,01.07.2005,users\1656666431,qwerty,1,
-Name2,Second2,Middle2,11.07.2022,users\1657495528,None,,1.0
+s,Second0,Middle0,17.06.2022,users\1655423484,qwerty,good,1.0
+Egor,w,w,01.07.2005,users\1656666431,qwerty,1,1.0
+Name2,Second2,Middle2,11.07.2022,users\1657495528,qwerty,,1.0

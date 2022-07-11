@@ -29,7 +29,7 @@ def prior_analysis(ecg, eeg):
         res += 0.125
     elif eeg['spectrum']['start_time'] < 0.7:
         status['spectrum']['start_time'] = 0
-        res -= 0.25
+        res -= 0.125
     else:
         status['spectrum']['start_time'] = 1
     print('alpha',  eeg['spectrum']['start_time'])
@@ -57,9 +57,9 @@ def prior_analysis(ecg, eeg):
     print('Variability', ecg['variability']['index'], ecg['variability']['amo'], ecg['variability']['mo'])
 
     print('RESULT', res)
-    if res <= 0.2:
+    if res <= 0.25:
         status['result'] = 0
-    elif res < 0.8:
+    elif res < 0.75:
         status['result'] = 1
     else:
         status['result'] = 2
