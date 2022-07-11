@@ -611,7 +611,7 @@ alternate-background-color: rgb(170, 85, 255);</string>
           <item>
            <layout class="QFormLayout" name="formLayout">
             <item row="0" column="0">
-             <widget class="QLabel" name="secondNameLabel">
+             <widget class="QLabel" name="surnameLabel">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -621,7 +621,7 @@ alternate-background-color: rgb(170, 85, 255);</string>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="secondNameEdit">
+             <widget class="QLineEdit" name="surnameEdit">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -849,7 +849,7 @@ alternate-background-color: rgb(170, 85, 255);</string>
         </widget>
         <widget class="QWidget" name="ecg">
          <attribute name="title">
-          <string>ЭКГ</string>
+          <string>Сигнал</string>
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
@@ -1008,43 +1008,12 @@ border-color: rgb(0, 0, 0);</string>
                 <item row="1" column="1">
                  <widget class="QLabel" name="label_5">
                   <property name="text">
-                   <string>Вариабельность (амплитуда, стресс-индекс):</string>
+                   <string>Вариабельность (размах, стресс-индекс):</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
                  </widget>
-                </item>
-                <item row="2" column="3">
-                 <layout class="QHBoxLayout" name="horizontalLayout_14">
-                  <item>
-                   <widget class="ResultLabel" name="breathFreqLabel">
-                    <property name="minimumSize">
-                     <size>
-                      <width>30</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">background-color: rgb(255, 255, 255);
-border-color: rgb(0, 0, 0);</string>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Box</enum>
-                    </property>
-                    <property name="text">
-                     <string>цифры</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_17">
-                    <property name="text">
-                     <string>вд/мин</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
                 </item>
                 <item row="2" column="1">
                  <widget class="QLabel" name="label_6">
@@ -1062,37 +1031,6 @@ border-color: rgb(0, 0, 0);</string>
                    <string>ЧСС:</string>
                   </property>
                  </widget>
-                </item>
-                <item row="2" column="2">
-                 <layout class="QHBoxLayout" name="horizontalLayout_13">
-                  <item>
-                   <widget class="ResultLabel" name="breathAmplitudeLabel">
-                    <property name="minimumSize">
-                     <size>
-                      <width>30</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">border-color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);</string>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Box</enum>
-                    </property>
-                    <property name="text">
-                     <string>цифры</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_16">
-                    <property name="text">
-                     <string>у.е.</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
                 </item>
                 <item row="1" column="2">
                  <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -1150,6 +1088,37 @@ border-color: rgb(0, 0, 0);</string>
                    </size>
                   </property>
                  </spacer>
+                </item>
+                <item row="2" column="2">
+                 <layout class="QHBoxLayout" name="horizontalLayout_14">
+                  <item>
+                   <widget class="ResultLabel" name="breathFreqLabel">
+                    <property name="minimumSize">
+                     <size>
+                      <width>30</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Box</enum>
+                    </property>
+                    <property name="text">
+                     <string>цифры</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_17">
+                    <property name="text">
+                     <string>вд/мин</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </item>
@@ -1685,7 +1654,7 @@ selection-background-color: rgb(167, 255, 253);</string>
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>secondNameEdit</tabstop>
+  <tabstop>surnameEdit</tabstop>
   <tabstop>nameEdit</tabstop>
   <tabstop>middleNameEdit</tabstop>
   <tabstop>birthdayEdit</tabstop>
@@ -1710,7 +1679,7 @@ selection-background-color: rgb(167, 255, 253);</string>
    </hints>
   </connection>
   <connection>
-   <sender>secondNameEdit</sender>
+   <sender>surnameEdit</sender>
    <signal>editingFinished()</signal>
    <receiver>nameEdit</receiver>
    <slot>setFocus()</slot>

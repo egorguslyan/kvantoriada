@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import os
+import re
 from sklearn.preprocessing import OneHotEncoder
 
 PARAMS = ['heart_rate', 'breath_freq', 'variability_index', 'start_time']
@@ -29,9 +30,21 @@ def save_model(file, model):
         pickle.dump(model, f)
 
 
+def save_models(dir_path, models):
+    for param in PARAMS + ['result', 'onehotencoder']:
+        save_model(os.path.join(dir_path, param), models[param])
+
+
 def load_model(file):
     with open(file, 'rb') as f:
         return pickle.load(f)
+
+
+def load_models(dir_path):
+    models = dict()
+    for param in PARAMS + ['result', 'onehotencoder']:
+        models[param] = load_model(os.path.join(dir_path, f'{param}.pkl'))
+    return models
 
 
 def get_columns(param):
@@ -63,7 +76,7 @@ def get_dataset(dir_path, param):
     dataset = pd.DataFrame([], columns=columns)
     files = os.listdir(dir_path)
     for file in files:
-        if file.find('_r') != -1:
+        if re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d_r', file):
             data = get_data(os.path.join(dir_path, file), param)
             dataset = pd.concat([dataset, data], ignore_index=True)
 

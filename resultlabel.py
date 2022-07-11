@@ -8,8 +8,8 @@ class ResultLabel(QtWidgets.QLabel):
         self.setStyleSheet("QLabel { background-color : white; }")
         self.__colors = ['#5555ff', '#89ad3b', '#c73636', '#ffffff']
         self._results = {
-            'good': 1,
-            'depressed': 0,
+            'normal': 1,
+            'relaxed': 0,
             'excited': 2,
             'clear': 3
         }

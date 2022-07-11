@@ -8,6 +8,7 @@ import os
 import shutil
 import time
 import datetime
+import re
 
 from mplcanvas import MplCanvas
 
@@ -16,7 +17,7 @@ from analysis.ecg_analysis import analysis_ecg
 from analysis.eeg_analysis import analysis_eeg
 from analysis.signal_analysis import open_csv_file
 from prediction.prior import prior_analysis
-from prediction.prediction import fit, predict, crate_prediction_file
+from prediction.prediction import fit, predict, crate_prediction_file, load_models, save_models
 
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
@@ -102,17 +103,17 @@ class Window(QtWidgets.QMainWindow):
         os.mkdir(dir_path)
 
         user = [
-            ['Name' + str(rows), 'Second' + str(rows), 'Middle' + str(rows), date, dir_path, 'None', '', 0]
+            ['Name' + str(rows), 'Surname' + str(rows), 'Middle' + str(rows), date, dir_path, 'None', '', 0]
         ]
         user = pd.DataFrame(user, columns=[
             'name',
-            'secondName',
+            'surname',
             'middleName',
             'birthday',
             'dir_path',
             'password',
             'last_result',
-            'count_result_files'
+            'is_editing_result_files'
         ])
         users = pd.concat([users, user], ignore_index=True)
 
@@ -160,7 +161,7 @@ class Window(QtWidgets.QMainWindow):
         if self.user is not None:
             user = users.iloc[self.user]
             self.ui.nameEdit.setText(user['name'])
-            self.ui.secondNameEdit.setText(user['secondName'])
+            self.ui.surnameEdit.setText(user['surname'])
             self.ui.middleNameEdit.setText(user['middleName'])
             date = QtCore.QDate.fromString(user['birthday'], 'dd.MM.yyyy')
             self.ui.birthdayEdit.setDate(date)
@@ -171,7 +172,8 @@ class Window(QtWidgets.QMainWindow):
             i = 0
             if files:
                 for file in files:
-                    if file.find('_r') == -1 and file.find('_p') == -1:
+                    if not re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d_\w', file) \
+                            and re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d', file):
                         filename, _ = os.path.splitext(file)
                         self.ui.filesCombo.addItem(filename)
 
@@ -179,6 +181,7 @@ class Window(QtWidgets.QMainWindow):
                             self.ui.filesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
                         i += 1
             self.ui.deleteFile.setVisible(False)
+            self.ui.predictionStatusButton.setVisible(False)
 
             comboBox = self.ui.filesCombo
             files_combo = [comboBox.itemText(i) for i in range(comboBox.count())]
@@ -198,7 +201,6 @@ class Window(QtWidgets.QMainWindow):
     def clearLabels(self):
         self.ui.heartRateLabel.clear()
         self.ui.breathFreqLabel.clear()
-        self.ui.breathAmplitudeLabel.clear()
         self.ui.variabilityIndexLabel.clear()
         self.ui.variabilityAmplitudeLabel.clear()
 
@@ -215,47 +217,64 @@ class Window(QtWidgets.QMainWindow):
             self.ui.table.setRowCount(len(users))
             for i in range(len(users)):
                 user = users.iloc[i]
-                name = ' '.join([user['secondName'], user['name'], user['middleName']])
+                name = ' '.join([user['surname'], user['name'], user['middleName']])
                 name = QTableWidgetItem(name)
                 name.setFlags(
                     QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                 )
                 self.ui.table.setItem(i, 0, name)
 
+    def updatingUserMode(self, flag):
+        self.ui.surnameEdit.setReadOnly(flag)
+        self.ui.nameEdit.setReadOnly(flag)
+        self.ui.middleNameEdit.setReadOnly(flag)
+        self.ui.birthdayEdit.setReadOnly(flag)
+        self.ui.newUserButton.setEnabled(flag)
+        self.ui.deleteUserButton.setEnabled(flag)
+        self.ui.testButton.setEnabled(flag)
+        self.ui.table.setEnabled(flag)
+        self.ui.repeatButton.setEnabled(flag)
+        self.ui.predictionStatusButton.setEnabled(flag)
+        self.ui.deleteFile.setEnabled(flag)
+        self.ui.btnPassword.setEnabled(flag)
+        self.ui.saveButton.setEnabled(flag)
+
     def updateUser(self):
         global users
 
         if self.ui.updateUserButton.text() == 'Изменить':
-            self.ui.secondNameEdit.setReadOnly(False)
-            self.ui.nameEdit.setReadOnly(False)
-            self.ui.middleNameEdit.setReadOnly(False)
-            self.ui.birthdayEdit.setReadOnly(False)
-            self.ui.newUserButton.setEnabled(False)
-            self.ui.deleteUserButton.setEnabled(False)
-            self.ui.testButton.setEnabled(False)
-            self.ui.table.setEnabled(False)
-
+            self.updatingUserMode(False)
             self.ui.updateUserButton.setText('Сохранить')
         else:
-            self.ui.secondNameEdit.setReadOnly(True)
-            self.ui.nameEdit.setReadOnly(True)
-            self.ui.middleNameEdit.setReadOnly(True)
-            self.ui.birthdayEdit.setReadOnly(True)
-            self.ui.newUserButton.setEnabled(True)
-            self.ui.deleteUserButton.setEnabled(True)
-            self.ui.testButton.setEnabled(True)
-            self.ui.table.setEnabled(True)
-
-            self.ui.updateUserButton.setText('Изменить')
-
             user = users.iloc[self.user]
-            user['name'] = self.ui.nameEdit.text()
-            user['secondName'] = self.ui.secondNameEdit.text()
-            user['middleName'] = self.ui.middleNameEdit.text()
+            if self.ui.surnameEdit.text() != '':
+                user['surname'] = self.ui.surnameEdit.text()
+                self.ui.surnameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
+            else:
+                self.ui.surnameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
+                return
+
+            if self.ui.nameEdit.text() != '':
+                user['name'] = self.ui.nameEdit.text()
+                self.ui.nameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
+            else:
+                self.ui.nameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
+                return
+
+            if self.ui.middleNameEdit.text() != '':
+                user['middleName'] = self.ui.middleNameEdit.text()
+                self.ui.middleNameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
+            else:
+                self.ui.middleNameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
+                return
+
             user['birthday'] = self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
 
             users.at[self.user] = user
             self.updateTable()
+
+            self.updatingUserMode(True)
+            self.ui.updateUserButton.setText('Изменить')
 
     def testUser(self):
         time_format = '%d.%m.%Y %H-%M-%S'
@@ -289,9 +308,7 @@ class Window(QtWidgets.QMainWindow):
                 enableECG=enableECG, enableEEG=enableEEG, enableGSR=enableGSR):
             self.analysis(file_path)
 
-            user = users.iloc[self.user]
-            user['last_result'] = self.ui.resultTextLabel.color
-            users.at[self.user] = user
+            users.at[self.user, 'last_result'] = self.ui.resultTextLabel.color
         else:
             self.ui.resultTextLabel.setText("не удалось подключиться")
 
@@ -299,8 +316,6 @@ class Window(QtWidgets.QMainWindow):
         dir_path = users.iloc[self.user]['dir_path']
         filename = os.path.join(dir_path, file)
         self.analysis(f"{filename}.csv")
-
-        self.ui.deleteFile.setVisible(True)
 
     def deleteFile(self):
         user = users.iloc[self.user]
@@ -319,6 +334,9 @@ class Window(QtWidgets.QMainWindow):
         self.ui.filesCombo.removeItem(files.index(filename))
 
     def analysis(self, file_path):
+        self.ui.predictionStatusButton.setVisible(True)
+        self.ui.deleteFile.setVisible(True)
+
         self.file_path = file_path
 
         ecg = self.updateECG(file_path)
@@ -326,12 +344,13 @@ class Window(QtWidgets.QMainWindow):
 
         filename, _ = os.path.splitext(file_path)
         r_file = f"{filename}_r.csv"
-        if not os.path.exists(r_file):
+        p_file = f"{filename}_p.csv"
+        if not os.path.exists(r_file) and not os.path.exists(p_file):
             self.dlg.show()
             self.dlg.exec()
 
             status = prior_analysis(ecg, eeg)
-            self.ui.resultTextLabel.setColor(status['result']['color'])
+            self.ui.resultTextLabel.setColor(status['result'])
 
             self.ui.heartRateLabel.setColor(status['heart_rate'])
             self.ui.breathFreqLabel.setColor(status['breath']['freq'])
@@ -339,7 +358,10 @@ class Window(QtWidgets.QMainWindow):
 
             self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
         else:
-            status = pd.read_csv(r_file, delimiter=',')
+            if os.path.exists(r_file):
+                status = pd.read_csv(r_file, delimiter=',')
+            else:
+                status = pd.read_csv(p_file, delimiter=',')
             status = status.set_index('ind')
             # print(status)
             # print(status.loc['result'])
@@ -353,7 +375,9 @@ class Window(QtWidgets.QMainWindow):
 
         # self.createResultFile(file_path)
 
-    def crateResultFile(self, file_path):
+    def createResultFile(self, file_path):
+        users.at[self.user, 'is_editing_result_files'] = 1
+
         result = [
             ['heart_rate', self.ui.heartRateLabel.color, self.ui.heartRateLabel.text()],
             ['breath_freq', self.ui.breathFreqLabel.color, self.ui.breathFreqLabel.text()],
@@ -368,6 +392,7 @@ class Window(QtWidgets.QMainWindow):
 
         files = [self.ui.filesCombo.itemText(i) for i in range(self.ui.filesCombo.count())]
         filename = self.ui.filesCombo.currentText()
+        print(filename)
         i = files.index(filename)
         self.ui.filesCombo.setItemData(i, QtGui.QColor(255, 255, 255), QtCore.Qt.BackgroundRole)
 
@@ -392,7 +417,6 @@ class Window(QtWidgets.QMainWindow):
         self.ui.heartRateLabel.setText(str(properties['heart_rate']))
         self.ui.variabilityAmplitudeLabel.setText(str(properties['variability']['amplitude']))
         self.ui.variabilityIndexLabel.setText(str(properties['variability']['index']))
-        self.ui.breathAmplitudeLabel.setText(str(properties['breath']['amplitude']))
         self.ui.breathFreqLabel.setText(str(properties['breath']['freq']))
 
         return properties
@@ -424,14 +448,13 @@ class Window(QtWidgets.QMainWindow):
         self.ui.variabilityAmplitudeLabel.setEditable(flag)
         self.ui.variabilityIndexLabel.setEditable(flag)
         self.ui.breathFreqLabel.setEditable(flag)
-        self.ui.breathAmplitudeLabel.setEditable(flag)
 
         self.ui.startTimeAlphaLabel.setEditable(flag)
         self.ui.amplitudeAlphaLabel.setEditable(flag)
 
         self.ui.resultTextLabel.setEditable(flag)
 
-    def editingMode(self):
+    def editingResultFileMode(self):
         self.ui.tab.setStyleSheet("background-color: rgb(255, 196, 197);\n"
                                   "alternate-background-color: rgb(170, 85, 255);")
         self.changeEditingLabel(True)
@@ -445,7 +468,7 @@ class Window(QtWidgets.QMainWindow):
         user = users.iloc[self.user]
 
         if self.ui.password.text() == user['password'] and self.file_path is not None:
-            self.editingMode()
+            self.editingResultFileMode()
             self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
         else:
             self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
@@ -456,8 +479,7 @@ class Window(QtWidgets.QMainWindow):
         user = users.iloc[self.user]
         if user['password'] == 'None':
             if self.ui.password.text() != '':
-                user['password'] = self.ui.password.text()
-                users.at[self.user] = user
+                users.at[self.user, 'password'] = self.ui.password.text()
                 self.ui.btnPassword.setText('Подтвердить')
             else:
                 self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
@@ -489,13 +511,19 @@ class Window(QtWidgets.QMainWindow):
         if os.path.exists(os.path.join(dir_path, filename_r)):
             ignor_index = files.index(filename_r)
 
-        models = fit(dir_path, ignor_index)
+        if int(user['is_editing_result_files']) == 1:
+            models = fit(dir_path, ignor_index)
+            save_models(dir_path, models)
+        else:
+            models = load_models(dir_path)
+
         data = {'heart_rate': self.ui.heartRateLabel.text(),
                 'breath_freq': self.ui.breathFreqLabel.text(),
                 'variability_index': self.ui.variabilityIndexLabel.text(),
                 'start_time': self.ui.startTimeAlphaLabel.text()
-        }
+                }
         filename_p = crate_prediction_file(dir_path, file, data)
+
         status = predict(dir_path, filename_p, models)
 
         self.ui.resultTextLabel.setColor(status['result'])
