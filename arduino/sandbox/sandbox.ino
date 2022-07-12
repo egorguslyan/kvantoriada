@@ -1,4 +1,4 @@
-#define BLUETOOTH2 1
+#define BLUETOOTH_ENABLE 1
 #define DEBUG_LED 13
 #define BTN0 5
 #define LEDW 2
@@ -151,7 +151,7 @@ void plotter(uint16_t y)
     memset(&oled._oled_buffer[127 * 4], 0, sizeof(uint8_t) * 4);
     y = 16.0 * y / analogRead(P0); // верхний потенциометр - аттенюатор
     mapped = (analogRead(P1) - 512) / 8; // нижний потенциометр - смещение
-    //Линия
+    // Линия
     oled.line(
         126, y0 + mapped,
         127, y + mapped
