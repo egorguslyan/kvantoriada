@@ -405,6 +405,7 @@ class Window(QtWidgets.QMainWindow):
             self.ui.startTimeAlphaLabel.setColor(status.loc['start_time']['result'])
 
         # self.createResultFile(file_path)
+        self.recommendations()
 
     def createResultFile(self, file_path):
         users.at[self.user, 'is_editing_result_files'] = 1
@@ -583,7 +584,7 @@ class Window(QtWidgets.QMainWindow):
 
         crate_prediction_file(dir_path, file, data, status)
 
-        print("prediction success")
+        self.recommendations()
 
     def saveSettings(self):
         users.at[self.user, 'timeECG'] = self.ui.timeECG.text()
@@ -591,6 +592,19 @@ class Window(QtWidgets.QMainWindow):
         users.at[self.user, 'timeEEG'] = self.ui.timeEEG.text()
         users.at[self.user, 'enableEEG'] = int(self.ui.checkEEG.isChecked())
         users.at[self.user, 'enableGSR'] = int(self.ui.checkGSR.isChecked())
+
+    def recommendations(self):
+        recommend = pd.read_csv('recommendations.csv', delimiter=',').set_index('ind')
+        text = ''
+        result = self.ui.resultTextLabel.get_result()
+        text += recommend.loc['result', result]
+        heart_rate = self.ui.heartRateLabel.get_result()
+        text += recommend.loc['heart_rate', heart_rate]
+        breath_freq = self.ui.breathFreqLabel.get_result()
+        text += recommend.loc['breath_freq', breath_freq]
+        alpha = self.ui.startTimeAlphaLabel.get_result()
+        text += recommend.loc['alpha', alpha]
+        self.ui.recommendationsText.setText(text)
 
     def exit(self):
         self.saveSettings()

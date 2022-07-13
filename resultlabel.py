@@ -9,9 +9,14 @@ class ResultLabel(QtWidgets.QLabel):
         self.__colors = ['#5555ff', '#89ad3b', '#c73636', '#ffffff']
         self._results = {
             'normal': 1,
-            'relaxed': 0,
+            'depressed': 0,
             'excited': 2,
             'clear': 3
+        }
+        self._r_results = {
+             1: 'normal',
+             0: 'depressed',
+             2: 'excited'
         }
 
         self.__cnt = 0
@@ -47,6 +52,9 @@ class ResultLabel(QtWidgets.QLabel):
 
     def set_background_color(self):
         self.setStyleSheet("QLabel { background-color : " + self.__colors[self.color] + "; }")
+
+    def get_result(self):
+        return self._r_results[self.color]
 
     def clear(self):
         self.setText('')
