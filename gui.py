@@ -102,19 +102,22 @@ class Window(QtWidgets.QMainWindow):
         dir_path = os.path.join('users', str(int(time.time())))
         os.mkdir(dir_path)
 
-        user = [
-            ['Name' + str(rows), 'Surname' + str(rows), 'Middle' + str(rows), date, dir_path, 'None', '', 0]
-        ]
-        user = pd.DataFrame(user, columns=[
-            'name',
-            'surname',
-            'middleName',
-            'birthday',
-            'dir_path',
-            'password',
-            'last_result',
-            'is_editing_result_files'
-        ])
+        user = {
+            'name': 'Name' + str(rows),
+            'surname': 'Surname' + str(rows),
+            'middleName': 'Middle' + str(rows),
+            'birthday': date,
+            'dir_path': dir_path,
+            'password': 'None',
+            'last_result': '',
+            'is_editing_result_files': 0,
+            'enableECG': 1,
+            'timeECG': 10,
+            'enableEEG': 1,
+            'timeEEG': 10,
+            'enableGSR': 1
+        }
+        user = pd.DataFrame([list(user.values())], columns=list(user.keys()))
         users = pd.concat([users, user], ignore_index=True)
 
         self.updateTable()
@@ -140,6 +143,7 @@ class Window(QtWidgets.QMainWindow):
             self.ui.table.selectionModel().clearCurrentIndex()
 
     def chooseUser(self):
+        self.saveSettings()
         row = self.ui.table.currentRow()
         self.user = row
         self.updateCard()
@@ -157,6 +161,7 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.tab.setStyleSheet("background-color: rgb(255, 230, 234);\n"
                                   "alternate-background-color: rgb(170, 85, 255);")
+        self.ui.tab.setCurrentIndex(0)
 
         if self.user is not None:
             user = users.iloc[self.user]
@@ -177,8 +182,17 @@ class Window(QtWidgets.QMainWindow):
                         filename, _ = os.path.splitext(file)
                         self.ui.filesCombo.addItem(filename)
 
-                        if files.count(f'{filename}_r.csv') == 0:
-                            self.ui.filesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
+                        color = QtGui.QColor(198, 198, 198)
+                        if files.count(f'{filename}_r.csv') != 0:
+                            r_file = os.path.join(user['dir_path'], f"{filename}_r.csv")
+                            result = pd.read_csv(r_file, delimiter=',').set_index('ind').loc['result']['result']
+                            if result == 2:
+                                color = QtGui.QColor(227, 138, 138)
+                            elif result == 1:
+                                color = QtGui.QColor(201, 245, 142)
+                            else:
+                                color = QtGui.QColor(155, 151, 255)
+                        self.ui.filesCombo.setItemData(i, color, QtCore.Qt.BackgroundRole)
                         i += 1
             self.ui.deleteFile.setVisible(False)
             self.ui.predictionStatusButton.setVisible(False)
@@ -197,6 +211,12 @@ class Window(QtWidgets.QMainWindow):
             else:
                 self.ui.btnPassword.clicked.connect(self.createPassword)
                 self.ui.btnPassword.setText('Создать')
+
+            self.ui.checkECG.setChecked(bool(user['enableECG']))
+            self.ui.timeECG.setValue(int(user['timeECG']))
+            self.ui.checkEEG.setChecked(bool(user['enableEEG']))
+            self.ui.timeEEG.setValue(int(user['timeEEG']))
+            self.ui.checkGSR.setChecked(bool(user['enableGSR']))
 
     def clearLabels(self):
         self.ui.heartRateLabel.clear()
@@ -240,13 +260,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui.saveButton.setEnabled(flag)
 
     def updateUser(self):
-        global users
-
         if self.ui.updateUserButton.text() == 'Изменить':
             self.updatingUserMode(False)
             self.ui.updateUserButton.setText('Сохранить')
         else:
-            user = users.iloc[self.user]
+            user = users.iloc[self.user].copy()
             if self.ui.surnameEdit.text() != '':
                 user['surname'] = self.ui.surnameEdit.text()
                 self.ui.surnameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
@@ -552,7 +570,19 @@ class Window(QtWidgets.QMainWindow):
 
         print("prediction success")
 
+    def saveSettings(self):
+        user = users.iloc[self.user].copy()
+
+        user['timeECG'] = self.ui.timeECG.text()
+        user['enableECG'] = int(self.ui.checkECG.isChecked())
+        user['timeEEG'] = self.ui.timeEEG.text()
+        user['enableEEG'] = int(self.ui.checkEEG.isChecked())
+        user['enableGSR'] = int(self.ui.checkGSR.isChecked())
+
+        users.at[self.user] = user
+
     def exit(self):
+        self.saveSettings()
         users.to_csv('users.csv', index=False)
         self.close()
         self.dlg.close()

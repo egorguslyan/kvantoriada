@@ -1,6 +1,6 @@
 ind,result,value
-heart_rate,0,1
-breath_freq,0,1
-variability_index,0,2
-start_time,0,0
-result,0,
+heart_rate,1,80
+breath_freq,1,11
+variability_index,2,330
+start_time,0,0.5
+result,1,
