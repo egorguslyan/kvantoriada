@@ -371,8 +371,10 @@ class Window(QtWidgets.QMainWindow):
         r_file = f"{filename}_r.csv"
         p_file = f"{filename}_p.csv"
         if not os.path.exists(r_file) and not os.path.exists(p_file):
-            self.dlg.show()
-            self.dlg.exec()
+            cnt_r_files = sum(map(lambda x: x.find('_r') != -1, os.listdir(users.at[self.user, 'dir_path'])))
+            if cnt_r_files < 5:
+                self.dlg.show()
+                self.dlg.exec()
 
             status = prior_analysis(ecg, eeg)
             self.ui.resultTextLabel.setColor(status['result'])
@@ -515,6 +517,8 @@ class Window(QtWidgets.QMainWindow):
                 self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
                 self.ui.btnPassword.setText('Войти')
             else:
+                users.at[self.user, 'password'] = 'None'
+                self.ui.btnPassword.setText('Создать')
                 self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
 
         self.ui.password.setText('')
@@ -571,15 +575,11 @@ class Window(QtWidgets.QMainWindow):
         print("prediction success")
 
     def saveSettings(self):
-        user = users.iloc[self.user].copy()
-
-        user['timeECG'] = self.ui.timeECG.text()
-        user['enableECG'] = int(self.ui.checkECG.isChecked())
-        user['timeEEG'] = self.ui.timeEEG.text()
-        user['enableEEG'] = int(self.ui.checkEEG.isChecked())
-        user['enableGSR'] = int(self.ui.checkGSR.isChecked())
-
-        users.at[self.user] = user
+        users.at[self.user, 'timeECG'] = self.ui.timeECG.text()
+        users.at[self.user, 'enableECG'] = int(self.ui.checkECG.isChecked())
+        users.at[self.user, 'timeEEG'] = self.ui.timeEEG.text()
+        users.at[self.user, 'enableEEG'] = int(self.ui.checkEEG.isChecked())
+        users.at[self.user, 'enableGSR'] = int(self.ui.checkGSR.isChecked())
 
     def exit(self):
         self.saveSettings()
