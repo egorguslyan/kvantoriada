@@ -14,7 +14,7 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
 
     config = [timeECG, timeEEG, timeGSR, enable]
     str_cfg = 'e' + ','.join(map(str, config)) + ';'
-    print(str_cfg)
+    # print(str_cfg)
 
     available_ports = get_available_ports()
     if com not in available_ports:

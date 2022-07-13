@@ -301,19 +301,23 @@ class Window(QtWidgets.QMainWindow):
         dir_path = user['dir_path']
 
         date = datetime.datetime.now().strftime(time_format)
-        # files = os.listdir(user['dir_path'])
-        # if files:
-        #     last_file = files[-1]
-        #     filename, _ = os.path.splitext(last_file)
-        #     if (datetime.datetime.now() - datetime.datetime.strptime(filename, time_format)).seconds < 300:
-        #         os.remove(os.path.join(dir_path, f"{filename}.csv"))
-        #         print(datetime.datetime.now() - datetime.datetime.strptime(filename, time_format))
+        files = [self.ui.filesCombo.itemText(i) for i in range(self.ui.filesCombo.count())]
+        if files:
+            last_file = files[-1]
+            if (datetime.datetime.now() - datetime.datetime.strptime(last_file, time_format)).seconds < 120:
+                if os.path.exists(os.path.join(dir_path, f"{last_file}.csv")):
+                    os.remove(os.path.join(dir_path, f"{last_file}.csv"))
+                self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
+                print(datetime.datetime.now() - datetime.datetime.strptime(last_file, time_format))
 
         file_path = os.path.join(dir_path, f"{date}.csv")
 
         self.ui.testDateLabel.setText(date)
 
         self.ui.filesCombo.addItem(date)
+        i = self.ui.filesCombo.count() - 1
+        print(i)
+        self.ui.filesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
 
         timeECG = int(self.ui.timeECG.text())
         timeEEG = int(self.ui.timeEEG.text())
@@ -420,8 +424,15 @@ class Window(QtWidgets.QMainWindow):
         files = [self.ui.filesCombo.itemText(i) for i in range(self.ui.filesCombo.count())]
         filename = self.ui.filesCombo.currentText()
         print(filename)
+        result = self.ui.resultTextLabel.color
+        if result == 2:
+            color = QtGui.QColor(227, 138, 138)
+        elif result == 1:
+            color = QtGui.QColor(201, 245, 142)
+        else:
+            color = QtGui.QColor(155, 151, 255)
         i = files.index(filename)
-        self.ui.filesCombo.setItemData(i, QtGui.QColor(255, 255, 255), QtCore.Qt.BackgroundRole)
+        self.ui.filesCombo.setItemData(i, color, QtCore.Qt.BackgroundRole)
 
     def updateECG(self, file_path):
         file = os.path.split(file_path)[-1]

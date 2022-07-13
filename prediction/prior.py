@@ -10,7 +10,7 @@ def prior_analysis(ecg, eeg):
     else:
         status['heart_rate'] = 2
         res += 0.125
-    print('Heart Rate', ecg['heart_rate'])
+    # print('Heart Rate', ecg['heart_rate'])
 
     status['breath'] = {}
     if ecg['breath']['freq'] < 10:
@@ -21,7 +21,7 @@ def prior_analysis(ecg, eeg):
     else:
         status['breath']['freq'] = 2
         res += 0.125
-    print('Breath',  ecg['breath']['freq'])
+    # print('Breath',  ecg['breath']['freq'])
 
     status['spectrum'] = {}
     if eeg['spectrum']['start_time'] == -1 or eeg['spectrum']['start_time'] > 1.5:
@@ -32,7 +32,7 @@ def prior_analysis(ecg, eeg):
         res -= 0.125
     else:
         status['spectrum']['start_time'] = 1
-    print('alpha',  eeg['spectrum']['start_time'])
+    # print('alpha',  eeg['spectrum']['start_time'])
 
     # if eeg['spectrum']['amplitude'] < 4:
     #     status['spectrum']['amplitude'] = 2
@@ -54,9 +54,9 @@ def prior_analysis(ecg, eeg):
         status['variability']['index'] = 2
         res += 0.125
 
-    print('Variability', ecg['variability']['index'], ecg['variability']['amo'], ecg['variability']['mo'])
+    # print('Variability', ecg['variability']['index'], ecg['variability']['amo'], ecg['variability']['mo'])
 
-    print('RESULT', res)
+    # print('RESULT', res)
     if res <= 0.25:
         status['result'] = 0
     elif res < 0.75:
