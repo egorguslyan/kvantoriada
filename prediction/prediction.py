@@ -123,13 +123,13 @@ def fit(dir_path, ignor=None):
 def predict(dir_path, file, models):
     result = dict()
     y_pred = []
-    print(file)
+    # print(file)
     for param in PARAMS:
         X, y = split_dataset(get_data(os.path.join(dir_path, file), param))
         X = X.values
         y = y.values
         y_pred.append(int(models[param].predict(X)))
-        print(y, y_pred[-1])
+        # print(y, y_pred[-1])
 
         result[param] = y_pred[-1]
 
@@ -142,7 +142,7 @@ def predict(dir_path, file, models):
     X = X.values
     y = y.values
     y_pred = y_pred.values
-    print(y, int(models['result'].predict(X)[0]))
+    # print(y, int(models['result'].predict(X)[0]))
     result['result'] = int(models['result'].predict(y_pred)[0])
     return result
 

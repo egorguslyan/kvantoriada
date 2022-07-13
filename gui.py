@@ -374,7 +374,7 @@ class Window(QtWidgets.QMainWindow):
         filename, _ = os.path.splitext(file_path)
         r_file = f"{filename}_r.csv"
         p_file = f"{filename}_p.csv"
-        if not os.path.exists(r_file) and not os.path.exists(p_file):
+        if not os.path.exists(r_file): # and not os.path.exists(p_file):
             cnt_r_files = sum(map(lambda x: x.find('_r') != -1, os.listdir(users.at[self.user, 'dir_path'])))
             if cnt_r_files < 5:
                 self.dlg.show()
