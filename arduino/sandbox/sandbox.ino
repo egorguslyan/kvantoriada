@@ -22,13 +22,13 @@
     4) TIME
     5) E*TE
 **               */
-#include <GyverOLED.h>
 
+#include <GyverOLED.h>
 GyverOLED<SSD1306_128x32, OLED_BUFFER> oled;
 
 #if(BLUETOOTH_ENABLE)
 #include <SoftwareSerial.h>
-SoftwareSerial serial(8, 7); // RX, TX
+SoftwareSerial serial(8, 7);
 #else
 #define serial Serial
 #endif
@@ -46,6 +46,9 @@ SoftwareSerial serial(8, 7); // RX, TX
 #define EEG_T (control.enabled2 ? ((uint32_t)control.seconds2 * 1000) : 0)
 #define E_T (max(ECG_T, EEG_T))
 
+/* Структура для измерительных модулей.
+ * Раньше здесь был буффер, теперь же
+ * она почти бесполезна */
 struct module
 {
     uint8_t pin : 5;
@@ -61,6 +64,11 @@ struct module
     }
 };
 
+/* Структура, управляющая модулями.
+ * Переключает конфликтующие группы модулей:
+ * 1: ECG, EEG;
+ * 2: GSR.
+ * Есть возможность отключить всё.*/
 struct
 {
     uint16_t seconds0 : 9;
@@ -106,6 +114,7 @@ struct
     }
 } control;
 
+/* Коды модулей */
 enum
 {
     KEY_GSR = 'G',
@@ -120,19 +129,16 @@ module EEG;
 
 uint8_t intr_counter;
 
+/* Вывод на экран */
 void plotter(uint16_t y)
 {
-    // переворот
-    y = 1023 - y;
-
     static uint16_t y0 = 0;
     uint8_t i, mapped;
-    // for (j = 0; j < 4; j++) {
-    //     for (i = 0; i < 127; i++) {
-    //         oled._oled_buffer[j + i*4]=oled._oled_buffer[j + (i + 1)*4];
-    //     }
-    //     oled._oled_buffer[j + 127*4]=0;
-    // }
+
+    // Переворот
+    y = 1023 - y;
+
+    // Сдвиг
     for(i = 0; i < 127; i++)
     {
         memcpy(
@@ -141,9 +147,11 @@ void plotter(uint16_t y)
             sizeof(uint8_t) * 4
         );
     }
+    // Очистка
     memset(&oled._oled_buffer[127 * 4], 0, sizeof(uint8_t) * 4);
     y = 16.0 * y / analogRead(P0); // верхний потенциометр - аттенюатор
     mapped = (analogRead(P1) - 512) / 8; // нижний потенциометр - смещение
+    // Линия
     oled.line(
         126, y0 + mapped,
         127, y + mapped
@@ -152,6 +160,7 @@ void plotter(uint16_t y)
     oled.update();
 }
 
+/* Проверка байта на валидность */
 uint8_t eeprom_byte_check(uint8_t b, uint8_t useful_bits)
 {
     uint8_t m, i;
@@ -166,6 +175,7 @@ uint8_t eeprom_byte_check(uint8_t b, uint8_t useful_bits)
     return EXIT_SUCCESS;
 }
 
+/* Формирование валидного байта */
 uint8_t eeprom_byte_form(uint8_t b, uint8_t useful_bits)
 {
     uint8_t r, m, i;
@@ -178,6 +188,7 @@ uint8_t eeprom_byte_form(uint8_t b, uint8_t useful_bits)
     return r;
 }
 
+/*  */
 uint8_t eeprom_byte_write(uint8_t i)
 {
     uint8_t eepromData;
@@ -186,9 +197,9 @@ uint8_t eeprom_byte_write(uint8_t i)
     {
         switch(i / 2)
         {
-            case KEY_GSR: default_time = GSR_TIME; break;
-            case KEY_ECG: default_time = ECG_TIME; break;
-            case KEY_EEG: default_time = EEG_TIME; break;
+            case 0: default_time = GSR_TIME; break;
+            case 1: default_time = ECG_TIME; break;
+            case 2: default_time = EEG_TIME; break;
         }
         if(i % 2 == 0)
         {
@@ -236,6 +247,7 @@ void setup()
         {
             eeprom_byte_write(i);
         }
+        // Распаковка
         switch(i)
         {
             case 0: {
@@ -296,18 +308,21 @@ void loop()
     //     delay(50);
     // } delay(5);
 
+    // Обновление экрана 10 FPS
     if(millis() - timer0 > 100)
     {
         timer0 = millis();
         oled.update();
     }
 
+    // Переключение групп
     if(millis() - timer1 > (control.state ? GSR_T : E_T))
     {
         timer1 = millis();
         control.toggle();
     }
 
+    // Включение/выключение
     control.enabled = !(millis() - timer2 > (GSR_T + E_T));
     if(!control.enabled)
     {
@@ -329,11 +344,13 @@ void loop()
     digitalWrite(LEDR, ECG.enabled);
     digitalWrite(LEDY, EEG.enabled);
 
+    // Отправляем код готовности по нажатию кнопки
     btn = digitalRead(BTN0);
     if(btn && !prevBtn && !control.enabled)
         serial.print('s');
     prevBtn = btn;
 
+    // Спамим код завершения
     if(spam_f)
     {
         spam_f -= 1;
@@ -341,6 +358,7 @@ void loop()
     }
 
     if(serial.available())
+        // Формат: e15,10,5,(0b111);
         if(serial.read() == 'e')
         {
             memset(S, 0, sizeof(char) * 30);
@@ -397,16 +415,18 @@ void loop()
             timer1 = timer2 = millis();
         }
 
-    digitalWrite(13, HIGH);
+    // Считывание
+    digitalWrite(DEBUG_LED, HIGH);
     gsr = GSR.read();
     ecg = ECG.read();
     eeg = EEG.read();
-    digitalWrite(13, LOW);
+    digitalWrite(DEBUG_LED, LOW);
 
+    // Отправка значений в Serial
     if(millis() - timer3 > 3)
     {
-        timer3 = millis();
         uint8_t mod[3] = {GSR.enabled, ECG.enabled, EEG.enabled};
+        timer3 = millis();
         for(i = 0; i < 3; i++)
             if(mod[i] != 0)
             {
@@ -416,6 +436,7 @@ void loop()
             }
     }
 
+    // Вывод значений на экран
     if((millis() - timer4 > 25) && !control.state)
     {
         timer4 = millis();
