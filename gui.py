@@ -363,7 +363,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.filesCombo.removeItem(files.index(filename))
 
     def analysis(self, file_path):
-        self.ui.predictionStatusButton.setVisible(True)
+        # self.ui.predictionStatusButton.setVisible(True)
         self.ui.deleteFile.setVisible(True)
 
         self.file_path = file_path
@@ -380,14 +380,16 @@ class Window(QtWidgets.QMainWindow):
                 self.dlg.show()
                 self.dlg.exec()
 
-            status = prior_analysis(ecg, eeg)
-            self.ui.resultTextLabel.setColor(status['result'])
+                status = prior_analysis(ecg, eeg)
+                self.ui.resultTextLabel.setColor(status['result'])
 
-            self.ui.heartRateLabel.setColor(status['heart_rate'])
-            self.ui.breathFreqLabel.setColor(status['breath']['freq'])
-            self.ui.variabilityIndexLabel.setColor(status['variability']['index'])
+                self.ui.heartRateLabel.setColor(status['heart_rate'])
+                self.ui.breathFreqLabel.setColor(status['breath']['freq'])
+                self.ui.variabilityIndexLabel.setColor(status['variability']['index'])
 
-            self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
+                self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
+            else:
+                self.prediction()
         else:
             if os.path.exists(r_file):
                 status = pd.read_csv(r_file, delimiter=',')
@@ -555,6 +557,7 @@ class Window(QtWidgets.QMainWindow):
         if int(user['is_editing_result_files']) == 1:
             models = fit(dir_path, ignor_index)
             save_models(dir_path, models)
+            users.at[self.user, 'is_editing_result_files'] = 0
         else:
             models = load_models(dir_path)
 
