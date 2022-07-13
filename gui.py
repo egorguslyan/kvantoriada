@@ -63,7 +63,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.verticalLayout_10.addWidget(self.ui.canvasVar)
 
         self.ui.canvasSpectrum = MplCanvas()
-        self.ui.verticalLayout_11.addWidget(self.ui.canvasSpectrum)
+        self.ui.verticalLayout_6.addWidget(self.ui.canvasSpectrum)
 
         self.ui.saveButton.clicked.connect(self.saveResultFile)
 
@@ -326,10 +326,17 @@ class Window(QtWidgets.QMainWindow):
 
         if os.path.exists(file_path):
             os.remove(file_path)
+
             r_file = f"{filename}_r.csv"
             r_file_path = os.path.join(user["dir_path"], r_file)
             if os.path.exists(r_file_path):
                 os.remove(r_file_path)
+
+            p_file = f"{filename}_p.csv"
+            p_file_path = os.path.join(user["dir_path"], p_file)
+            if os.path.exists(p_file_path):
+                os.remove(p_file_path)
+
         files = [self.ui.filesCombo.itemText(i) for i in range(self.ui.filesCombo.count())]
         self.ui.filesCombo.removeItem(files.index(filename))
 
@@ -522,7 +529,14 @@ class Window(QtWidgets.QMainWindow):
                 'variability_index': self.ui.variabilityIndexLabel.text(),
                 'start_time': self.ui.startTimeAlphaLabel.text()
                 }
-        filename_p = crate_prediction_file(dir_path, file, data)
+        status = {'heart_rate': 0,
+                  'breath_freq': 0,
+                  'variability_index': 0,
+                  'start_time': 0,
+                  'result': 0
+                  }
+
+        filename_p = crate_prediction_file(dir_path, file, data, status)
 
         status = predict(dir_path, filename_p, models)
 
@@ -534,7 +548,7 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.startTimeAlphaLabel.setColor(status['start_time'])
 
-        crate_prediction_file(dir_path, file, status)
+        crate_prediction_file(dir_path, file, data, status)
 
         print("prediction success")
 

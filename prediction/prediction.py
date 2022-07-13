@@ -14,11 +14,11 @@ from sklearn.preprocessing import OneHotEncoder
 PARAMS = ['heart_rate', 'breath_freq', 'variability_index', 'start_time']
 
 
-def crate_prediction_file(dir_path, file, data):
+def crate_prediction_file(dir_path, file, data, results):
     t = []
     for param in PARAMS:
-        t.append([param, 0, data[param]])
-    t.append(['result', 0, ''])
+        t.append([param, results[param], data[param]])
+    t.append(['result', results['result'], ''])
 
     filename = os.path.join(dir_path, f"{file}_p.csv")
     pd.DataFrame(t, columns=['ind', 'result', 'value']).to_csv(filename, index=False)
