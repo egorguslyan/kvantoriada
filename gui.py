@@ -308,7 +308,7 @@ class Window(QtWidgets.QMainWindow):
                 if os.path.exists(os.path.join(dir_path, f"{last_file}.csv")):
                     os.remove(os.path.join(dir_path, f"{last_file}.csv"))
                 self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
-                print(datetime.datetime.now() - datetime.datetime.strptime(last_file, time_format))
+                # print(datetime.datetime.now() - datetime.datetime.strptime(last_file, time_format))
 
         file_path = os.path.join(dir_path, f"{date}.csv")
 
@@ -316,7 +316,7 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.filesCombo.addItem(date)
         i = self.ui.filesCombo.count() - 1
-        print(i)
+        # print(i)
         self.ui.filesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
 
         timeECG = int(self.ui.timeECG.text())
