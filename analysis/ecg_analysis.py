@@ -7,6 +7,12 @@ RATIO = 0.3
 
 
 def find_points_zeros(data, th):
+    '''
+    нахождение пороговых точек
+    :param data: график
+    :param th: порог
+    :return: лист точек
+    '''
     neg, pos = [], []
 
     for i in range(1, len(data)):
@@ -19,6 +25,13 @@ def find_points_zeros(data, th):
 
 
 def median(neg, pos, n):
+    '''
+    нахождение середин отрезков
+    :param neg: лист точек
+    :param pos: лист точек
+    :param n: длина графика
+    :return: лист точек
+    '''
     if len(neg) == 0:
         if len(pos) == 0:
             return []
@@ -43,6 +56,13 @@ def median(neg, pos, n):
 
 
 def convert_signal(n, m, data):
+    '''
+    получение вспомогательного графика
+    :param n:
+    :param m:
+    :param data: график ЭКГ
+    :return: вспомогательный график
+    '''
     g1 = [5] * len(data)
 
     for i in range(len(g1)):
@@ -58,6 +78,14 @@ def convert_signal(n, m, data):
 
 
 def find_r_peak(n, m, ratio, data):
+    '''
+    нахождение R-зубцов
+    :param n:
+    :param m:
+    :param ratio: порог
+    :param data: сигнал ЭКГ
+    :return:
+    '''
     g = convert_signal(n, m, data)
 
     th = ratio * max(g)
@@ -69,6 +97,13 @@ def find_r_peak(n, m, ratio, data):
 
 
 def calibrate_r_peak(r, data, size):
+    '''
+    соотнесение найденных R-зубцов с реальными
+    :param r: лист R-зубцов
+    :param data: ЭКГ
+    :param size: окошко поиска
+    :return:
+    '''
     res = []
     for i in r:
         ind = i
@@ -80,6 +115,12 @@ def calibrate_r_peak(r, data, size):
 
 
 def distribution(a, step):
+    '''
+    распределение RR
+    :param a:
+    :param step:
+    :return: график
+    '''
     x = [0] * (int(max(a)) // step + 1)
     for e in a:
         x[int(e) // step] += 1
@@ -87,6 +128,11 @@ def distribution(a, step):
 
 
 def find_breath_freq(data):
+    '''
+    нахождение частоты дыхания
+    :param data: график дыхания
+    :return: частота
+    '''
     th = min(data) + (max(data) - min(data)) * 0.3
     points = []
     ind = 0
@@ -101,6 +147,11 @@ def find_breath_freq(data):
 
 
 def variability(var):
+    '''
+    анализ вариабельности сердечного ритма
+    :param var:
+    :return:
+    '''
     max_value = max(var)
     min_value = min(var)
     amplitude = max_value - min_value
@@ -131,6 +182,11 @@ def variability(var):
 
 
 def analysis_ecg(data):
+    '''
+    анализ ЭКГ
+    :param data: ЭКГ
+    :return: свойства
+    '''
     ecg = data[0]
     time = data[1]
     enable = data[2]

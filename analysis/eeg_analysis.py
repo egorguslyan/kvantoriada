@@ -6,15 +6,10 @@ FILE_PATH = "datasets/q"
 RATE = 200
 
 
-def open_file_eeg(file_path):
-    file = open(file_path, 'r')
-    eeg = list(map(int, file.readline().split()))
-    for i in range(len(eeg)):
-        eeg[i] -= 128
-    return eeg
-
-
 def find_alpha(size, sig, ratio):
+    '''
+    нахождение альфа ритма
+    '''
     points = []
     freq, x = get_spectrum(4, 70, sig, RATE)
     max_amp = max(x)
@@ -29,6 +24,11 @@ def find_alpha(size, sig, ratio):
 
 
 def analysis_eeg(data):
+    '''
+    анализ ЭЭГ
+    :param data: ЭЭГ
+    :return: свойства
+    '''
     eeg = data[0]
     time = data[1]
     enable = data[2]
@@ -66,6 +66,9 @@ def analysis_eeg(data):
 
 
 def find_coeff(eeg, points, amp, size):
+    '''
+    нахождение относительной амплитуды альфа-ртима
+    '''
     prom = []
     for i in points:
         eeg[i] = 1000
@@ -90,6 +93,9 @@ def find_coeff(eeg, points, amp, size):
 
 
 def find_time_and_amp(eeg, points, t, size, delay=1):
+    '''
+    нахождение начала альфа-ритма и амплитуды
+    '''
     time_start = -1
     amp = -1
     if points:
@@ -109,7 +115,7 @@ def find_time_and_amp(eeg, points, t, size, delay=1):
 
 
 def main():
-    eeg = open_file_eeg(FILE_PATH)
+    eeg = open_file(FILE_PATH)
     global RATE
     RATE = len(eeg) / 10
     t = get_time(len(eeg), RATE)
