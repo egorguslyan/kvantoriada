@@ -794,6 +794,9 @@ alternate-background-color: rgb(170, 85, 255);</string>
               </item>
               <item row="1" column="1">
                <widget class="Result" name="resultTextLabel">
+                <property name="toolTip">
+                 <string>для изменение состояния прокрутите колесико мышки</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);</string>
                 </property>
@@ -995,6 +998,9 @@ selection-background-color: rgb(167, 255, 253);
                     <property name="contextMenuPolicy">
                      <enum>Qt::NoContextMenu</enum>
                     </property>
+                    <property name="toolTip">
+                     <string>для изменение состояния прокрутите колесико мышки</string>
+                    </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -1028,6 +1034,9 @@ border-color: rgb(0, 0, 0);</string>
                       <width>30</width>
                       <height>0</height>
                      </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>для изменение состояния прокрутите колесико мышки</string>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(255, 255, 255);
@@ -1143,6 +1152,9 @@ border-color: rgb(0, 0, 0);</string>
                       <width>30</width>
                       <height>0</height>
                      </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>для изменение состояния прокрутите колесико мышки</string>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(255, 255, 255);
@@ -1289,6 +1301,9 @@ border-color: rgb(0, 0, 0);</string>
                       <width>30</width>
                       <height>0</height>
                      </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>для изменение состояния прокрутите колесико мышкидля изменение состояния прокрутите колесико мышки</string>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(255, 255, 255);

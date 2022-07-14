@@ -73,7 +73,7 @@ def load_models(dir_path):
     '''
     models = dict()
     for param in PARAMS + ['result', 'onehotencoder']:
-        models[param] = load_model(os.path.join(dir_path, f'{param}.pkl'))
+        models[param] = load_model(os.path.join(dir_path, param))
     return models
 
 

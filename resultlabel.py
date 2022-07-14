@@ -26,9 +26,6 @@ class ResultLabel(QtWidgets.QLabel):
 
         self.isEditable = False
 
-    def mouseDoubleClickEvent(self, event):
-        #print(event.button())
-
     def wheelEvent(self, event):
         '''
         Изменение цвета при прокрутке колесика мыши
