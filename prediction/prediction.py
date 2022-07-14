@@ -103,6 +103,7 @@ def fit(dir_path, ignor=None):
         dataset = get_dataset(dir_path, param)
         if ignor is not None:
             dataset.drop(index=[ignor], axis=0, inplace=True)
+            dataset = dataset.reset_index(drop=True)
 
         X, y = split_dataset(dataset)
 
