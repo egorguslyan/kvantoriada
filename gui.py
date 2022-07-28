@@ -715,7 +715,7 @@ class Window(QtWidgets.QMainWindow):
         Вывод рекомендаций
         :return: None
         '''
-        recommend = pd.read_csv('recommendations.csv', delimiter=',').set_index('ind')
+        recommend = pd.read_csv('recommendations.csv', delimiter=';').set_index('ind')
         text = ''
         result = self.ui.resultTextLabel.get_result()
         text += recommend.loc['result', result]
