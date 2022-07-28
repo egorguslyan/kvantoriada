@@ -138,6 +138,7 @@ class Window(QtWidgets.QMainWindow):
         удаление выбранного пользователя и всех его данных
         :return: None
         '''
+        global users
         row = self.ui.table.currentRow()
         if row > -1:
             user = users.iloc[self.user]
