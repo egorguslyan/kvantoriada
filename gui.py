@@ -188,6 +188,8 @@ class Window(QtWidgets.QMainWindow):
                                   "alternate-background-color: rgb(170, 85, 255);")
         self.ui.tab.setCurrentIndex(0)
 
+        self.ui.recommendationsText.setText('')
+
         # если выбран пользователь, загрузить его данные
         if self.user is not None:
             user = users.iloc[self.user]
