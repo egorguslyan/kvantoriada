@@ -20,6 +20,7 @@ from analysis.eeg_analysis import analysis_eeg
 from analysis.signal_analysis import open_csv_file
 from prediction.prior import prior_analysis
 from prediction.prediction import fit, predict, crate_prediction_file, load_models, save_models
+from editing_recommendations import EditRecommendations
 
 # чтение таблицы пользователей из файла
 users_data = pd.read_csv('users.csv', delimiter=',')
@@ -27,9 +28,9 @@ users = pd.DataFrame(users_data)
 
 
 # диалоговое окно с предупреждением
-class SubDialog(QtWidgets.QDialog, Ui_Dialog):
+class WarningDialog(QtWidgets.QDialog, Ui_Dialog):
     def __init__(self):
-        super(SubDialog, self).__init__()
+        super(WarningDialog, self).__init__()
         self.setupUi(self)
         self.setModal(True)
 
@@ -57,6 +58,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.saveButton.clicked.connect(self.saveResultFile)
         self.ui.deleteFile.clicked.connect(self.deleteFile)
         self.ui.predictionStatusButton.clicked.connect(self.prediction)
+        self.ui.editRecommendationsButton.clicked.connect(self.editRecommendations)
 
         # создание виджетов графиков
         self.ui.canvasECG = MplCanvas()  # ЭКГ
@@ -74,7 +76,9 @@ class Window(QtWidgets.QMainWindow):
         self.file_path = None
         self.updateComports()  # обновление списка COM-портов
 
-        self.dlg = SubDialog()
+        # создание диалоговых окон
+        self.warningDialog = WarningDialog()
+        self.editRecommendationsDialog = EditRecommendations()
 
         self.updateTable()  # обновление таблицы пользователей
 
@@ -445,8 +449,8 @@ class Window(QtWidgets.QMainWindow):
             cnt_r_files = sum(map(lambda x: x.find('_r') != -1, os.listdir(users.at[self.user, 'dir_path'])))
             # проверка на количество помеченных файлов
             if cnt_r_files < 5:
-                self.dlg.show()
-                self.dlg.exec()
+                self.warningDialog.show()
+                self.warningDialog.exec()
 
                 status = prior_analysis(ecg, eeg)
                 self.ui.resultTextLabel.setColor(status['result'])
@@ -604,6 +608,8 @@ class Window(QtWidgets.QMainWindow):
         self.changeEditingLabel(flag)
         self.ui.saveButton.setVisible(flag)
 
+        self.ui.editRecommendationsButton.setVisible(flag)
+
     def saveResultFile(self):
         '''
         сохранение изменений результирующего файла
@@ -735,6 +741,7 @@ class Window(QtWidgets.QMainWindow):
                 max_age = int(i[i.find('-') + 1:i.find('.')])
                 if min_age <= int(self.ui.ageNumberLabel.text()) <= max_age:
                     recommend_file = i
+
         recommend = pd.read_csv(recommend_file, delimiter=';').set_index('ind')
         text = ''
         result = self.ui.resultTextLabel.get_result()
@@ -755,6 +762,10 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.recommendationsText.setText(text)
 
+    def editRecommendations(self):
+        self.editRecommendationsDialog.show()
+        self.editRecommendationsDialog.exec()
+
     def exit(self):
         '''
         Закрытие главного окна
@@ -763,7 +774,8 @@ class Window(QtWidgets.QMainWindow):
         self.saveSettings()
         users.to_csv('users.csv', index=False)  # сохранение таблицы пользователей
         self.close()
-        self.dlg.close()
+        self.warningDialog.close()
+        self.editRecommendationsDialog.close()
 
     def closeEvent(self, event):
         self.exit()
