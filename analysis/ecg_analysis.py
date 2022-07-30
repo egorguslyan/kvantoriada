@@ -221,7 +221,6 @@ def analysis_ecg(data):
             properties["variability"] = variability(var)
             properties['heart_rate'] = int(60 * 1000 / properties['variability']['mo'])
 
-            print(t[-1])
             if t[-1] >= 60:
                 begin_heart_rate = int(60 * 1000 / variability(var[:20])['mo'])
                 end_heart_rate = int(60 * 1000 / variability(var[-20:-1])['mo'])
