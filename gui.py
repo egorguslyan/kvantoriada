@@ -717,7 +717,18 @@ class Window(QtWidgets.QMainWindow):
         Вывод рекомендаций
         :return: None
         '''
-        recommend = pd.read_csv('recommendations.csv', delimiter=';').set_index('ind')
+        recommend_files = [i for i in os.listdir('.') if i.find('recommendations') != -1 and i.find('-') != -1]
+        recommend_file = 'recommendations.csv'
+        if recommend_files:
+            for i in recommend_files:
+                print(i)
+                min_age = int(i[15:i.find('-')])
+                max_age = int(i[i.find('-') + 1:i.find('.')])
+                print(min_age, max_age)
+                if min_age <= int(self.ui.ageNumberLabel.text()) <= max_age:
+                    recommend_file = i
+        print(recommend_file)
+        recommend = pd.read_csv(recommend_file, delimiter=';').set_index('ind')
         text = ''
         result = self.ui.resultTextLabel.get_result()
         text += recommend.loc['result', result]
