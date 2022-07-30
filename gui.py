@@ -232,6 +232,7 @@ class Window(QtWidgets.QMainWindow):
             files_combo = [comboBox.itemText(i) for i in range(comboBox.count())]
             if files_combo:
                 self.selectFile(files_combo[-1])
+                self.ui.testDateLabel.setText(files_combo[-1])
 
             # сброс кнопки пароля
             self.ui.btnPassword.clicked.connect(self.editingResult)
@@ -313,31 +314,28 @@ class Window(QtWidgets.QMainWindow):
             self.updatingUserMode(False)
             self.ui.updateUserButton.setText('Сохранить')
         else:
-            user = users.iloc[self.user].copy()
             if self.ui.surnameEdit.text() != '':
-                user['surname'] = self.ui.surnameEdit.text()
+                users.at[self.user, 'surname'] = self.ui.surnameEdit.text()
                 self.ui.surnameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
             else:
                 self.ui.surnameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
                 return
 
             if self.ui.nameEdit.text() != '':
-                user['name'] = self.ui.nameEdit.text()
+                users.at[self.user, 'name'] = self.ui.nameEdit.text()
                 self.ui.nameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
             else:
                 self.ui.nameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
                 return
 
             if self.ui.middleNameEdit.text() != '':
-                user['middleName'] = self.ui.middleNameEdit.text()
+                users.at[self.user, 'middleName'] = self.ui.middleNameEdit.text()
                 self.ui.middleNameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
             else:
                 self.ui.middleNameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
                 return
 
-            user['birthday'] = self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
-
-            users.at[self.user] = user
+            users.at[self.user, 'birthday'] = self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
             self.updateTable()
 
             self.updatingUserMode(True)
