@@ -193,6 +193,7 @@ def analysis_ecg(data):
     properties = dict()
     properties['time'] = list(range(len(ecg)))
     properties["heart_rate"] = 0
+    properties["diff_heart_rate"] = '-'
     properties["variability"] = variability([0] * 2)
     properties["breath"] = {
         "max": 0,
@@ -219,6 +220,13 @@ def analysis_ecg(data):
 
             properties["variability"] = variability(var)
             properties['heart_rate'] = int(60 * 1000 / properties['variability']['mo'])
+
+            print(t[-1])
+            if t[-1] >= 60:
+                begin_heart_rate = int(60 * 1000 / variability(var[:20])['mo'])
+                end_heart_rate = int(60 * 1000 / variability(var[-20:-1])['mo'])
+                properties["diff_heart_rate"] = str(begin_heart_rate - end_heart_rate)
+
             breath = [g[i] for i in r_old]
             max_breath = max(breath)
             min_breath = min(breath)

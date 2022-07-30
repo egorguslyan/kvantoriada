@@ -985,7 +985,14 @@ selection-background-color: rgb(167, 255, 253);
                 <property name="spacing">
                  <number>6</number>
                 </property>
-                <item row="1" column="3">
+                <item row="0" column="1">
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>ЧСС:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
                  <layout class="QHBoxLayout" name="horizontalLayout_12">
                   <item>
                    <widget class="ResultLabel" name="variabilityIndexLabel">
@@ -1025,6 +1032,86 @@ border-color: rgb(0, 0, 0);</string>
                   </item>
                  </layout>
                 </item>
+                <item row="3" column="1">
+                 <widget class="QLabel" name="label_6">
+                  <property name="text">
+                   <string>Дыхание (частота): </string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <layout class="QHBoxLayout" name="horizontalLayout_14">
+                  <item>
+                   <widget class="ResultLabel" name="breathFreqLabel">
+                    <property name="minimumSize">
+                     <size>
+                      <width>30</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;для изменение состояния прокрутите колесико мышки&lt;/p&gt;&lt;p&gt;синий - подавлен&lt;/p&gt;&lt;p&gt;зеленый - норма&lt;/p&gt;&lt;p&gt;красный - возбужден&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);</string>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Box</enum>
+                    </property>
+                    <property name="text">
+                     <string>цифры</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_17">
+                    <property name="text">
+                     <string>вд/мин</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QLabel" name="label_5">
+                  <property name="text">
+                   <string>Вариабельность (размах, стресс-индекс):</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" rowspan="4">
+                 <spacer name="horizontalSpacer_8">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="4" rowspan="4">
+                 <spacer name="horizontalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
                 <item row="0" column="2">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
@@ -1059,34 +1146,7 @@ border-color: rgb(0, 0, 0);</string>
                   </item>
                  </layout>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QLabel" name="label_5">
-                  <property name="text">
-                   <string>Вариабельность (размах, стресс-индекс):</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QLabel" name="label_6">
-                  <property name="text">
-                   <string>Дыхание (частота): </string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QLabel" name="label">
-                  <property name="text">
-                   <string>ЧСС:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
+                <item row="2" column="2">
                  <layout class="QHBoxLayout" name="horizontalLayout_11">
                   <item>
                    <widget class="ResultLabel" name="variabilityAmplitudeLabel">
@@ -1117,45 +1177,20 @@ border-color: rgb(0, 0, 0);</string>
                   </item>
                  </layout>
                 </item>
-                <item row="0" column="0" rowspan="3">
-                 <spacer name="horizontalSpacer_8">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                <item row="1" column="1">
+                 <widget class="QLabel" name="decreaseHeartRate">
+                  <property name="text">
+                   <string>Снижение ЧСС:</string>
                   </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                 </spacer>
+                 </widget>
                 </item>
-                <item row="0" column="4" rowspan="3">
-                 <spacer name="horizontalSpacer_4">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                <item row="1" column="2">
+                 <layout class="QHBoxLayout" name="horizontalLayout_13">
+                  <property name="spacing">
+                   <number>0</number>
                   </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="2" column="2">
-                 <layout class="QHBoxLayout" name="horizontalLayout_14">
                   <item>
-                   <widget class="ResultLabel" name="breathFreqLabel">
-                    <property name="minimumSize">
-                     <size>
-                      <width>30</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;для изменение состояния прокрутите колесико мышки&lt;/p&gt;&lt;p&gt;синий - подавлен&lt;/p&gt;&lt;p&gt;зеленый - норма&lt;/p&gt;&lt;p&gt;красный - возбужден&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
+                   <widget class="ResultLabel" name="decreaseHeartRateLabel">
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(255, 255, 255);
 border-color: rgb(0, 0, 0);</string>
@@ -1164,14 +1199,14 @@ border-color: rgb(0, 0, 0);</string>
                      <enum>QFrame::Box</enum>
                     </property>
                     <property name="text">
-                     <string>цифры</string>
+                     <string>-</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="label_17">
+                   <widget class="QLabel" name="decreaseHeartRateMeasure">
                     <property name="text">
-                     <string>вд/мин</string>
+                     <string>уд/мин</string>
                     </property>
                    </widget>
                   </item>

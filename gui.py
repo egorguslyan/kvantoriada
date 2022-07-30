@@ -537,6 +537,16 @@ class Window(QtWidgets.QMainWindow):
         self.ui.variabilityIndexLabel.setText(str(properties['variability']['index']))
         self.ui.breathFreqLabel.setText(str(properties['breath']['freq']))
 
+        if properties['diff_heart_rate'] == '-':
+            self.ui.decreaseHeartRate.setVisible(False)
+            self.ui.decreaseHeartRateLabel.setVisible(False)
+            self.ui.decreaseHeartRateMeasure.setVisible(False)
+        else:
+            self.ui.decreaseHeartRate.setVisible(True)
+            self.ui.decreaseHeartRateLabel.setVisible(True)
+            self.ui.decreaseHeartRateMeasure.setVisible(True)
+            self.ui.decreaseHeartRateLabel.setText(properties['diff_heart_rate'])
+
         return properties
 
     def updateEEG(self, file_path):
@@ -721,13 +731,10 @@ class Window(QtWidgets.QMainWindow):
         recommend_file = 'recommendations.csv'
         if recommend_files:
             for i in recommend_files:
-                print(i)
                 min_age = int(i[15:i.find('-')])
                 max_age = int(i[i.find('-') + 1:i.find('.')])
-                print(min_age, max_age)
                 if min_age <= int(self.ui.ageNumberLabel.text()) <= max_age:
                     recommend_file = i
-        print(recommend_file)
         recommend = pd.read_csv(recommend_file, delimiter=';').set_index('ind')
         text = ''
         result = self.ui.resultTextLabel.get_result()
@@ -738,6 +745,14 @@ class Window(QtWidgets.QMainWindow):
         text += recommend.loc['breath_freq', breath_freq]
         alpha = self.ui.startTimeAlphaLabel.get_result()
         text += recommend.loc['alpha', alpha]
+
+        if self.ui.decreaseHeartRateLabel.isVisible() and int(self.ui.decreaseHeartRateLabel.text()) > 10:
+            text += '<br>Отмечено снижение пульса за время исследования, ' \
+                    'что может свидетельствовать о способности саморегуляции спортсменом своего состояния'
+        elif self.ui.decreaseHeartRateLabel.isVisible() and int(self.ui.decreaseHeartRateLabel.text()) < -10:
+            text += '<br>Отмечено повышение пульса за время исследования, ' \
+                    'что может свидетельствовать о способности волнении спортсмена'
+
         self.ui.recommendationsText.setText(text)
 
     def exit(self):
