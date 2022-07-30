@@ -795,7 +795,7 @@ alternate-background-color: rgb(170, 85, 255);</string>
               <item row="1" column="1">
                <widget class="Result" name="resultTextLabel">
                 <property name="toolTip">
-                 <string>для изменение состояния прокрутите колесико мышки</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;для изменение состояния прокрутите колесико мышки&lt;/p&gt;&lt;p&gt;синий - подавлен&lt;/p&gt;&lt;p&gt;зеленый - норма&lt;/p&gt;&lt;p&gt;красный - возбужден&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -999,7 +999,7 @@ selection-background-color: rgb(167, 255, 253);
                      <enum>Qt::NoContextMenu</enum>
                     </property>
                     <property name="toolTip">
-                     <string>для изменение состояния прокрутите колесико мышки</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;для изменение состояния прокрутите колесико мышки&lt;/p&gt;&lt;p&gt;синий - подавлен&lt;/p&gt;&lt;p&gt;зеленый - норма&lt;/p&gt;&lt;p&gt;красный - возбужден&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(255, 255, 255);
@@ -1036,7 +1036,7 @@ border-color: rgb(0, 0, 0);</string>
                      </size>
                     </property>
                     <property name="toolTip">
-                     <string>для изменение состояния прокрутите колесико мышки</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;для изменение состояния прокрутите колесико мышки&lt;/p&gt;&lt;p&gt;синий - подавлен&lt;/p&gt;&lt;p&gt;зеленый - норма&lt;/p&gt;&lt;p&gt;красный - возбужден&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(255, 255, 255);
@@ -1072,7 +1072,7 @@ border-color: rgb(0, 0, 0);</string>
                 <item row="2" column="1">
                  <widget class="QLabel" name="label_6">
                   <property name="text">
-                   <string>Дыхание (амплитуда, частота): </string>
+                   <string>Дыхание (частота): </string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -1154,7 +1154,7 @@ border-color: rgb(0, 0, 0);</string>
                      </size>
                     </property>
                     <property name="toolTip">
-                     <string>для изменение состояния прокрутите колесико мышки</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;для изменение состояния прокрутите колесико мышки&lt;/p&gt;&lt;p&gt;синий - подавлен&lt;/p&gt;&lt;p&gt;зеленый - норма&lt;/p&gt;&lt;p&gt;красный - возбужден&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(255, 255, 255);
@@ -1303,7 +1303,7 @@ border-color: rgb(0, 0, 0);</string>
                      </size>
                     </property>
                     <property name="toolTip">
-                     <string>для изменение состояния прокрутите колесико мышкидля изменение состояния прокрутите колесико мышки</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;для изменение состояния прокрутите колесико мышки&lt;/p&gt;&lt;p&gt;синий - подавлен&lt;/p&gt;&lt;p&gt;зеленый - норма&lt;/p&gt;&lt;p&gt;красный - возбужден&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(255, 255, 255);

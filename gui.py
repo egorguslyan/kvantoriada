@@ -178,14 +178,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui.canvasSpectrum.clear()
 
         # сброс всех изменений
-        self.changeEditingLabel(False)
+        self.editingResultFileMode(False)
         self.clearLabels()
         self.file_path = None
-        self.ui.saveButton.setVisible(False)
         self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
 
-        self.ui.tab.setStyleSheet("background-color: rgb(255, 230, 234);\n"
-                                  "alternate-background-color: rgb(170, 85, 255);")
         self.ui.tab.setCurrentIndex(0)
 
         self.ui.recommendationsText.setText('')
@@ -583,15 +580,19 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.resultTextLabel.setEditable(flag)
 
-    def editingResultFileMode(self):
+    def editingResultFileMode(self, flag):
         '''
         режим изменения результатов
         :return: None
         '''
-        self.ui.tab.setStyleSheet("background-color: rgb(255, 196, 197);\n"
-                                  "alternate-background-color: rgb(170, 85, 255);")
-        self.changeEditingLabel(True)
-        self.ui.saveButton.setVisible(True)
+        if flag:
+            self.ui.tab.setStyleSheet("background-color: rgb(255, 196, 197);\n"
+                                      "alternate-background-color: rgb(170, 85, 255);")
+        else:
+            self.ui.tab.setStyleSheet("background-color: rgb(255, 230, 234);\n"
+                                      "alternate-background-color: rgb(170, 85, 255);")
+        self.changeEditingLabel(flag)
+        self.ui.saveButton.setVisible(flag)
 
     def saveResultFile(self):
         '''
@@ -608,7 +609,7 @@ class Window(QtWidgets.QMainWindow):
         user = users.iloc[self.user]
 
         if self.ui.password.text() == user['password'] and self.file_path is not None:
-            self.editingResultFileMode()
+            self.editingResultFileMode(True)
             self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
         else:
             self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
