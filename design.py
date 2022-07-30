@@ -622,7 +622,7 @@ class Ui_MainWindow(object):
         self.timeECG.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "")
         self.timeECG.setMinimum(10)
-        self.timeECG.setMaximum(60)
+        self.timeECG.setMaximum(180)
         self.timeECG.setObjectName("timeECG")
         self.horizontalLayout_5.addWidget(self.timeECG)
         self.label_10 = QtWidgets.QLabel(self.settings)

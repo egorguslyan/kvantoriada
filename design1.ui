@@ -1525,7 +1525,7 @@ border-color: rgb(0, 0, 0);</string>
                  <number>10</number>
                 </property>
                 <property name="maximum">
-                 <number>60</number>
+                 <number>180</number>
                 </property>
                </widget>
               </item>
