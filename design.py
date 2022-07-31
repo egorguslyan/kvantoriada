@@ -675,6 +675,7 @@ class Ui_MainWindow(object):
         self.comportsCombo.setObjectName("comportsCombo")
         self.horizontalLayout_2.addWidget(self.comportsCombo)
         self.updateComButton = QtWidgets.QToolButton(self.settings)
+        self.updateComButton.setStyleSheet("background-color: rgb(225, 194, 36);")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("update_comports.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.updateComButton.setIcon(icon)

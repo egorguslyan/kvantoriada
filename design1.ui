@@ -1645,6 +1645,9 @@ selection-background-color: rgb(167, 255, 253);</string>
             </item>
             <item>
              <widget class="QToolButton" name="updateComButton">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(225, 194, 36);</string>
+              </property>
               <property name="text">
                <string>...</string>
               </property>

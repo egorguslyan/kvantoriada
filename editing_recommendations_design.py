@@ -161,7 +161,7 @@ class Ui_Dialog(object):
         self.verticalLayout_3.addWidget(self.tabWidget)
 
         self.retranslateUi(Dialog)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
@@ -179,6 +179,7 @@ class Ui_Dialog(object):
         self.breathFreqSelectStatus.setToolTip(_translate("Dialog", "<html><head/><body><p>Укажите состояние</p></body></html>"))
         self.label_6.setText(_translate("Dialog", "Время появления альфа-ритма"))
         self.alphaSelectStatus.setToolTip(_translate("Dialog", "<html><head/><body><p>Укажите состояние</p></body></html>"))
+        self.updateCombRecommendationButton.setToolTip(_translate("Dialog", "<html><head/><body><p>Нажмите для обновления текстового поля</p></body></html>"))
         self.textEdit_2.setToolTip(_translate("Dialog", "<html><head/><body><p>Поле для редактирования рекомендаций</p><p><span style=\" font-weight:600;\">&lt;Текст&gt; - выделение текста жирным</span></p></body></html>"))
         self.saveCombRecommendationButton.setText(_translate("Dialog", "Сохранить"))
         self.deleteCombRecommendationButton.setText(_translate("Dialog", "Удалить"))

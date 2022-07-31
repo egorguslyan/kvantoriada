@@ -71,7 +71,7 @@ selection-background-color: rgb(167, 255, 253);</string>
 alternate-background-color: rgb(170, 85, 255);</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -236,6 +236,9 @@ selection-background-color: rgb(167, 255, 253);</string>
          </item>
          <item>
           <widget class="QToolButton" name="updateCombRecommendationButton">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Нажмите для обновления текстового поля&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(225, 194, 36);</string>
            </property>
