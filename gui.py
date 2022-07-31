@@ -789,7 +789,7 @@ class Window(QtWidgets.QMainWindow):
                     'что может свидетельствовать о способности саморегуляции спортсменом своего состояния'
         elif self.ui.decreaseHeartRateLabel.isVisible() and int(self.ui.decreaseHeartRateLabel.text()) < -10:
             text += '<br>Отмечено повышение пульса за время исследования, ' \
-                    'что может свидетельствовать о способности волнении спортсмена'
+                    'что может свидетельствовать о волнении спортсмена'
 
         self.ui.recommendationsText.setText(text)
 
