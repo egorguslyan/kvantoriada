@@ -771,17 +771,26 @@ class Window(QtWidgets.QMainWindow):
 
             for comb in combinations:
                 cnt = 0
-                if comb[0] == '0' or comb[0] == heart_rate_status:
+                if comb[0] == '0':
                     cnt += 1
-                if comb[1] == '0' or comb[1] == breath_freq_status:
+                elif comb[0] == heart_rate_status:
+                    cnt += 2
+
+                if comb[1] == '0':
                     cnt += 1
-                if comb[2] == '0' or comb[2] == alpha_status:
+                elif comb[1] == breath_freq_status:
+                    cnt += 2
+
+                if comb[2] == '0':
                     cnt += 1
+                elif comb[2] == alpha_status:
+                    cnt += 2
+
                 if max_cnt < cnt:
                     max_cnt = cnt
                     recommend_text = recommend.at[comb, 'normal']
 
-            if max_cnt > 0:
+            if max_cnt > 3:
                 text = recommend_text
 
         if self.ui.decreaseHeartRateLabel.isVisible() and int(self.ui.decreaseHeartRateLabel.text()) > 10:
