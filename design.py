@@ -793,7 +793,7 @@ class Ui_MainWindow(object):
         self.decreaseHeartRateLabel.setText(_translate("MainWindow", "-"))
         self.decreaseHeartRateMeasure.setText(_translate("MainWindow", "уд/мин"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), _translate("MainWindow", "ЭКГ"))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_5), _translate("MainWindow", "Вариабельность"))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_5), _translate("MainWindow", "Вариабельность (гистограмма)"))
         self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_6), _translate("MainWindow", "ЭКГ"))
         self.label_2.setText(_translate("MainWindow", "Альфа-ритм"))
         self.amplitudeAlphaLabel.setText(_translate("MainWindow", "цифры"))

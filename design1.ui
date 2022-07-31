@@ -1282,7 +1282,7 @@ border-color: rgb(0, 0, 0);</string>
                 </widget>
                 <widget class="QWidget" name="tab_5">
                  <attribute name="title">
-                  <string>Вариабельность</string>
+                  <string>Вариабельность (гистограмма)</string>
                  </attribute>
                  <layout class="QVBoxLayout" name="verticalLayout_10"/>
                 </widget>
