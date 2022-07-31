@@ -583,7 +583,7 @@ alternate-background-color: rgb(170, 85, 255);</string>
          <enum>QTabWidget::Rounded</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <property name="iconSize">
          <size>
@@ -1226,9 +1226,6 @@ border-color: rgb(0, 0, 0);</string>
                 </item>
                 <item row="1" column="2">
                  <layout class="QHBoxLayout" name="horizontalLayout_13">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
                   <item>
                    <widget class="ResultLabel" name="decreaseHeartRateLabel">
                     <property name="styleSheet">

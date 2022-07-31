@@ -478,7 +478,6 @@ class Ui_MainWindow(object):
         self.decreaseHeartRate.setObjectName("decreaseHeartRate")
         self.gridLayout.addWidget(self.decreaseHeartRate, 1, 1, 1, 1)
         self.horizontalLayout_13 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_13.setSpacing(0)
         self.horizontalLayout_13.setObjectName("horizontalLayout_13")
         self.decreaseHeartRateLabel = ResultLabel(self.tab_6)
         self.decreaseHeartRateLabel.setStyleSheet("background-color: rgb(255, 255, 255);\n"
@@ -734,7 +733,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tab.setCurrentIndex(0)
+        self.tab.setCurrentIndex(1)
         self.tabWidget_3.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
