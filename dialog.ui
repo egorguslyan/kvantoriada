@@ -22,6 +22,9 @@
   <property name="windowTitle">
    <string>Предупреждение</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(139, 83, 83);</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">
     <enum>QLayout::SetDefaultConstraint</enum>
@@ -46,6 +49,9 @@
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(137, 173, 59);</string>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

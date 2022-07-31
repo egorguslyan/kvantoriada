@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'dialog.ui'
+# Form implementation generated from reading ui file '.\dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -21,6 +21,7 @@ class Ui_Dialog(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Dialog.sizePolicy().hasHeightForWidth())
         Dialog.setSizePolicy(sizePolicy)
+        Dialog.setStyleSheet("background-color: rgb(139, 83, 83);")
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -33,6 +34,7 @@ class Ui_Dialog(object):
         self.label.setObjectName("label")
         self.verticalLayout.addWidget(self.label)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
+        self.buttonBox.setStyleSheet("background-color: rgb(137, 173, 59);")
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setCenterButtons(True)

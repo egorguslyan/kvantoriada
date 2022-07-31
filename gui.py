@@ -742,7 +742,10 @@ class Window(QtWidgets.QMainWindow):
                 if min_age <= int(self.ui.ageNumberLabel.text()) <= max_age:
                     recommend_file = i
 
-        recommend = pd.read_csv(recommend_file, delimiter=';').set_index('ind')
+        recommend = pd.read_csv(recommend_file, delimiter=';')
+        combinations = [i for i in recommend['ind'].to_list() if i.isdigit()]
+
+        recommend = recommend.set_index('ind')
         text = ''
         result = self.ui.resultTextLabel.get_result()
         text += recommend.loc['result', result]
@@ -752,6 +755,34 @@ class Window(QtWidgets.QMainWindow):
         text += recommend.loc['breath_freq', breath_freq]
         alpha = self.ui.startTimeAlphaLabel.get_result()
         text += recommend.loc['alpha', alpha]
+
+        results = {
+            'depressed': '1',
+            'normal': '2',
+            'excited': '3'
+        }
+        heart_rate_status = results[heart_rate]
+        breath_freq_status = results[breath_freq]
+        alpha_status = results[alpha]
+
+        if combinations:
+            max_cnt = 0
+            recommend_text = recommend.at[combinations[0], 'normal']
+
+            for comb in combinations:
+                cnt = 0
+                if comb[0] == '0' or comb[0] == heart_rate_status:
+                    cnt += 1
+                if comb[1] == '0' or comb[1] == breath_freq_status:
+                    cnt += 1
+                if comb[2] == '0' or comb[2] == alpha_status:
+                    cnt += 1
+                if max_cnt < cnt:
+                    max_cnt = cnt
+                    recommend_text = recommend.at[comb, 'normal']
+
+            if max_cnt > 0:
+                text = recommend_text
 
         if self.ui.decreaseHeartRateLabel.isVisible() and int(self.ui.decreaseHeartRateLabel.text()) > 10:
             text += '<br>Отмечено снижение пульса за время исследования, ' \
@@ -765,6 +796,7 @@ class Window(QtWidgets.QMainWindow):
     def editRecommendations(self):
         self.editRecommendationsDialog.show()
         self.editRecommendationsDialog.exec()
+        self.recommendations()
 
     def exit(self):
         '''
