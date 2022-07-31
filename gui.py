@@ -794,6 +794,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.recommendationsText.setText(text)
 
     def editRecommendations(self):
+        '''
+        Вызов окна редактирования рекомендаций
+        :return:
+        '''
         self.editRecommendationsDialog.show()
         self.editRecommendationsDialog.exec()
         self.recommendations()
