@@ -9,7 +9,8 @@ import shutil
 import time
 import datetime
 import re
-import asyncio
+import telebot
+from threading import Thread
 
 # модуль холста для графиков
 from mplcanvas import MplCanvas
@@ -826,14 +827,26 @@ class Window(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.exit()
 
-async def aexec():
-    return await sys.exit(app.exec())
+class bot(Thread):
+    def run(self):
+        bot = telebot.TeleBot('5789118529:AAFhJ-rPFaJujSlFeuA2kicyIrNk9ZN934w')
+        @bot.message_handler(content_types=["text"])
+        def handle_text(message):
+            print(message.text)
+            bot.send_message(message.chat.id, message.text)
+        bot.infinity_polling(interval=1)
+
+class gui(Thread):
+    def run(self):
+        app = QtWidgets.QApplication([])
+        application = Window()
+        application.show()
+        sys.exit(app.exec())
+
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication([])
-    application = Window()
-    application.show()
+    bot_thread = bot()
+    bot_thread.start()
+    gui_thread = gui()
+    gui_thread.start()
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(aexec())
-    loop.close()
