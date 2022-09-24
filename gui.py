@@ -11,6 +11,7 @@ import datetime
 import re
 import telebot
 from threading import Thread
+from base64 import b64decode
 
 # модуль холста для графиков
 from mplcanvas import MplCanvas
@@ -92,10 +93,10 @@ class Window(QtWidgets.QMainWindow):
             self.user = None
 
     def updateAge(self):
-        '''
+        """
         расчет возраста пользователя
         :return: None
-        '''
+        """
         birthday = self.ui.birthdayEdit.date()
         now = QtCore.QDate.currentDate()
 
@@ -108,10 +109,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.ageNumberLabel.setText(str(age))
 
     def addNewUser(self):
-        '''
+        """
         создание нового пользователя
         :return: None
-        '''
+        """
         global users
         rows = self.ui.table.rowCount()
         date = QtCore.QDate.currentDate().toString('dd.MM.yyyy')
@@ -140,10 +141,10 @@ class Window(QtWidgets.QMainWindow):
         self.updateTable()
 
     def deleteUser(self):
-        '''
+        """
         удаление выбранного пользователя и всех его данных
         :return: None
-        '''
+        """
         global users
         row = self.ui.table.currentRow()
         if row > -1:
@@ -163,20 +164,20 @@ class Window(QtWidgets.QMainWindow):
             self.ui.table.selectionModel().clearCurrentIndex()
 
     def chooseUser(self):
-        '''
+        """
         выбор пользователя
         :return: None
-        '''
+        """
         self.saveSettings()
         row = self.ui.table.currentRow()
         self.user = row
         self.updateCard()
 
     def updateCard(self):
-        '''
+        """
         обновление карточки пользователя
         :return: None
-        '''
+        """
         # очищение графиков
         self.ui.canvasECG.clear()
         self.ui.canvasEEG.clear()
@@ -231,8 +232,8 @@ class Window(QtWidgets.QMainWindow):
             self.ui.predictionStatusButton.setVisible(False)
 
             # загрузка последней записи
-            comboBox = self.ui.filesCombo
-            files_combo = [comboBox.itemText(i) for i in range(comboBox.count())]
+            combo_box = self.ui.filesCombo
+            files_combo = [combo_box.itemText(i) for i in range(combo_box.count())]
             if files_combo:
                 self.selectFile(files_combo[-1])
                 self.ui.testDateLabel.setText(files_combo[-1])
@@ -255,10 +256,10 @@ class Window(QtWidgets.QMainWindow):
             self.ui.checkGSR.setChecked(bool(user['enableGSR']))
 
     def clearLabels(self):
-        '''
+        """
         очищение Label-ов результатов от записей
         :return: None
-        '''
+        """
         self.ui.heartRateLabel.clear()
         self.ui.breathFreqLabel.clear()
         self.ui.variabilityIndexLabel.clear()
@@ -270,10 +271,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.resultTextLabel.clear()
 
     def updateTable(self):
-        '''
+        """
         обновление таблицы пользователей
         :return: None
-        '''
+        """
         self.ui.table.clear()
         # self.ui.table.setHorizontalHeaderLabels(['', 'Спортсмен'])
 
@@ -289,11 +290,11 @@ class Window(QtWidgets.QMainWindow):
                 self.ui.table.setItem(i, 0, name)
 
     def updatingUserMode(self, flag):
-        '''
+        """
         режим изменения данных пользователя
         :param flag:
         :return: None
-        '''
+        """
         self.ui.surnameEdit.setReadOnly(flag)
         self.ui.nameEdit.setReadOnly(flag)
         self.ui.middleNameEdit.setReadOnly(flag)
@@ -309,10 +310,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.saveButton.setEnabled(flag)
 
     def updateUser(self):
-        '''
+        """
         изменение данных пользователя
         :return: None
-        '''
+        """
         if self.ui.updateUserButton.text() == 'Изменить':
             self.updatingUserMode(False)
             self.ui.updateUserButton.setText('Сохранить')
@@ -345,10 +346,10 @@ class Window(QtWidgets.QMainWindow):
             self.ui.updateUserButton.setText('Изменить')
 
     def testUser(self):
-        '''
+        """
         тестирование пользователя
         :return: None
-        '''
+        """
         time_format = '%d.%m.%Y %H-%M-%S'
 
         user = users.iloc[self.user]
@@ -389,20 +390,20 @@ class Window(QtWidgets.QMainWindow):
             self.ui.resultTextLabel.setText("не удалось подключиться")
 
     def selectFile(self, file):
-        '''
+        """
         выбор файла в списке файлов
         :param file: имя файла (без разрешения и пути)
         :return:
-        '''
+        """
         dir_path = users.iloc[self.user]['dir_path']
         filename = os.path.join(dir_path, file)
         self.analysis(f"{filename}.csv")
 
     def deleteFile(self):
-        '''
+        """
         удаление выбранного файла сигнала
         :return: None
-        '''
+        """
         user = users.iloc[self.user]
 
         filename = self.ui.filesCombo.currentText()
@@ -426,11 +427,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui.filesCombo.removeItem(files.index(filename))
 
     def analysis(self, file_path):
-        '''
+        """
         анализ сигналов и вывод состояний
         :param file_path: полное имя файла
         :return: None
-        '''
+        """
         # self.ui.predictionStatusButton.setVisible(True)
         self.ui.deleteFile.setVisible(True)
 
@@ -447,7 +448,7 @@ class Window(QtWidgets.QMainWindow):
         r_file = f"{filename}_r.csv"
         p_file = f"{filename}_p.csv"
         # проверка на наличие файла с размеченными результатами
-        if not os.path.exists(r_file): # and not os.path.exists(p_file):
+        if not os.path.exists(r_file):  # and not os.path.exists(p_file):
             cnt_r_files = sum(map(lambda x: x.find('_r') != -1, os.listdir(users.at[self.user, 'dir_path'])))
             # проверка на количество помеченных файлов
             if cnt_r_files < 5:
@@ -485,11 +486,11 @@ class Window(QtWidgets.QMainWindow):
         self.recommendations()  # вывод рекомендаций
 
     def createResultFile(self, file_path):
-        '''
+        """
         создание результирующего файла
         :param file_path: имя файла с путем
         :return: None
-        '''
+        """
         users.at[self.user, 'is_editing_result_files'] = 1
 
         # создание файла
@@ -519,11 +520,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui.filesCombo.setItemData(i, color, QtCore.Qt.BackgroundRole)
 
     def updateECG(self, file_path):
-        '''
+        """
         обновление графиков ЭКГ
         :param file_path: имя файла
         :return: None
-        '''
+        """
         # чтение сигнала ЭКГ из файла и его анализ
         data = open_csv_file(file_path)
         properties = analysis_ecg(data['ecg'])
@@ -556,11 +557,11 @@ class Window(QtWidgets.QMainWindow):
         return properties
 
     def updateEEG(self, file_path):
-        '''
+        """
         обновление графиков ЭЭГ
         :param file_path: имя файла
         :return: None
-        '''
+        """
         # чтение сигнала ЭЭГ из файла и его анализ
         data = open_csv_file(file_path)
         properties = analysis_eeg(data['eeg'])
@@ -581,11 +582,11 @@ class Window(QtWidgets.QMainWindow):
         return properties
 
     def changeEditingLabel(self, flag):
-        '''
+        """
         режим изменения Label-ов с результатами
         :param flag:
         :return: None
-        '''
+        """
         self.ui.heartRateLabel.setEditable(flag)
         self.ui.variabilityAmplitudeLabel.setEditable(flag)
         self.ui.variabilityIndexLabel.setEditable(flag)
@@ -597,10 +598,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.resultTextLabel.setEditable(flag)
 
     def editingResultFileMode(self, flag):
-        '''
+        """
         режим изменения результатов
         :return: None
-        '''
+        """
         if flag:
             self.ui.tab.setStyleSheet("background-color: rgb(255, 196, 197);\n"
                                       "alternate-background-color: rgb(170, 85, 255);")
@@ -613,17 +614,17 @@ class Window(QtWidgets.QMainWindow):
         self.ui.editRecommendationsButton.setVisible(flag)
 
     def saveResultFile(self):
-        '''
+        """
         сохранение изменений результирующего файла
         :return:
-        '''
+        """
         self.createResultFile(self.file_path)
 
     def editingResult(self):
-        '''
+        """
         Проверка пароля для режима изменения результатов
         :return: None
-        '''
+        """
         user = users.iloc[self.user]
 
         if self.ui.password.text() == user['password'] and self.file_path is not None:
@@ -635,10 +636,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.password.setText('')
 
     def createPassword(self):
-        '''
+        """
         Создание пароля для режима изменения результатов
         :return: None
-        '''
+        """
         user = users.iloc[self.user]
         if user['password'] == 'None':
             if self.ui.password.text() != '':
@@ -660,19 +661,19 @@ class Window(QtWidgets.QMainWindow):
         self.ui.password.setText('')
 
     def updateComports(self):
-        '''
+        """
         Функция обновления доступных COM-портов
         :return:
-        '''
+        """
         available_ports = get_available_ports()
         self.ui.comportsCombo.clear()
         self.ui.comportsCombo.addItems(available_ports)
 
     def prediction(self):
-        '''
+        """
         Функция предсказания результата при помощи машинного обучения
         :return: None
-        '''
+        """
         user = users.iloc[self.user]
         dir_path = user['dir_path']
 
@@ -720,10 +721,10 @@ class Window(QtWidgets.QMainWindow):
         crate_prediction_file(dir_path, file, data, status)
 
     def saveSettings(self):
-        '''
+        """
         Сохранение настроек пользователя
         :return: None
-        '''
+        """
         users.at[self.user, 'timeECG'] = self.ui.timeECG.text()
         users.at[self.user, 'enableECG'] = int(self.ui.checkECG.isChecked())
         users.at[self.user, 'timeEEG'] = self.ui.timeEEG.text()
@@ -731,10 +732,10 @@ class Window(QtWidgets.QMainWindow):
         users.at[self.user, 'enableGSR'] = int(self.ui.checkGSR.isChecked())
 
     def recommendations(self):
-        '''
+        """
         Вывод рекомендаций
         :return: None
-        '''
+        """
         recommend_files = [i for i in os.listdir('.') if i.find('recommendations') != -1 and i.find('-') != -1]
         recommend_file = 'recommendations.csv'
         if recommend_files:
@@ -805,19 +806,19 @@ class Window(QtWidgets.QMainWindow):
         self.ui.recommendationsText.setText(text)
 
     def editRecommendations(self):
-        '''
+        """
         Вызов окна редактирования рекомендаций
         :return:
-        '''
+        """
         self.editRecommendationsDialog.show()
         self.editRecommendationsDialog.exec()
         self.recommendations()
 
     def exit(self):
-        '''
+        """
         Закрытие главного окна
         :return: None
-        '''
+        """
         self.saveSettings()
         users.to_csv('users.csv', index=False)  # сохранение таблицы пользователей
         self.close()
@@ -827,16 +828,21 @@ class Window(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.exit()
 
-class bot(Thread):
-    def run(self):
-        bot = telebot.TeleBot('5789118529:AAFhJ-rPFaJujSlFeuA2kicyIrNk9ZN934w')
-        @bot.message_handler(content_types=["text"])
-        def handle_text(message):
-            print(message.text)
-            bot.send_message(message.chat.id, message.text)
-        bot.infinity_polling(interval=1)
+    def tgWriteCoach(self, tg_id, data_send):
+        # do smth
+        tg_bot.send_message(tg_id, data_send)
 
-class gui(Thread):
+
+class Bot(Thread):
+    def run(self):
+        @tg_bot.message_handler(content_types=["text"])
+        def handle_text(message):
+            # обработка сообщений
+            tg_bot.send_message(message.chat.id, message.text)
+        tg_bot.infinity_polling(interval=1)
+
+
+class Gui(Thread):
     def run(self):
         app = QtWidgets.QApplication([])
         application = Window()
@@ -845,8 +851,8 @@ class gui(Thread):
 
 
 if __name__ == "__main__":
-    bot_thread = bot()
+    tg_bot = telebot.TeleBot(b64decode('NTc4OTExODUyOTpBQUZoSi1yUEZhSnVqU2xGZXVBMmtpY3lJck5rOVpOOTM0dw==').decode())
+    bot_thread = Bot()
     bot_thread.start()
-    gui_thread = gui()
+    gui_thread = Gui()
     gui_thread.start()
-
