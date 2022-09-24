@@ -9,6 +9,7 @@ import shutil
 import time
 import datetime
 import re
+import asyncio
 
 # модуль холста для графиков
 from mplcanvas import MplCanvas
@@ -825,10 +826,14 @@ class Window(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.exit()
 
+async def aexec():
+    return await sys.exit(app.exec())
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
     application = Window()
     application.show()
 
-    sys.exit(app.exec())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(f())
+    loop.close()
