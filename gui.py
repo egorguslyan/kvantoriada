@@ -13,9 +13,6 @@ import telebot
 from threading import Thread
 from base64 import b64decode
 
-# модуль холста для графиков
-from mplcanvas import MplCanvas
-
 # подключение собственных модулей
 from bluetooth_serial.read_serial import read, get_available_ports
 from analysis.ecg_analysis import analysis_ecg
@@ -24,10 +21,15 @@ from analysis.signal_analysis import open_csv_file
 from prediction.prior import prior_analysis
 from prediction.prediction import fit, predict, crate_prediction_file, load_models, save_models
 from editing_recommendations import EditRecommendations
+# модуль холста для графиков
+from mplcanvas import MplCanvas
 
 # чтение таблицы пользователей из файла
 users_data = pd.read_csv('users.csv', delimiter=',')
 users = pd.DataFrame(users_data)
+
+couches_data = pd.read_csv('couches.csv', delimiter=',')
+couches = pd.DataFrame(couches_data)
 
 
 # диалоговое окно с предупреждением
@@ -133,7 +135,8 @@ class Window(QtWidgets.QMainWindow):
             'timeECG': 10,
             'enableEEG': 1,
             'timeEEG': 10,
-            'enableGSR': 1
+            'enableGSR': 1,
+            'couch_name': 'None'
         }
         user = pd.DataFrame([list(user.values())], columns=list(user.keys()))
         users = pd.concat([users, user], ignore_index=True)
@@ -172,6 +175,7 @@ class Window(QtWidgets.QMainWindow):
         row = self.ui.table.currentRow()
         self.user = row
         self.updateCard()
+        tg_bot.send_message(couches.set_index('couch_name').loc[users.iloc[self.user]['couch_name'], 'linked_account'], 'ку')
 
     def updateCard(self):
         """
@@ -386,6 +390,7 @@ class Window(QtWidgets.QMainWindow):
                 enableECG=enableECG, enableEEG=enableEEG, enableGSR=enableGSR):
             self.analysis(file_path)
             users.at[self.user, 'last_result'] = self.ui.resultTextLabel.color
+            writeTg(file_path)
         else:
             self.ui.resultTextLabel.setText("не удалось подключиться")
 
@@ -472,7 +477,7 @@ class Window(QtWidgets.QMainWindow):
             else:
                 status = pd.read_csv(p_file, delimiter=',')
             status = status.set_index('ind')
-            # print(status)
+            print(status)
             # print(status.loc['result'])
             self.ui.resultTextLabel.setColor((status.loc['result'])['result'])
 
@@ -828,9 +833,9 @@ class Window(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.exit()
 
-    def tgWriteCoach(self, tg_id, data_send):
-        # do smth
-        tg_bot.send_message(tg_id, data_send)
+
+def writeTg(file_path):
+    pass
 
 
 class Bot(Thread):
