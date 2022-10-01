@@ -175,7 +175,6 @@ class Window(QtWidgets.QMainWindow):
         row = self.ui.table.currentRow()
         self.user = row
         self.updateCard()
-        tg_bot.send_message(couches.set_index('couch_name').loc[users.iloc[self.user]['couch_name'], 'linked_account'], 'ку')
 
     def updateCard(self):
         """
@@ -378,20 +377,23 @@ class Window(QtWidgets.QMainWindow):
         # print(i)
         self.ui.filesCombo.setItemData(i, QtGui.QColor(198, 198, 198), QtCore.Qt.BackgroundRole)
 
-        timeECG = int(self.ui.timeECG.text())
-        timeEEG = int(self.ui.timeEEG.text())
-        enableECG = int(self.ui.checkECG.isChecked())
-        enableEEG = int(self.ui.checkEEG.isChecked())
-        enableGSR = int(self.ui.checkGSR.isChecked())
+        time_ecg = int(self.ui.timeECG.text())
+        time_eeg = int(self.ui.timeEEG.text())
+        enable_ecg = int(self.ui.checkECG.isChecked())
+        enable_eeg = int(self.ui.checkEEG.isChecked())
+        enable_gsr = int(self.ui.checkGSR.isChecked())
 
         # подключение к модулю с датчиками
         if read(self.ui.comportsCombo.currentText(), file_path,
-                timeECG=timeECG, timeEEG=timeEEG,
-                enableECG=enableECG, enableEEG=enableEEG, enableGSR=enableGSR):
-            self.analysis(file_path)
+                timeECG=time_ecg, timeEEG=time_eeg,
+                enableECG=enable_ecg, enableEEG=enable_eeg, enableGSR=enable_gsr):
+            recommendation_text = self.analysis(file_path)
+            writeTg(user, file_path, recommendation_text)
             users.at[self.user, 'last_result'] = self.ui.resultTextLabel.color
-            writeTg(file_path)
         else:
+            file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
+            recommendation_text = self.analysis(file_path)
+            writeTg(user, file_path, recommendation_text)
             self.ui.resultTextLabel.setText("не удалось подключиться")
 
     def selectFile(self, file):
@@ -477,7 +479,7 @@ class Window(QtWidgets.QMainWindow):
             else:
                 status = pd.read_csv(p_file, delimiter=',')
             status = status.set_index('ind')
-            print(status)
+            # print(status)
             # print(status.loc['result'])
             self.ui.resultTextLabel.setColor((status.loc['result'])['result'])
 
@@ -488,7 +490,9 @@ class Window(QtWidgets.QMainWindow):
             self.ui.startTimeAlphaLabel.setColor(status.loc['start_time']['result'])
 
         # self.createResultFile(file_path)
-        self.recommendations()  # вывод рекомендаций
+        recommendation_text = self.recommendations()  # вывод рекомендаций
+        self.ui.recommendationsText.setText(recommendation_text)
+        return recommendation_text
 
     def createResultFile(self, file_path):
         """
@@ -738,7 +742,7 @@ class Window(QtWidgets.QMainWindow):
 
     def recommendations(self):
         """
-        Вывод рекомендаций
+        Выдача рекомендаций
         :return: None
         """
         recommend_files = [i for i in os.listdir('.') if i.find('recommendations') != -1 and i.find('-') != -1]
@@ -808,7 +812,7 @@ class Window(QtWidgets.QMainWindow):
             text += '<br>Отмечено повышение пульса за время исследования, ' \
                     'что может свидетельствовать о волнении спортсмена'
 
-        self.ui.recommendationsText.setText(text)
+        return text
 
     def editRecommendations(self):
         """
@@ -817,7 +821,8 @@ class Window(QtWidgets.QMainWindow):
         """
         self.editRecommendationsDialog.show()
         self.editRecommendationsDialog.exec()
-        self.recommendations()
+        recommendation_text = self.recommendations()
+        self.ui.recommendationsText.setText(recommendation_text)
 
     def exit(self):
         """
@@ -834,8 +839,31 @@ class Window(QtWidgets.QMainWindow):
         self.exit()
 
 
-def writeTg(file_path):
-    pass
+def writeTg(user, file_path, recommendation_text):
+    couch = couches.set_index('couch_name').loc[user['couch_name']]
+    couch_id = couch['linked_account']
+    couch_name = couch.name
+
+    user_name = user['name'] + ' ' + user['surname']
+    file_path = file_path[:-4] + '_r.csv'
+    file_data = pd.read_csv(file_path, delimiter=',')
+    file = pd.DataFrame(file_data)
+    file = file.set_index('ind').loc[::, 'value']
+
+    results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' + str(int(file['breath_freq'])) \
+        + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' + str(int(file['variability_index'])) + '\r\n'
+    alpha_time = int(file['start_time'])
+    if alpha_time >= 0:
+        results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд\r\n\r\n'
+    else:
+        results += 'Альфа ритм не обнаружен\r\n\r\n'
+
+    recommendation_text = recommendation_text.replace('<br>', '\r\n')
+    recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
+    text = couch_name + ', ' + user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
+        + '<i>Вывод:</i>\r\n' + recommendation_text
+
+    tg_bot.send_message(couch_id, text, parse_mode='HTML')
 
 
 class Bot(Thread):
@@ -844,6 +872,7 @@ class Bot(Thread):
         def handle_text(message):
             # обработка сообщений
             tg_bot.send_message(message.chat.id, message.text)
+
         tg_bot.infinity_polling(interval=1)
 
 

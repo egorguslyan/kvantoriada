@@ -1,3 +1,3 @@
 name,surname,middleName,birthday,dir_path,password,last_result,is_editing_result_files,enableECG,timeECG,enableEEG,timeEEG,enableGSR,couch_name
-Egor,Guslyantsev,-,01.07.2005,users\1656666431,qwerty,1,1.0,1.0,10,1.0,10,1.0,Misha
-Ivan,Ivanov,Ivanovich,11.07.2005,users\1657495528,qwerty,1,0.0,1.0,10,1.0,10,1.0,Igor
+Егор,Гуслянцев,Евгеньевич,01.07.2005,users\1656666431,qwerty,1,1.0,1.0,10,1.0,10,1.0,Михаил Жаринов
+Семен,Горюнов,не-знаю,11.07.2005,users\1657495528,qwerty,1,0.0,1.0,10,1.0,10,1.0,Игорь Пименов
