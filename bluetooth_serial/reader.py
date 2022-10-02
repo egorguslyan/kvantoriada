@@ -20,11 +20,12 @@ line21, = ax[0, 1].plot(range((size*32)), x1)
 line12, = ax[1, 0].plot(range((size*32)), y2)
 line22, = ax[1, 1].plot(range((size*32)), x2)
 
+
 def unpack_str(sf):
     sf = sf[:-1]
     ef, gf = sf.split(',')
-    #ef = sf
-    #gf = ''
+    # ef = sf
+    # gf = ''
     ekf = ef.split()
     gsf = gf.split()
     ekgf = list(map(int, ekf))

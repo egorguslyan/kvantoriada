@@ -5,11 +5,11 @@ import pandas as pd
 
 
 def open_csv_file(file_path):
-    '''
+    """
     чтение данных из .csv файла
     :param file_path: файл
     :return: таблица
-    '''
+    """
     if not os.path.exists(file_path):
         return {
             'ecg': [[0] * 512, 3, 0],
@@ -39,11 +39,11 @@ def open_csv_file(file_path):
 
 
 def open_file(file_path):
-    '''
+    """
     чтение из файла
     :param file_path: файл
     :return: сигнал
-    '''
+    """
     if not os.path.exists(file_path):
         return [0] * 512
     with open(file_path, 'r') as file:
@@ -68,28 +68,28 @@ def butter_band_stop_filter(lowcut, highcut, samplerate, order):
 
 
 def filter_low_high_freq(low, high, data, rate):
-    '''
+    """
     фильтр сигнала от низких и высоких частот
     :param low: нижний порог
     :param high: верхний порог
     :param data: сигнал
     :param rate: частота
     :return: отфильтрованный сигнал
-    '''
+    """
     b, a = butter_band_pass_filter(low, high, rate, order=4)
     data_filtered = signal.lfilter(b, a, data)
     return data_filtered
 
 
 def get_spectrum(low, high, data, rate):
-    '''
+    """
     нахождений спектра
     :param low: нижний порог
     :param high: верхний порог
     :param data: сигнал
     :param rate: частота
     :return: спектр
-    '''
+    """
     freq = np.fft.rfftfreq(len(data), 1 / rate)
     x = np.abs(np.fft.rfft(data) / len(data))
 
@@ -104,20 +104,20 @@ def get_spectrum(low, high, data, rate):
 
 
 def get_time(length, rate):
-    '''
+    """
     получение времени длительности сигнала
     :param length: длинна сигнала
     :param rate: частота
     :return: время
-    '''
+    """
     return np.linspace(0, length / rate, length)
 
 
 def convert_points_to_time(points, time):
-    '''
+    """
     преобразование точек в точки на временном отрезке
     :param points: точки
     :param time: время
     :return:
-    '''
+    """
     return [time[i] for i in points]

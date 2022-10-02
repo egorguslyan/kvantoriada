@@ -1,6 +1,7 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets
+# from PyQt5 import QtCore, QtGui
 from editing_recommendations_design import Ui_Dialog
-import sys
+# import sys
 import pandas as pd
 import os
 
@@ -32,11 +33,11 @@ class EditRecommendations(QtWidgets.QDialog, Ui_Dialog):
         self.updateRecommendation('')
 
     def updateRecommendation(self, string):
-        '''
+        """
         Обновление поля текста рекомендации
         :param string:
         :return: None
-        '''
+        """
         category = self.ageCombo.currentText()
         age = category[category.find('(') + 1:category.find(' лет')]
 
@@ -70,10 +71,10 @@ class EditRecommendations(QtWidgets.QDialog, Ui_Dialog):
         self.textEdit.setText(text_formatted)
 
     def updateCombRecommendation(self):
-        '''
+        """
         Обновление поля текста рекомендации по комбинациям
         :return: None
-        '''
+        """
         heart_rate_status = self.heartRateSelectStatus.getStatus()
         breath_freq_status = self.breathFreqSelectStatus.getStatus()
         alpha_status = self.alphaSelectStatus.getStatus()
@@ -98,10 +99,10 @@ class EditRecommendations(QtWidgets.QDialog, Ui_Dialog):
             self.textEdit_2.setText('Введите текст рекомендации')
 
     def saveRecommendation(self):
-        '''
+        """
         Сохранение изменений в выбранном файле рекомендаций по характеристике и состоянию
         :return: None
-        '''
+        """
         category = self.ageCombo.currentText()
         age = category[category.find('(') + 1:category.find(' лет')]
 
@@ -142,10 +143,10 @@ class EditRecommendations(QtWidgets.QDialog, Ui_Dialog):
         recommendations.to_csv(recommendation_file, sep=';')
 
     def saveCombRecommendation(self):
-        '''
+        """
         Сохранение изменений в выбранном файле рекомендаций по комбинации состояний характеристик
         :return: None
-        '''
+        """
         heart_rate_status = self.heartRateSelectStatus.getStatus()
         breath_freq_status = self.breathFreqSelectStatus.getStatus()
         alpha_status = self.alphaSelectStatus.getStatus()
@@ -184,10 +185,10 @@ class EditRecommendations(QtWidgets.QDialog, Ui_Dialog):
         recommendations.to_csv(recommendation_file, sep=';')
 
     def deleteCombRecommendation(self):
-        '''
+        """
         Удаление в выбранном файле рекомендаций по комбинации состояний характеристик
         :return:
-        '''
+        """
         heart_rate_status = self.heartRateSelectStatus.getStatus()
         breath_freq_status = self.breathFreqSelectStatus.getStatus()
         alpha_status = self.alphaSelectStatus.getStatus()

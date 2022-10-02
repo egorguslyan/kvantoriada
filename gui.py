@@ -837,40 +837,53 @@ class Window(QtWidgets.QMainWindow):
 def writeTg(user, file_path, recommendation_text):
     couch = couches.set_index('couch_name').loc[user['couch_name']]
     couch_id = couch['linked_account']
+    if couch_id != 'None':
+        user_name = user['name'] + ' ' + user['surname']
+        file_path = file_path[:-4] + '_r.csv'
+        file_data = pd.read_csv(file_path, delimiter=',')
+        file = pd.DataFrame(file_data)
+        file = file.set_index('ind').loc[::, 'value']
 
-    user_name = user['name'] + ' ' + user['surname']
-    file_path = file_path[:-4] + '_r.csv'
-    file_data = pd.read_csv(file_path, delimiter=',')
-    file = pd.DataFrame(file_data)
-    file = file.set_index('ind').loc[::, 'value']
+        results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
+                  + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
+                  + str(int(file['variability_index'])) + '\r\n'
+        alpha_time = int(file['start_time'])
+        if alpha_time >= 0:
+            results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд\r\n\r\n'
+        else:
+            results += 'Альфа ритм не обнаружен\r\n\r\n'
 
-    results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' + str(int(file['breath_freq'])) \
-        + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' + str(int(file['variability_index'])) + '\r\n'
-    alpha_time = int(file['start_time'])
-    if alpha_time >= 0:
-        results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд\r\n\r\n'
-    else:
-        results += 'Альфа ритм не обнаружен\r\n\r\n'
+        recommendation_text = recommendation_text.replace('<br>', '\r\n')
+        recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
+        text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
+            + '<i>Вывод:</i>\r\n' + recommendation_text
 
-    recommendation_text = recommendation_text.replace('<br>', '\r\n')
-    recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
-    text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
-        + '<i>Вывод:</i>\r\n' + recommendation_text
-
-    tg_bot.send_message(couch_id, text, parse_mode='HTML')
+        tg_bot.send_message(couch_id, text, parse_mode='HTML')
 
 
 class Bot(Thread):
     def run(self):
-        state = {}
+        state = readCouches()
+
+        @tg_bot.message_handler(commands=['logout'])
+        def handle_logout(message):
+            if message.chat.id in state.keys():
+                if state[message.chat.id][0] == 2:
+                    deleteTgId(state[message.chat.id][1])
+                    tg_bot.send_message(message.chat.id, 'Вы успешно вышли из аккаунта')
+                else:
+                    tg_bot.send_message(message.chat.id, 'Вы не вошли в аккаунт')
+                state.pop(message.chat.id)
+            else:
+                tg_bot.send_message(message.chat.id, 'Для входа в аккаунт тренера напишите "/login"')
 
         @tg_bot.message_handler(func=lambda message: message.chat.id in state.keys() and state[message.chat.id][0] == 2)
-        def handle_start(message):
+        def handle_logged(message):
             tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт под именем ' + state[message.chat.id][1] +
                                 '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
 
         @tg_bot.message_handler(commands=['login'])
-        def handle_start(message):
+        def handle_login(message):
             state[message.chat.id] = [0, None]
             tg_bot.send_message(message.chat.id, 'Введите свое имя и фамилию')
 
@@ -879,8 +892,9 @@ class Bot(Thread):
             if message.chat.id in state.keys():
 
                 if state[message.chat.id] == [0, None]:
-                    if message.text in couches.get('couch_name').to_numpy():
-                        state[message.chat.id] = [1, message.text]
+                    name = formatName(message.text)
+                    if name in couches.get('couch_name').to_numpy():
+                        state[message.chat.id] = [1, name]
                         tg_bot.send_message(message.chat.id, 'Введите ваш пароль')
                     else:
                         tg_bot.send_message(message.chat.id, 'Тренера с таким именем не существует')
@@ -900,6 +914,23 @@ class Bot(Thread):
         tg_bot.infinity_polling(interval=1)
 
 
+def formatName(name):
+    name = name.title()
+    if name not in couches.get('couch_name').to_numpy():
+        swap_name = name.split()
+        if len(swap_name) == 2:
+            name = ' '.join(swap_name[::-1])
+    return name
+
+
+def readCouches():
+    tg_states = {}
+    for couch in couches.iterrows():
+        if couch[1]['linked_account'] != 'None':
+            tg_states[int(couch[1]['linked_account'])] = [2, couch[1]['couch_name']]
+    return tg_states
+
+
 def checkPassword(couch_name, password):
     couch = couches.set_index('couch_name').loc[couch_name]
     return couch['couch_password'] == password
@@ -909,6 +940,14 @@ def saveTgId(tg_id, couch_name):
     global couches
     couches = couches.set_index('couch_name')
     couches.at[couch_name, 'linked_account'] = str(tg_id)
+    couches = couches.reset_index()
+    couches.to_csv('couches.csv', index=False)
+
+
+def deleteTgId(couch_name):
+    global couches
+    couches = couches.set_index('couch_name')
+    couches.at[couch_name, 'linked_account'] = 'None'
     couches = couches.reset_index()
     couches.to_csv('couches.csv', index=False)
 

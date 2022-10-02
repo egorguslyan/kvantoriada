@@ -1,4 +1,5 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets
+# from PyQt5 import QtCore, QtGui
 from select_status_design import Ui_Form
 
 
@@ -8,10 +9,10 @@ class SelectStatus(QtWidgets.QWidget, Ui_Form):
         self.setupUi(self)
 
     def getStatus(self):
-        '''
+        """
         Получить выбранное состояние
         :return: int
-        '''
+        """
         up = self.upButton.isChecked()
         normal = self.normalButton.isChecked()
         down = self.downButton.isChecked()

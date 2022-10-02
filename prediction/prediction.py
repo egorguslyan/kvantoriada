@@ -1,9 +1,10 @@
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+# from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression, LinearRegression
+# from sklearn.naive_bayes import GaussianNB
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+# from sklearn.linear_model import LinearRegression
 import numpy as np
 import pandas as pd
 import pickle
@@ -15,14 +16,14 @@ PARAMS = ['heart_rate', 'breath_freq', 'variability_index', 'start_time']
 
 
 def crate_prediction_file(dir_path, file, data, results):
-    '''
+    """
     создание файла с предсказанным результатом
     :param dir_path: директория
     :param file: имя файла
     :param data: численные данные
     :param results: результаты
     :return: имя файла
-    '''
+    """
     t = []
     for param in PARAMS:
         t.append([param, results[param], data[param]])
@@ -45,32 +46,32 @@ def save_model(file, model):
 
 
 def save_models(dir_path, models):
-    '''
+    """
     сохранение моделей
     :param dir_path: директория
     :param models: словарь моделей
     :return: None
-    '''
+    """
     for param in PARAMS + ['result', 'onehotencoder']:
         save_model(os.path.join(dir_path, param), models[param])
 
 
 def load_model(file):
-    '''
+    """
     загрузка модели
     :param file: имя файла с моделью
     :return: модель
-    '''
+    """
     with open(file, 'rb') as f:
         return pickle.load(f)
 
 
 def load_models(dir_path):
-    '''
+    """
     загрузка моделей
     :param dir_path: директории
     :return: словарь моделей
-    '''
+    """
     models = dict()
     for param in PARAMS + ['result', 'onehotencoder']:
         models[param] = load_model(os.path.join(dir_path, param))
@@ -78,11 +79,11 @@ def load_models(dir_path):
 
 
 def get_columns(param):
-    '''
+    """
     получение листа колонок в зависимости от параметра
     :param param:
     :return:
-    '''
+    """
     if param != 'result':
         columns = ['value']
     else:
@@ -91,12 +92,12 @@ def get_columns(param):
 
 
 def get_data(file, param):
-    '''
+    """
     получение записи из файла
     :param file: полное имя файла
     :param param:
     :return: None
-    '''
+    """
     columns = get_columns(param)
 
     data_file = pd.read_csv(file, delimiter=',')
@@ -112,12 +113,12 @@ def get_data(file, param):
 
 
 def get_dataset(dir_path, param):
-    '''
+    """
     создание датасета
     :param dir_path: директория
     :param param:
     :return: датасет
-    '''
+    """
     columns = get_columns(param)
 
     dataset = pd.DataFrame([], columns=columns)
@@ -131,23 +132,23 @@ def get_dataset(dir_path, param):
 
 
 def split_dataset(dataset):
-    '''
+    """
     разделение датасета на признаки и метку
     :param dataset:
     :return:
-    '''
+    """
     X = dataset.iloc[:, :-1]
     y = dataset.iloc[:, -1]
     return X, y
 
 
 def transform(data, ohe):
-    '''
+    """
     преобразование категориальных признаков
     :param data:
     :param ohe:
     :return:
-    '''
+    """
     feature_arr = ohe.fit_transform(data[:]).toarray()
     feature_labels = ohe.categories_
     feature_labels = np.array(feature_labels).ravel()
@@ -155,12 +156,12 @@ def transform(data, ohe):
 
 
 def fit(dir_path, ignor=None):
-    '''
+    """
     обучение моделей
     :param dir_path: директория
     :param ignor: игнорируемая запись
     :return: словарь моделей
-    '''
+    """
     models = dict()
 
     for param in PARAMS + ['result']:
@@ -186,13 +187,13 @@ def fit(dir_path, ignor=None):
 
 
 def predict(dir_path, file, models):
-    '''
+    """
     предсказание результата
     :param dir_path: директория
     :param file: файл
     :param models: словарь моделей
     :return: результат
-    '''
+    """
     result = dict()
     y_pred = []
     # print(file)
@@ -231,4 +232,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

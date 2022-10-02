@@ -23,46 +23,46 @@ class MplCanvas(FigureCanvas):
         self.setToolTip(hint)
 
     def plot(self, x, y):
-        '''
+        """
         Вывод графика
         :param x:
         :param y:
         :return: None
-        '''
+        """
         self.fig.clear()
         self.ax = self.fig.add_subplot(111)
         self.data = self.ax.plot(x, y)
         self.draw()
 
     def clear(self):
-        '''
+        """
         Очищение холста
         :return: None
-        '''
+        """
         self.fig.clear()
         self.draw()
 
     def get_xdata(self):
-        '''
+        """
         Получение x координат
         :return: list
-        '''
+        """
         return self.data[0].get_xdata()
 
     def get_ydata(self):
-        '''
+        """
         Получение y координат
         :return: list
-        '''
+        """
         return self.data[0].get_ydata()
 
     def scale_up(self, s, ratio):
-        '''
+        """
         Приближение
         :param s: центр приближения
         :param ratio: коэффициент приближения
         :return: None
-        '''
+        """
         if self.begin is None or self.end is None:
             return
 
@@ -75,12 +75,12 @@ class MplCanvas(FigureCanvas):
         self.set_ylim()
 
     def scale_down(self, s, ratio):
-        '''
+        """
         Отдаление
         :param s: центр отдаления
         :param ratio: коэффициент отдаления
         :return: None
-        '''
+        """
         if self.begin is None or self.end is None:
             return
 
@@ -93,11 +93,11 @@ class MplCanvas(FigureCanvas):
         self.set_ylim()
 
     def scroll(self, direction):
-        '''
+        """
         Перемещение по оси x
         :param direction: направление
         :return: None
-        '''
+        """
         if self.begin is None or self.end is None:
             return
 
@@ -119,10 +119,10 @@ class MplCanvas(FigureCanvas):
         self.set_ylim()
 
     def set_ylim(self):
-        '''
+        """
         Функция для сохранения масштаба оси y
         :return: None
-        '''
+        """
         min_value = min(self.y)
         max_value = max(self.y)
         amplitude = max_value - min_value
@@ -130,21 +130,21 @@ class MplCanvas(FigureCanvas):
         self.draw()
 
     def save_data(self):
-        '''
+        """
         Функция для сохранения исходного графика
         :return: None
-        '''
+        """
         self.x = self.get_xdata()
         self.y = self.get_ydata()
         self.begin = 0
         self.end = len(self.x)
 
     def mousePressEvent(self, event):
-        '''
+        """
         Обработка нажатий
         :param event:
         :return: None
-        '''
+        """
         width = self.frameGeometry().width()
         s = event.x() / width
         if event.button() == 1:
@@ -153,9 +153,9 @@ class MplCanvas(FigureCanvas):
             self.scale_down(s, 0.8)
 
     def wheelEvent(self, event):
-        '''
+        """
         Обработка колесика мыши
         :param event:
         :return: None
-        '''
+        """
         self.scroll(1 if event.angleDelta().y() == 120 else -1)
