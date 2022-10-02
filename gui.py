@@ -24,13 +24,6 @@ from editing_recommendations import EditRecommendations
 # модуль холста для графиков
 from mplcanvas import MplCanvas
 
-# чтение таблицы пользователей из файла
-users_data = pd.read_csv('users.csv', delimiter=',')
-users = pd.DataFrame(users_data)
-
-couches_data = pd.read_csv('couches.csv', delimiter=',')
-couches = pd.DataFrame(couches_data)
-
 
 # диалоговое окно с предупреждением
 class WarningDialog(QtWidgets.QDialog, Ui_Dialog):
@@ -391,16 +384,17 @@ class Window(QtWidgets.QMainWindow):
             writeTg(user, file_path, recommendation_text)
             users.at[self.user, 'last_result'] = self.ui.resultTextLabel.color
         else:
-            file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
-            recommendation_text = self.analysis(file_path)
-            writeTg(user, file_path, recommendation_text)
+            if test:
+                file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
+                recommendation_text = self.analysis(file_path)
+                writeTg(user, file_path, recommendation_text)
             self.ui.resultTextLabel.setText("не удалось подключиться")
 
     def selectFile(self, file):
         """
         выбор файла в списке файлов
         :param file: имя файла (без разрешения и пути)
-        :return:
+        :return: None
         """
         dir_path = users.iloc[self.user]['dir_path']
         filename = os.path.join(dir_path, file)
@@ -437,7 +431,7 @@ class Window(QtWidgets.QMainWindow):
         """
         анализ сигналов и вывод состояний
         :param file_path: полное имя файла
-        :return: None
+        :return: str: рекомендации спортсмену
         """
         # self.ui.predictionStatusButton.setVisible(True)
         self.ui.deleteFile.setVisible(True)
@@ -625,7 +619,7 @@ class Window(QtWidgets.QMainWindow):
     def saveResultFile(self):
         """
         сохранение изменений результирующего файла
-        :return:
+        :return: None
         """
         self.createResultFile(self.file_path)
 
@@ -672,7 +666,7 @@ class Window(QtWidgets.QMainWindow):
     def updateComports(self):
         """
         Функция обновления доступных COM-портов
-        :return:
+        :return: None
         """
         available_ports = get_available_ports()
         self.ui.comportsCombo.clear()
@@ -743,7 +737,7 @@ class Window(QtWidgets.QMainWindow):
     def recommendations(self):
         """
         Выдача рекомендаций
-        :return: None
+        :return: str: рекомендации спортсмену
         """
         recommend_files = [i for i in os.listdir('.') if i.find('recommendations') != -1 and i.find('-') != -1]
         recommend_file = 'recommendations.csv'
@@ -817,7 +811,7 @@ class Window(QtWidgets.QMainWindow):
     def editRecommendations(self):
         """
         Вызов окна редактирования рекомендаций
-        :return:
+        :return: None
         """
         self.editRecommendationsDialog.show()
         self.editRecommendationsDialog.exec()
@@ -834,6 +828,7 @@ class Window(QtWidgets.QMainWindow):
         self.close()
         self.warningDialog.close()
         self.editRecommendationsDialog.close()
+        sys.exit()
 
     def closeEvent(self, event):
         self.exit()
@@ -842,7 +837,6 @@ class Window(QtWidgets.QMainWindow):
 def writeTg(user, file_path, recommendation_text):
     couch = couches.set_index('couch_name').loc[user['couch_name']]
     couch_id = couch['linked_account']
-    couch_name = couch.name
 
     user_name = user['name'] + ' ' + user['surname']
     file_path = file_path[:-4] + '_r.csv'
@@ -860,7 +854,7 @@ def writeTg(user, file_path, recommendation_text):
 
     recommendation_text = recommendation_text.replace('<br>', '\r\n')
     recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
-    text = couch_name + ', ' + user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
+    text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
         + '<i>Вывод:</i>\r\n' + recommendation_text
 
     tg_bot.send_message(couch_id, text, parse_mode='HTML')
@@ -868,12 +862,55 @@ def writeTg(user, file_path, recommendation_text):
 
 class Bot(Thread):
     def run(self):
-        @tg_bot.message_handler(content_types=["text"])
+        state = {}
+
+        @tg_bot.message_handler(func=lambda message: message.chat.id in state.keys() and state[message.chat.id][0] == 2)
+        def handle_start(message):
+            tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт под именем ' + state[message.chat.id][1] +
+                                '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
+
+        @tg_bot.message_handler(commands=['login'])
+        def handle_start(message):
+            state[message.chat.id] = [0, None]
+            tg_bot.send_message(message.chat.id, 'Введите свое имя и фамилию')
+
+        @tg_bot.message_handler(content_types=['text'])
         def handle_text(message):
-            # обработка сообщений
-            tg_bot.send_message(message.chat.id, message.text)
+            if message.chat.id in state.keys():
+
+                if state[message.chat.id] == [0, None]:
+                    if message.text in couches.get('couch_name').to_numpy():
+                        state[message.chat.id] = [1, message.text]
+                        tg_bot.send_message(message.chat.id, 'Введите ваш пароль')
+                    else:
+                        tg_bot.send_message(message.chat.id, 'Тренера с таким именем не существует')
+                        state.pop(message.chat.id)
+
+                elif state[message.chat.id][0] == 1:
+                    if checkPassword(state[message.chat.id][1], message.text):
+                        tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
+                        saveTgId(message.chat.id, state[message.chat.id][1])
+                        state[message.chat.id] = [2, state[message.chat.id][1]]
+                    else:
+                        tg_bot.send_message(message.chat.id, 'Введен неверный пароль')
+                        state.pop(message.chat.id)
+            else:
+                tg_bot.send_message(message.chat.id, 'Для входа в аккаунт тренера напишите "/login"')
 
         tg_bot.infinity_polling(interval=1)
+
+
+def checkPassword(couch_name, password):
+    couch = couches.set_index('couch_name').loc[couch_name]
+    return couch['couch_password'] == password
+
+
+def saveTgId(tg_id, couch_name):
+    global couches
+    couches = couches.set_index('couch_name')
+    couches.at[couch_name, 'linked_account'] = str(tg_id)
+    couches = couches.reset_index()
+    couches.to_csv('couches.csv', index=False)
 
 
 class Gui(Thread):
@@ -886,6 +923,14 @@ class Gui(Thread):
 
 if __name__ == "__main__":
     tg_bot = telebot.TeleBot(b64decode('NTc4OTExODUyOTpBQUZoSi1yUEZhSnVqU2xGZXVBMmtpY3lJck5rOVpOOTM0dw==').decode())
+    # чтение таблицы пользователей из файла
+    users_data = pd.read_csv('users.csv', delimiter=',')
+    users = pd.DataFrame(users_data)
+    couches_data = pd.read_csv('couches.csv', delimiter=',', dtype='str')
+    couches = pd.DataFrame(couches_data)
+
+    test = True
+
     bot_thread = Bot()
     bot_thread.start()
     gui_thread = Gui()
