@@ -1,19 +1,24 @@
+// Состояние Bluetooth
 #define BLUETOOTH_ENABLE 1
+// Светодиод отладки
 #define DEBUG_LED 13
+// Кнопка начала измерений
 #define BTN0 5
+// Индикационные светодиоды
 #define LEDW 2
 #define LEDY 3
 #define LEDR 4
+// Потенциометры
 #define P0 A6
 #define P1 A7
 
-/* После изменения стандартных значений времени
-   нужно обязательно запустить gen.bat или gen.sh */
+// Время измерения для каждого датчика (выставляется в программе)
 #define GSR_TIME 5
 #define ECG_TIME 10
 #define EEG_TIME 15
 
 #include <EEPROM.h>
+#define eeprom_key ((uint8_t) __TIME__ & 127)
 /*    Mem map    **
     0) TIMG
     1) E*TG
@@ -31,12 +36,6 @@ GyverOLED<SSD1306_128x32, OLED_BUFFER> oled;
 SoftwareSerial serial(8, 7);
 #else
 #define serial Serial
-#endif
-
-#if __has_include("random_key.h")
-    #include "random_key.h"
-#else
-    #error "Сгенерируйте ключ с помощью gen.bat или gen.sh"
 #endif
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -188,7 +187,7 @@ uint8_t eeprom_byte_form(uint8_t b, uint8_t useful_bits)
     return r;
 }
 
-/*  */
+/* Формовка и запись байта */
 uint8_t eeprom_byte_write(uint8_t i)
 {
     uint8_t eepromData;
