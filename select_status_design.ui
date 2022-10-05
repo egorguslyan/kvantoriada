@@ -32,7 +32,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>up_arrow.png</normaloff>up_arrow.png</iconset>
+         <normaloff>images/up_arrow.png</normaloff>images/up_arrow.png</iconset>
        </property>
       </widget>
      </item>
@@ -53,7 +53,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>down_arrow.png</normaloff>down_arrow.png</iconset>
+         <normaloff>images/down_arrow.png</normaloff>images/down_arrow.png</iconset>
        </property>
       </widget>
      </item>

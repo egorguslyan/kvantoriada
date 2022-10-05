@@ -676,7 +676,7 @@ class Ui_MainWindow(object):
         self.updateComButton = QtWidgets.QToolButton(self.settings)
         self.updateComButton.setStyleSheet("background-color: rgb(225, 194, 36);")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("update_comports.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("images/update_comports.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.updateComButton.setIcon(icon)
         self.updateComButton.setObjectName("updateComButton")
         self.horizontalLayout_2.addWidget(self.updateComButton)

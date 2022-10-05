@@ -583,7 +583,7 @@ alternate-background-color: rgb(170, 85, 255);</string>
          <enum>QTabWidget::Rounded</enum>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <property name="iconSize">
          <size>
@@ -1650,7 +1650,7 @@ selection-background-color: rgb(167, 255, 253);</string>
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>update_comports.png</normaloff>update_comports.png</iconset>
+                <normaloff>images/update_comports.png</normaloff>images/update_comports.png</iconset>
               </property>
              </widget>
             </item>
