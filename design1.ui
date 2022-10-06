@@ -23,8 +23,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(139, 83, 83);
-</string>
+   <string notr="true">background-color: rgb(139, 83, 83);</string>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Rounded</enum>
@@ -957,8 +956,7 @@ p, li { white-space: pre-wrap; }
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 selection-color: rgb(0, 0, 0);
-selection-background-color: rgb(167, 255, 253);
-</string>
+selection-background-color: rgb(167, 255, 253);</string>
               </property>
               <property name="sizeAdjustPolicy">
                <enum>QComboBox::AdjustToContents</enum>
@@ -1650,7 +1648,7 @@ selection-background-color: rgb(167, 255, 253);</string>
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>images/update_comports.png</normaloff>images/update_comports.png</iconset>
+                <normaloff>C:/Users/simeo/.designer/backup/images/update_comports.png</normaloff>C:/Users/simeo/.designer/backup/images/update_comports.png</iconset>
               </property>
              </widget>
             </item>
@@ -1703,6 +1701,9 @@ selection-background-color: rgb(167, 255, 253);</string>
             </item>
             <item row="1" column="0">
              <widget class="QLineEdit" name="password">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);</string>
+              </property>
               <property name="echoMode">
                <enum>QLineEdit::Password</enum>
               </property>
