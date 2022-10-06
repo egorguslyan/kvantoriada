@@ -8,7 +8,7 @@
 #define LEDW 2
 #define LEDY 3
 #define LEDR 4
-// Потенциометры
+// Аттеньюаторы
 #define P0 A6
 #define P1 A7
 
