@@ -609,6 +609,9 @@ alternate-background-color: rgb(170, 85, 255);</string>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <layout class="QFormLayout" name="formLayout">
+            <property name="labelAlignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="surnameLabel">
               <property name="enabled">
@@ -681,62 +684,155 @@ alternate-background-color: rgb(170, 85, 255);</string>
               </property>
              </widget>
             </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
-            <item>
+            <item row="3" column="0">
              <widget class="QLabel" name="birthdayLabel">
               <property name="text">
                <string>Дата рождения </string>
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QDateEdit" name="birthdayEdit">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
+            <item row="3" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QDateEdit" name="birthdayEdit">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(255, 255, 255);</string>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="ageLabel">
+                <property name="text">
+                 <string>Возраст</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="ageNumberLabel">
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(255, 255, 255);</string>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="2">
+             <widget class="QPushButton" name="addNewCouchButton">
               <property name="styleSheet">
-               <string notr="true">background-color: rgb(255, 255, 255);</string>
+               <string notr="true">background-color: #e1a91a;</string>
               </property>
-              <property name="readOnly">
-               <bool>true</bool>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>images/add.png</normaloff>images/add.png</iconset>
               </property>
              </widget>
             </item>
-            <item>
-             <spacer name="horizontalSpacer">
+            <item row="1" column="2">
+             <widget class="QPushButton" name="addNewDoctorButton">
+              <property name="styleSheet">
+               <string notr="true">background-color: #e1a91a;</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>images/add.png</normaloff>images/add.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="doctorNameComboBox">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+selection-color: rgb(0, 0, 0);
+selection-background-color: rgb(167, 255, 253);</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="doctorLabel">
+              <property name="text">
+               <string>Лечащий врач</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="margin">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="couchLabel">
+              <property name="text">
+               <string>Тренер</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="couchNameComboBox">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+selection-color: rgb(0, 0, 0);
+selection-background-color: rgb(167, 255, 253);</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <spacer name="horizontalSpacer_12">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
-                <height>20</height>
+                <height>0</height>
                </size>
               </property>
              </spacer>
-            </item>
-            <item>
-             <widget class="QLabel" name="ageLabel">
-              <property name="text">
-               <string>Возраст</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="ageNumberLabel">
-              <property name="styleSheet">
-               <string notr="true">background-color: rgb(255, 255, 255);</string>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::Box</enum>
-              </property>
-              <property name="text">
-               <string>0</string>
-              </property>
-             </widget>
             </item>
            </layout>
           </item>
@@ -1648,7 +1744,7 @@ selection-background-color: rgb(167, 255, 253);</string>
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>C:/Users/simeo/.designer/backup/images/update_comports.png</normaloff>C:/Users/simeo/.designer/backup/images/update_comports.png</iconset>
+                <normaloff>images/update_comports.png</normaloff>images/update_comports.png</iconset>
               </property>
              </widget>
             </item>

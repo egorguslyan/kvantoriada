@@ -21,6 +21,7 @@ from analysis.signal_analysis import open_csv_file
 from prediction.prior import prior_analysis
 from prediction.prediction import fit, predict, crate_prediction_file, load_models, save_models
 from editing_recommendations import EditRecommendations
+from create_account import CreateAccount
 # модуль холста для графиков
 from mplcanvas import MplCanvas
 
@@ -57,6 +58,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.deleteFile.clicked.connect(self.deleteFile)
         self.ui.predictionStatusButton.clicked.connect(self.prediction)
         self.ui.editRecommendationsButton.clicked.connect(self.editRecommendations)
+        self.ui.btnPassword.clicked.connect(self.editingResult)
 
         # создание виджетов графиков
         self.ui.canvasECG = MplCanvas()  # ЭКГ
@@ -121,7 +123,7 @@ class Window(QtWidgets.QMainWindow):
             'middleName': 'Middle' + str(rows),
             'birthday': date,
             'dir_path': dir_path,
-            'password': 'None',
+            'doctor_name': 'None',
             'last_result': '',
             'is_editing_result_files': 0,
             'enableECG': 1,
@@ -234,15 +236,8 @@ class Window(QtWidgets.QMainWindow):
                 self.selectFile(files_combo[-1])
                 self.ui.testDateLabel.setText(files_combo[-1])
 
-            # сброс кнопки пароля
-            self.ui.btnPassword.clicked.connect(self.editingResult)
-            self.ui.btnPassword.clicked.disconnect()
-            if user['password'] != 'None':
-                self.ui.btnPassword.clicked.connect(self.editingResult)
-                self.ui.btnPassword.setText('Войти')
-            else:
-                self.ui.btnPassword.clicked.connect(self.createPassword)
-                self.ui.btnPassword.setText('Создать')
+            # Очистка поля ввода пароля врача
+            self.ui.password.setText('')
 
             # загрузка предыдущих настроек пользователя
             self.ui.checkECG.setChecked(bool(user['enableECG']))
@@ -389,6 +384,7 @@ class Window(QtWidgets.QMainWindow):
                 recommendation_text = self.analysis(file_path)
                 writeTg(user, file_path, recommendation_text)
             self.ui.resultTextLabel.setText("не удалось подключиться")
+            self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
 
     def selectFile(self, file):
         """
@@ -629,37 +625,15 @@ class Window(QtWidgets.QMainWindow):
         :return: None
         """
         user = users.iloc[self.user]
+        if user['doctor_name'] == 'None':
+            self.ui.password.setText('')
+            return
 
-        if self.ui.password.text() == user['password'] and self.file_path is not None:
+        if self.ui.password.text() == doctors.loc[user['doctor_name'], 'doctor_password'] and self.file_path is not None:
             self.editingResultFileMode(True)
             self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
         else:
             self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
-
-        self.ui.password.setText('')
-
-    def createPassword(self):
-        """
-        Создание пароля для режима изменения результатов
-        :return: None
-        """
-        user = users.iloc[self.user]
-        if user['password'] == 'None':
-            if self.ui.password.text() != '':
-                users.at[self.user, 'password'] = self.ui.password.text()
-                self.ui.btnPassword.setText('Подтвердить')
-            else:
-                self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
-        else:
-            if user['password'] == self.ui.password.text():
-                self.ui.btnPassword.clicked.disconnect()
-                self.ui.btnPassword.clicked.connect(self.editingResult)
-                self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
-                self.ui.btnPassword.setText('Войти')
-            else:
-                users.at[self.user, 'password'] = 'None'
-                self.ui.btnPassword.setText('Создать')
-                self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
 
         self.ui.password.setText('')
 
@@ -967,6 +941,8 @@ if __name__ == "__main__":
     users = pd.DataFrame(users_data)
     couches_data = pd.read_csv('couches.csv', delimiter=',', dtype='str')
     couches = pd.DataFrame(couches_data)
+    doctors_data = pd.read_csv('doctors.csv', delimiter=',', dtype='str')
+    doctors = pd.DataFrame(doctors_data).set_index('doctor_name')
 
     test = True
 

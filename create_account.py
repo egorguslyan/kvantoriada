@@ -28,7 +28,8 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
         self.passwordWarning.setHidden(True)
 
     def checkName(self):
-        return self.table[self.mode + '_name'].isin([self.nameEdit.text()]).any()
+        return self.table[self.mode + '_name'].isin([self.nameEdit.text()]).any()\
+               and self.nameEdit.text() != ''
 
     def checkPassword(self):
         return self.passwordEdit.text() == self.repeatPasswordEdit.text()
