@@ -208,8 +208,8 @@ class Window(QtWidgets.QMainWindow):
             # создание списка файлов с сигналами
             if files:
                 for file in files:
-                    if not re.search(r'/d/d./d/d./d{4} /d/d-/d/d-/d/d_/w', file) \
-                            and re.search(r'/d/d./d/d./d{4} /d/d-/d/d-/d/d', file):
+                    if not re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d_\w', file) \
+                            and re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d', file):
                         filename, _ = os.path.splitext(file)
                         self.ui.filesCombo.addItem(filename)
 

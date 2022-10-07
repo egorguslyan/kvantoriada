@@ -124,7 +124,7 @@ def get_dataset(dir_path, param):
     dataset = pd.DataFrame([], columns=columns)
     files = os.listdir(dir_path)
     for file in files:
-        if re.search(r'/d/d./d/d./d{4} /d/d-/d/d-/d/d_r', file):
+        if re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d_r', file):
             data = get_data(os.path.join(dir_path, file), param)
             dataset = pd.concat([dataset, data], ignore_index=True)
 
