@@ -942,7 +942,7 @@ if __name__ == "__main__":
     couches_data = pd.read_csv('couches.csv', delimiter=',', dtype='str')
     couches = pd.DataFrame(couches_data)
     doctors_data = pd.read_csv('doctors.csv', delimiter=',', dtype='str')
-    doctors = pd.DataFrame(doctors_data).set_index('doctor_name')
+    doctors = pd.DataFrame(doctors_data)
 
     test = True
 
