@@ -29,7 +29,7 @@ def crate_prediction_file(dir_path, file, data, results):
         t.append([param, results[param], data[param]])
     t.append(['result', results['result'], ''])
 
-    filename = os.path.join(dir_path, f"{file}_p.csv")
+    filename = os.path.normpath(os.path.join(dir_path, f"{file}_p.csv"))
     pd.DataFrame(t, columns=['ind', 'result', 'value']).to_csv(filename, index=False)
     return f"{file}_p.csv"
 
@@ -53,7 +53,7 @@ def save_models(dir_path, models):
     :return: None
     """
     for param in PARAMS + ['result', 'onehotencoder']:
-        save_model(os.path.join(dir_path, param), models[param])
+        save_model(os.path.normpath(os.path.join(dir_path, param), models[param]))
 
 
 def load_model(file):
@@ -74,7 +74,7 @@ def load_models(dir_path):
     """
     models = dict()
     for param in PARAMS + ['result', 'onehotencoder']:
-        models[param] = load_model(os.path.join(dir_path, param))
+        models[param] = load_model(os.path.normpath(os.path.join(dir_path, param)))
     return models
 
 
@@ -125,7 +125,7 @@ def get_dataset(dir_path, param):
     files = os.listdir(dir_path)
     for file in files:
         if re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d_r', file):
-            data = get_data(os.path.join(dir_path, file), param)
+            data = get_data(os.path.normpath(os.path.join(dir_path, file), param))
             dataset = pd.concat([dataset, data], ignore_index=True)
 
     return dataset
@@ -198,7 +198,7 @@ def predict(dir_path, file, models):
     y_pred = []
     # print(file)
     for param in PARAMS:
-        X, y = split_dataset(get_data(os.path.join(dir_path, file), param))
+        X, y = split_dataset(get_data(os.path.normpath(os.path.join(dir_path, file), param)))
         X = X.values
         y = y.values
         y_pred.append(int(models[param].predict(X)))
@@ -206,7 +206,7 @@ def predict(dir_path, file, models):
 
         result[param] = y_pred[-1]
 
-    X, y = split_dataset(get_data(os.path.join(dir_path, file), 'result'))
+    X, y = split_dataset(get_data(os.path.normpath(os.path.join(dir_path, file), 'result')))
 
     X = transform(X, models['onehotencoder'])
 

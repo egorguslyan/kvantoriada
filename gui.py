@@ -161,7 +161,7 @@ class Window(QtWidgets.QMainWindow):
         rows = self.ui.table.rowCount()
         date = QtCore.QDate.currentDate().toString('dd.MM.yyyy')
 
-        dir_path = os.path.join('users', str(int(time.time())))
+        dir_path = os.path.normpath(os.path.join('users', str(int(time.time()))))
         os.mkdir(dir_path)
 
         user = {
@@ -263,7 +263,7 @@ class Window(QtWidgets.QMainWindow):
                         # в зависимости от отмеченного результата изменить фон записи
                         color = QtGui.QColor(198, 198, 198)
                         if files.count(f'{filename}_r.csv') != 0:
-                            r_file = os.path.join(user['dir_path'], f"{filename}_r.csv")
+                            r_file = os.path.normpath(os.path.join(user['dir_path'], f"{filename}_r.csv"))
                             result = pd.read_csv(r_file, delimiter=',').set_index('ind').loc['result']['result']
                             if result == 2:
                                 color = QtGui.QColor(227, 138, 138)  # red
@@ -423,12 +423,12 @@ class Window(QtWidgets.QMainWindow):
         if files:
             last_file = files[-1]
             if (datetime.datetime.now() - datetime.datetime.strptime(last_file, time_format)).seconds < 120:
-                if os.path.exists(os.path.join(dir_path, f"{last_file}.csv")):
-                    os.remove(os.path.join(dir_path, f"{last_file}.csv"))
+                if os.path.exists(os.path.normpath(os.path.join(dir_path, f"{last_file}.csv"))):
+                    os.remove(os.path.normpath(os.path.join(dir_path, f"{last_file}.csv")))
                 self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
                 # print(datetime.datetime.now() - datetime.datetime.strptime(last_file, time_format))
 
-        file_path = os.path.join(dir_path, f"{date}.csv")
+        file_path = os.path.normpath(os.path.join(dir_path, f"{date}.csv"))
 
         self.ui.testDateLabel.setText(date)
 
@@ -465,7 +465,7 @@ class Window(QtWidgets.QMainWindow):
         :return: None
         """
         dir_path = users.iloc[self.user]['dir_path']
-        filename = os.path.join(dir_path, file)
+        filename = os.path.normpath(os.path.join(dir_path, file))
         self.analysis(f"{filename}.csv")
 
     def deleteFile(self):
@@ -477,18 +477,18 @@ class Window(QtWidgets.QMainWindow):
 
         filename = self.ui.filesCombo.currentText()
         file = f"{filename}.csv"
-        file_path = os.path.join(user["dir_path"], file)
+        file_path = os.path.normpath(os.path.join(user["dir_path"], file))
 
         if os.path.exists(file_path):
             os.remove(file_path)
 
             r_file = f"{filename}_r.csv"
-            r_file_path = os.path.join(user["dir_path"], r_file)
+            r_file_path = os.path.normpath(os.path.join(user["dir_path"], r_file))
             if os.path.exists(r_file_path):
                 os.remove(r_file_path)
 
             p_file = f"{filename}_p.csv"
-            p_file_path = os.path.join(user["dir_path"], p_file)
+            p_file_path = os.path.normpath(os.path.join(user["dir_path"], p_file))
             if os.path.exists(p_file_path):
                 os.remove(p_file_path)
 
@@ -731,7 +731,7 @@ class Window(QtWidgets.QMainWindow):
         files = [i for i in os.listdir(dir_path) if i.find('_r') != -1]
 
         ignor_index = None
-        if os.path.exists(os.path.join(dir_path, filename_r)):
+        if os.path.exists(os.path.normpath(os.path.join(dir_path, filename_r))):
             ignor_index = files.index(filename_r)
 
         # загрузка уже обученных моделей
