@@ -6,7 +6,7 @@ import pandas as pd
 
 
 class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
-    def __init__(self, mode):
+    def __init__(self, mode, table):
         super(CreateAccount, self).__init__()
         self.setupUi(self)
         self.setModal(True)
@@ -14,7 +14,8 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
                    'couch': 'es'}
         self.filename = f'{mode}{endings[mode]}.csv'
         self.mode = mode
-        self.table = pd.read_csv(self.filename, delimiter=',', dtype='str').set_index(mode + '_name')
+        self.table = table
+        self.account = None
 
         modes = {'doctor': 'врача',
                  'couch': 'тренера'}
@@ -32,7 +33,7 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
                and self.nameEdit.text() != ''
 
     def checkPassword(self):
-        return self.passwordEdit.text() == self.repeatPasswordEdit.text()
+        return self.passwordEdit.text() != self.repeatPasswordEdit.text()
 
     def addNewAccount(self):
         if self.checkName():
@@ -47,11 +48,9 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
         else:
             self.passwordWarning.setHidden(True)
 
-        account = pd.DataFrame([self.nameEdit.text(), self.passwordEdit.text(), None],
-                               columns=[self.mode + '_name', 'couch_password', 'linked_account'])
+        account = pd.DataFrame([[self.nameEdit.text(), self.passwordEdit.text(), 'None']],
+                               columns=[(self.mode + '_name'), 'couch_password', 'linked_account'])
         self.table = pd.concat([self.table, account], ignore_index=True)
-
-        self.table.to_csv(self.filename)
 
         self.close()
 

@@ -54,6 +54,9 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
      <property name="styleSheet">
       <string notr="true">background-color: rgb(255, 255, 255);</string>
      </property>
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
     </widget>
    </item>
    <item>
@@ -67,6 +70,9 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
     <widget class="QLineEdit" name="repeatPasswordEdit">
      <property name="styleSheet">
       <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
      </property>
     </widget>
    </item>
