@@ -49,7 +49,7 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
             self.passwordWarning.setHidden(True)
 
         account = pd.DataFrame([[self.nameEdit.text(), self.passwordEdit.text(), 'None']],
-                               columns=[(self.mode + '_name'), 'couch_password', 'linked_account'])
+                               columns=[(self.mode + '_name'), self.mode + '_password', 'linked_account'])
         self.table = pd.concat([self.table, account], ignore_index=True)
 
         self.close()
