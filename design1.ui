@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>736</width>
+    <width>774</width>
     <height>562</height>
    </rect>
   </property>
@@ -35,7 +35,7 @@
       <item row="0" column="0">
        <widget class="QTableWidget" name="table">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -838,7 +838,11 @@ selection-background-color: rgb(167, 255, 253);</string>
               <property name="styleSheet">
                <string notr="true">background-color: rgb(255, 255, 255);
 selection-color: rgb(0, 0, 0);
-selection-background-color: rgb(167, 255, 253);</string>
+selection-background-color: rgb(167, 255, 253);
+alternate-background-color: rgb(255, 255, 255);</string>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
               </property>
              </widget>
             </item>

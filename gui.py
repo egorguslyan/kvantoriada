@@ -59,6 +59,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.predictionStatusButton.clicked.connect(self.prediction)
         self.ui.editRecommendationsButton.clicked.connect(self.editRecommendations)
         self.ui.btnPassword.clicked.connect(self.editingResult)
+        self.ui.addNewDoctorButton.clicked.connect(self.addNewDoctor)
+        self.ui.addNewCouchButton.clicked.connect(self.addNewCouch)
 
         # создание виджетов графиков
         self.ui.canvasECG = MplCanvas()  # ЭКГ
@@ -82,12 +84,57 @@ class Window(QtWidgets.QMainWindow):
 
         self.updateTable()  # обновление таблицы пользователей
 
+        self.updateCouchesList()  # обновление списка тренеров
+        self.updateDoctorList()  # обновление списка докторов
+        self.ui.couchNameComboBox.setEnabled(False)
+        self.ui.doctorNameComboBox.setEnabled(False)
+        self.ui.addNewCouchButton.setEnabled(False)
+        self.ui.addNewDoctorButton.setEnabled(False)
+
         # если есть пользователи, то загрузить карточку первого пользователя
         if not users.empty:
             self.user = 0
             self.updateCard()
         else:
             self.user = None
+
+    def updateCouchesList(self):
+        """
+        Обновление списка тренеров
+        """
+        self.ui.couchNameComboBox.clear()
+        self.ui.couchNameComboBox.addItem('Не выбрано')
+        self.ui.couchNameComboBox.addItems(couches['couch_name'].to_list())
+
+    def updateDoctorList(self):
+        """
+        Обновление списка докторов
+        """
+        self.ui.doctorNameComboBox.clear()
+        self.ui.doctorNameComboBox.addItem('Не выбрано')
+        self.ui.doctorNameComboBox.addItems(doctors['doctor_name'].to_list())
+
+    def addNewCouch(self):
+        """
+        Создание нового тренера
+        """
+        global couches
+        dialog = CreateAccount('couch', couches)
+        dialog.show()
+        dialog.exec()
+        couches = dialog.table
+        self.updateCouchesList()
+
+    def addNewDoctor(self):
+        """
+        Создание нового врача
+        """
+        global doctors
+        dialog = CreateAccount('doctor', doctors)
+        dialog.show()
+        dialog.exec()
+        doctors = dialog.table
+        self.updateDoctorList()
 
     def updateAge(self):
         """
@@ -246,6 +293,17 @@ class Window(QtWidgets.QMainWindow):
             self.ui.timeEEG.setValue(int(user['timeEEG']))
             self.ui.checkGSR.setChecked(bool(user['enableGSR']))
 
+            # Отображение тренера и доктора
+            if user['couch_name'] == 'None':
+                self.ui.couchNameComboBox.setCurrentIndex(0)
+            else:
+                self.ui.couchNameComboBox.setCurrentIndex(couches['couch_name'].to_list().index(user['couch_name']) + 1)
+
+            if user['doctor_name'] == 'None':
+                self.ui.doctorNameComboBox.setCurrentIndex(0)
+            else:
+                self.ui.doctorNameComboBox.setCurrentIndex(doctors['doctor_name'].to_list().index(user['doctor_name']) + 1)
+
     def clearLabels(self):
         """
         очищение Label-ов результатов от записей
@@ -290,6 +348,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.nameEdit.setReadOnly(flag)
         self.ui.middleNameEdit.setReadOnly(flag)
         self.ui.birthdayEdit.setReadOnly(flag)
+        self.ui.couchNameComboBox.setEnabled(not flag)
+        self.ui.doctorNameComboBox.setEnabled(not flag)
         self.ui.newUserButton.setEnabled(flag)
         self.ui.deleteUserButton.setEnabled(flag)
         self.ui.testButton.setEnabled(flag)
@@ -299,6 +359,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.deleteFile.setEnabled(flag)
         self.ui.btnPassword.setEnabled(flag)
         self.ui.saveButton.setEnabled(flag)
+        self.ui.addNewCouchButton.setEnabled(not flag)
+        self.ui.addNewDoctorButton.setEnabled(not flag)
 
     def updateUser(self):
         """
@@ -331,6 +393,16 @@ class Window(QtWidgets.QMainWindow):
                 return
 
             users.at[self.user, 'birthday'] = self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
+            if self.ui.couchNameComboBox.currentText() == 'Не выбрано':
+                users.at[self.user, 'couch_name'] = 'None'
+            else:
+                users.at[self.user, 'couch_name'] = self.ui.couchNameComboBox.currentText()
+
+            if self.ui.doctorNameComboBox.currentText() == 'Не выбрано':
+                users.at[self.user, 'doctor_name'] = 'None'
+            else:
+                users.at[self.user, 'doctor_name'] = self.ui.doctorNameComboBox.currentText()
+
             self.updateTable()
 
             self.updatingUserMode(True)
@@ -799,6 +871,8 @@ class Window(QtWidgets.QMainWindow):
         """
         self.saveSettings()
         users.to_csv('users.csv', index=False)  # сохранение таблицы пользователей
+        couches.to_csv('couches.csv', index=False)  # сохранение таблицы тренеров
+        doctors.to_csv('doctors.csv', index=False)  # сохранение таблицы врачей
         self.close()
         self.warningDialog.close()
         self.editRecommendationsDialog.close()
@@ -942,7 +1016,7 @@ if __name__ == "__main__":
     couches_data = pd.read_csv('couches.csv', delimiter=',', dtype='str')
     couches = pd.DataFrame(couches_data)
     doctors_data = pd.read_csv('doctors.csv', delimiter=',', dtype='str')
-    doctors = pd.DataFrame(doctors_data).set_index('doctor_name')
+    doctors = pd.DataFrame(doctors_data)
 
     test = True
 

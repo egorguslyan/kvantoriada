@@ -15,7 +15,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(736, 562)
+        MainWindow.resize(774, 562)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -30,7 +30,7 @@ class Ui_MainWindow(object):
         self.gridLayout_5 = QtWidgets.QGridLayout()
         self.gridLayout_5.setObjectName("gridLayout_5")
         self.table = QtWidgets.QTableWidget(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.table.sizePolicy().hasHeightForWidth())
@@ -335,7 +335,9 @@ class Ui_MainWindow(object):
         self.couchNameComboBox = QtWidgets.QComboBox(self.card)
         self.couchNameComboBox.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "selection-color: rgb(0, 0, 0);\n"
-"selection-background-color: rgb(167, 255, 253);")
+"selection-background-color: rgb(167, 255, 253);\n"
+"alternate-background-color: rgb(255, 255, 255);")
+        self.couchNameComboBox.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToContentsOnFirstShow)
         self.couchNameComboBox.setObjectName("couchNameComboBox")
         self.gridLayout_6.addWidget(self.couchNameComboBox, 0, 1, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
