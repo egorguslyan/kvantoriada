@@ -21,6 +21,7 @@ from analysis.signal_analysis import open_csv_file
 from prediction.prior import prior_analysis
 from prediction.prediction import fit, predict, crate_prediction_file, load_models, save_models
 from editing_recommendations import EditRecommendations
+from telegram.telegram_bot import writeTg
 from create_account import CreateAccount
 # модуль холста для графиков
 from mplcanvas import MplCanvas
@@ -376,13 +377,15 @@ class Window(QtWidgets.QMainWindow):
                 timeECG=time_ecg, timeEEG=time_eeg,
                 enableECG=enable_ecg, enableEEG=enable_eeg, enableGSR=enable_gsr):
             recommendation_text = self.analysis(file_path)
-            writeTg(user, file_path, recommendation_text)
+            couch = couches.set_index('couch_name').loc[user['couch_name']]
+            writeTg(user, file_path, recommendation_text, couch)
             users.at[self.user, 'last_result'] = self.ui.resultTextLabel.color
         else:
             if test:
                 file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
                 recommendation_text = self.analysis(file_path)
-                writeTg(user, file_path, recommendation_text)
+                couch = couches.set_index('couch_name').loc[user['couch_name']]
+                writeTg(user, file_path, recommendation_text, couch)
             self.ui.resultTextLabel.setText("не удалось подключиться")
             self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
 
@@ -808,31 +811,31 @@ class Window(QtWidgets.QMainWindow):
         self.exit()
 
 
-def writeTg(user, file_path, recommendation_text):
-    couch = couches.set_index('couch_name').loc[user['couch_name']]
-    couch_id = couch['linked_account']
-    if couch_id != 'None':
-        user_name = user['name'] + ' ' + user['surname']
-        file_path = file_path[:-4] + '_r.csv'
-        file_data = pd.read_csv(file_path, delimiter=',')
-        file = pd.DataFrame(file_data)
-        file = file.set_index('ind').loc[::, 'value']
-
-        results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
-                  + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
-                  + str(int(file['variability_index'])) + '\r\n'
-        alpha_time = int(file['start_time'])
-        if alpha_time >= 0:
-            results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд\r\n\r\n'
-        else:
-            results += 'Альфа ритм не обнаружен\r\n\r\n'
-
-        recommendation_text = recommendation_text.replace('<br>', '\r\n')
-        recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
-        text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
-            + '<i>Вывод:</i>\r\n' + recommendation_text
-
-        tg_bot.send_message(couch_id, text, parse_mode='HTML')
+# def writeTg(user, file_path, recommendation_text):
+#     couch = couches.set_index('couch_name').loc[user['couch_name']]
+#     couch_id = couch['linked_account']
+#     if couch_id != 'None':
+#         user_name = user['name'] + ' ' + user['surname']
+#         file_path = file_path[:-4] + '_r.csv'
+#         file_data = pd.read_csv(file_path, delimiter=',')
+#         file = pd.DataFrame(file_data)
+#         file = file.set_index('ind').loc[::, 'value']
+#
+#         results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
+#                   + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
+#                   + str(int(file['variability_index'])) + '\r\n'
+#         alpha_time = int(file['start_time'])
+#         if alpha_time >= 0:
+#             results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд\r\n\r\n'
+#         else:
+#             results += 'Альфа ритм не обнаружен\r\n\r\n'
+#
+#         recommendation_text = recommendation_text.replace('<br>', '\r\n')
+#         recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
+#         text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
+#             + '<i>Вывод:</i>\r\n' + recommendation_text
+#
+#         tg_bot.send_message(couch_id, text, parse_mode='HTML')
 
 
 class Bot(Thread):
