@@ -1,7 +1,6 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QTableWidgetItem
 
-import telegram.telegram_bot
 from design import Ui_MainWindow
 from dialog import Ui_Dialog
 import sys
@@ -11,9 +10,7 @@ import shutil
 import time
 import datetime
 import re
-import telebot
 from threading import Thread
-from base64 import b64decode
 
 # подключение собственных модулей
 from bluetooth_serial.read_serial import read, get_available_ports
@@ -23,7 +20,6 @@ from analysis.signal_analysis import open_csv_file
 from prediction.prior import prior_analysis
 from prediction.prediction import fit, predict, crate_prediction_file, load_models, save_models
 from editing_recommendations import EditRecommendations
-from telegram.telegram_bot import Bot
 from create_account import CreateAccount
 # модуль холста для графиков
 from mplcanvas import MplCanvas
@@ -303,7 +299,8 @@ class Window(QtWidgets.QMainWindow):
             if user['couch_name'] == 'None':
                 self.ui.couchNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.couchNameComboBox.setCurrentIndex(self.couches['couch_name'].to_list().index(user['couch_name']) + 1)
+                self.ui.couchNameComboBox.setCurrentIndex(self.couches['couch_name'].to_list().index(user['couch_name'])
+                                                          + 1)
 
             if user['doctor_name'] == 'None':
                 self.ui.doctorNameComboBox.setCurrentIndex(0)
@@ -710,8 +707,8 @@ class Window(QtWidgets.QMainWindow):
             self.ui.password.setText('')
             return
 
-        if self.ui.password.text() == self.doctors.set_index('doctor_name').at[user['doctor_name'], 'doctor_password'] and \
-                self.file_path is not None:
+        if self.ui.password.text() == self.doctors.set_index('doctor_name').at[user['doctor_name'], 'doctor_password'] \
+                and self.file_path is not None:
             self.editingResultFileMode(True)
             self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
         else:
