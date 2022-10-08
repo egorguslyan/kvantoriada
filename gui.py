@@ -128,6 +128,7 @@ class Window(QtWidgets.QMainWindow):
         dialog.show()
         dialog.exec()
         self.couches = dialog.table
+        self.bot.couches = self.couches
         self.updateCouchesList()
 
     def addNewDoctor(self):
@@ -138,6 +139,7 @@ class Window(QtWidgets.QMainWindow):
         dialog.show()
         dialog.exec()
         self.doctors = dialog.table
+        self.bot.doctors = self.doctors
         self.updateDoctorList()
 
     def updateAge(self):
@@ -185,6 +187,7 @@ class Window(QtWidgets.QMainWindow):
         }
         user = pd.DataFrame([list(user.values())], columns=list(user.keys()))
         self.users = pd.concat([self.users, user], ignore_index=True)
+        self.bot.users = self.users
 
         self.updateTable()
 
@@ -235,7 +238,7 @@ class Window(QtWidgets.QMainWindow):
         self.editingResultFileMode(False)
         self.clearLabels()
         self.file_path = None
-        self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
+        self.ui.password.setStyleSheet('QLineEdit { background-color : #ffffff }')
 
         self.ui.tab.setCurrentIndex(0)
 
@@ -305,8 +308,8 @@ class Window(QtWidgets.QMainWindow):
             if user['doctor_name'] == 'None':
                 self.ui.doctorNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['doctor_name'].to_list().index(user['doctor_name'])
-                                                           + 1)
+                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['doctor_name'].to_list().index(
+                    user['doctor_name']) + 1)
 
     def clearLabels(self):
         """
@@ -377,23 +380,23 @@ class Window(QtWidgets.QMainWindow):
         else:
             if self.ui.surnameEdit.text() != '':
                 self.users.at[self.user, 'surname'] = self.ui.surnameEdit.text()
-                self.ui.surnameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
+                self.ui.surnameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
             else:
-                self.ui.surnameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
+                self.ui.surnameEdit.setStyleSheet('QLineEdit { background-color : #c73636; }')
                 return
 
             if self.ui.nameEdit.text() != '':
                 self.users.at[self.user, 'name'] = self.ui.nameEdit.text()
-                self.ui.nameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
+                self.ui.nameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
             else:
-                self.ui.nameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
+                self.ui.nameEdit.setStyleSheet('QLineEdit { background-color : #c73636; }')
                 return
 
             if self.ui.middleNameEdit.text() != '':
                 self.users.at[self.user, 'middleName'] = self.ui.middleNameEdit.text()
-                self.ui.middleNameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
+                self.ui.middleNameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
             else:
-                self.ui.middleNameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
+                self.ui.middleNameEdit.setStyleSheet('QLineEdit { background-color : #c73636; }')
                 return
 
             self.users.at[self.user, 'birthday'] = self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
@@ -451,17 +454,25 @@ class Window(QtWidgets.QMainWindow):
         if read(self.ui.comportsCombo.currentText(), file_path,
                 timeECG=time_ecg, timeEEG=time_eeg,
                 enableECG=enable_ecg, enableEEG=enable_eeg, enableGSR=enable_gsr):
-            recommendation_text = self.analysis(file_path)
-            couch = self.couches.set_index('couch_name').loc[user['couch_name']]
-            self.bot.writeTg(user, file_path, recommendation_text, couch)
+            self.analysis(file_path)
+            if user['couch_name'] != 'None':
+                couch = self.couches.set_index('couch_name').loc[user['couch_name']]
+                self.bot.writeTg(user, file_path, couch)
+            if user['doctor_name'] != 'None':
+                doctor = self.doctors.set_index('doctor_name').loc[user['doctor_name']]
+                self.bot.writeTg(user, file_path, doctor)
             self.users.at[self.user, 'last_result'] = self.ui.resultTextLabel.get_result()
         else:
             if test:
                 file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
-                recommendation_text = self.analysis(file_path)
-                couch = self.couches.set_index('couch_name').loc[user['couch_name']]
-                self.bot.writeTg(user, file_path, recommendation_text, couch)
-            self.ui.resultTextLabel.setText("не удалось подключиться")
+                self.analysis(file_path)
+                if user['couch_name'] != 'None':
+                    couch = self.couches.set_index('couch_name').loc[user['couch_name']]
+                    self.bot.writeTg(user, file_path, couch)
+                if user['doctor_name'] != 'None':
+                    doctor = self.doctors.set_index('doctor_name').loc[user['doctor_name']]
+                    self.bot.writeTg(user, file_path, doctor)
+            self.ui.resultTextLabel.setText('Не удалось подключиться')
             self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
 
     def selectFile(self, file):
@@ -483,18 +494,18 @@ class Window(QtWidgets.QMainWindow):
 
         filename = self.ui.filesCombo.currentText()
         file = f"{filename}.csv"
-        file_path = os.path.normpath(os.path.join(user["dir_path"], file))
+        file_path = os.path.normpath(os.path.join(user['dir_path'], file))
 
         if os.path.exists(file_path):
             os.remove(file_path)
 
             r_file = f"{filename}_r.csv"
-            r_file_path = os.path.normpath(os.path.join(user["dir_path"], r_file))
+            r_file_path = os.path.normpath(os.path.join(user['dir_path'], r_file))
             if os.path.exists(r_file_path):
                 os.remove(r_file_path)
 
             p_file = f"{filename}_p.csv"
-            p_file_path = os.path.normpath(os.path.join(user["dir_path"], p_file))
+            p_file_path = os.path.normpath(os.path.join(user['dir_path'], p_file))
             if os.path.exists(p_file_path):
                 os.remove(p_file_path)
 
@@ -560,7 +571,6 @@ class Window(QtWidgets.QMainWindow):
         # self.createResultFile(file_path)
         recommendation_text = self.recommendations()  # вывод рекомендаций
         self.ui.recommendationsText.setText(recommendation_text)
-        return recommendation_text
 
     def createResultFile(self, file_path):
         """
@@ -680,11 +690,11 @@ class Window(QtWidgets.QMainWindow):
         :return: None
         """
         if flag:
-            self.ui.tab.setStyleSheet("background-color: rgb(255, 196, 197);\n"
-                                      "alternate-background-color: rgb(170, 85, 255);")
+            self.ui.tab.setStyleSheet('background-color: rgb(255, 196, 197);\n'
+                                      'alternate-background-color: rgb(170, 85, 255);')
         else:
-            self.ui.tab.setStyleSheet("background-color: rgb(255, 230, 234);\n"
-                                      "alternate-background-color: rgb(170, 85, 255);")
+            self.ui.tab.setStyleSheet('background-color: rgb(255, 230, 234);\n'
+                                      'alternate-background-color: rgb(170, 85, 255);')
         self.changeEditingLabel(flag)
         self.ui.saveButton.setVisible(flag)
 
@@ -710,9 +720,9 @@ class Window(QtWidgets.QMainWindow):
         if self.ui.password.text() == self.doctors.set_index('doctor_name').at[user['doctor_name'], 'doctor_password'] \
                 and self.file_path is not None:
             self.editingResultFileMode(True)
-            self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
+            self.ui.password.setStyleSheet('QLineEdit { background-color : #ffffff }')
         else:
-            self.ui.password.setStyleSheet("QLineEdit { background-color : #c73636 }")
+            self.ui.password.setStyleSheet('QLineEdit { background-color : #c73636 }')
 
         self.ui.password.setText('')
 

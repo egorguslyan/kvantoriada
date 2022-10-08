@@ -99,27 +99,47 @@ class Bot(Thread):
         self.couches.reset_index(inplace=True)
         self.couches.to_csv('couches.csv', index=False)
 
-    def writeTg(self, user, file_path, recommendation_text, receiver):
+    def writeTg(self, user, file_path, receiver):
         receiver_id = receiver['linked_account']
         if receiver_id != 'None':
             user_name = user['name'] + ' ' + user['surname']
             file_path = file_path[:-4] + '_r.csv'
             file_data = pd.read_csv(file_path, delimiter=',')
             file = pd.DataFrame(file_data)
-            file = file.set_index('ind').loc[::, 'value']
+            file.set_index('ind', inplace=True)
 
-            results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
-                      + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
-                      + str(int(file['variability_index'])) + '\r\n'
-            alpha_time = int(file['start_time'])
-            if alpha_time >= 0:
-                results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд\r\n\r\n'
+            if receiver.index[0] == 'doctor_password':
+                file = file.loc[::, 'value']
+
+                results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
+                          + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
+                          + str(int(file['variability_index'])) + '\r\n'
+                alpha_time = int(file['start_time'])
+                if alpha_time >= 0:
+                    results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд'
+                else:
+                    results += 'Альфа ритм не обнаружен'
+                text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results
+                if user['couch_name'] != 'None':
+                    text += '\r\n\r\nТестирование провел тренер ' + user['couch_name']
+
+            elif receiver.index[0] == 'couch_password':
+                # recommendation_text = recommendation_text.replace('<br>', '\r\n')
+                # recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
+                result = file.at['result', 'result']
+                if result == 0:
+                    results = 'Спортсмен находится в состоянии "предстартовой апатии"'
+                elif result == 1:
+                    results = 'Спортсмен находится в состоянии "боевой готовности"'
+                elif result == 2:
+                    results = 'Спортсмен находится в состоянии "предстартовой лихорадки"'
+                else:
+                    results = 'Error'
+                text = user_name + ' прошел тестирование.\r\n\r\n<i>Результат:</i>\r\n' + results
+                if user['doctor_name'] != 'None':
+                    text += '\r\n\r\nТестирование провел врач ' + user['doctor_name']
+
             else:
-                results += 'Альфа ритм не обнаружен\r\n\r\n'
-
-            recommendation_text = recommendation_text.replace('<br>', '\r\n')
-            recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
-            text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
-                + '<i>Вывод:</i>\r\n' + recommendation_text
+                text = 'Error'
 
             self.tg_bot.send_message(receiver_id, text, parse_mode='HTML')
