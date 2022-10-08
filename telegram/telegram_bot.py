@@ -2,6 +2,7 @@ import pandas as pd
 import telebot
 from base64 import b64decode
 from threading import Thread
+from itertools import permutations
 
 
 class Bot(Thread):
@@ -67,10 +68,14 @@ class Bot(Thread):
 
     def formatName(self, name):
         name = name.title()
-        if name not in self.couches.get('couch_name').to_numpy():
-            swap_name = name.split()
-            if len(swap_name) == 2:
-                name = ' '.join(swap_name[::-1])
+        names = self.couches.get('couch_name').to_numpy()
+        if name in names:
+            return name
+        name_set = permutations(name.split())
+        names_set = [tuple(set_name.split()) for set_name in names]
+        for n in name_set:
+            if n in names_set:
+                return ' '.join(n)
         return name
 
     def readCouches(self):
@@ -115,6 +120,6 @@ class Bot(Thread):
             recommendation_text = recommendation_text.replace('<br>', '\r\n')
             recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
             text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
-                   + '<i>Вывод:</i>\r\n' + recommendation_text
+                + '<i>Вывод:</i>\r\n' + recommendation_text
 
             self.tg_bot.send_message(receiver_id, text, parse_mode='HTML')
