@@ -53,7 +53,7 @@ def save_models(dir_path, models):
     :return: None
     """
     for param in PARAMS + ['result', 'onehotencoder']:
-        save_model(os.path.normpath(os.path.join(dir_path, param), models[param]))
+        save_model(os.path.normpath(os.path.join(dir_path, param)), models[param])
 
 
 def load_model(file):
@@ -125,7 +125,7 @@ def get_dataset(dir_path, param):
     files = os.listdir(dir_path)
     for file in files:
         if re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d_r', file):
-            data = get_data(os.path.normpath(os.path.join(dir_path, file), param))
+            data = get_data(os.path.normpath(os.path.join(dir_path, file)), param)
             dataset = pd.concat([dataset, data], ignore_index=True)
 
     return dataset
@@ -198,22 +198,22 @@ def predict(dir_path, file, models):
     y_pred = []
     # print(file)
     for param in PARAMS:
-        X, y = split_dataset(get_data(os.path.normpath(os.path.join(dir_path, file), param)))
+        X, y = split_dataset(get_data(os.path.normpath(os.path.join(dir_path, file)), param))
         X = X.values
-        y = y.values
+        # y = y.values
         y_pred.append(int(models[param].predict(X)))
         # print(y, y_pred[-1])
 
         result[param] = y_pred[-1]
 
-    X, y = split_dataset(get_data(os.path.normpath(os.path.join(dir_path, file), 'result')))
+    # X, y = split_dataset(get_data(os.path.normpath(os.path.join(dir_path, file)), 'result'))
 
-    X = transform(X, models['onehotencoder'])
+    # X = transform(X, models['onehotencoder'])
 
     y_pred = pd.DataFrame([y_pred], columns=PARAMS)
     y_pred = transform(y_pred, models['onehotencoder'])
-    X = X.values
-    y = y.values
+    # X = X.values
+    # y = y.values
     y_pred = y_pred.values
     # print(y, int(models['result'].predict(X)[0]))
     result['result'] = int(models['result'].predict(y_pred)[0])

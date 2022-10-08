@@ -28,6 +28,8 @@ from create_account import CreateAccount
 # модуль холста для графиков
 from mplcanvas import MplCanvas
 
+test = True
+
 
 # диалоговое окно с предупреждением
 class WarningDialog(QtWidgets.QDialog, Ui_Dialog):
@@ -39,11 +41,16 @@ class WarningDialog(QtWidgets.QDialog, Ui_Dialog):
 
 # главное окно программы
 class Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, users, couches, doctors, tg_bot):
         # подготовка дизайна
         super(Window, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.users = users
+        self.couches = couches
+        self.doctors = doctors
+        self.bot = tg_bot
 
         # добавление событий
         self.ui.birthdayEdit.setMaximumDate(QtCore.QDate.currentDate())
@@ -95,7 +102,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.addNewDoctorButton.setEnabled(False)
 
         # если есть пользователи, то загрузить карточку первого пользователя
-        if not users.empty:
+        if not self.users.empty:
             self.user = 0
             self.updateCard()
         else:
@@ -107,7 +114,7 @@ class Window(QtWidgets.QMainWindow):
         """
         self.ui.couchNameComboBox.clear()
         self.ui.couchNameComboBox.addItem('Не выбрано')
-        self.ui.couchNameComboBox.addItems(couches['couch_name'].to_list())
+        self.ui.couchNameComboBox.addItems(self.couches['couch_name'].to_list())
 
     def updateDoctorList(self):
         """
@@ -115,28 +122,26 @@ class Window(QtWidgets.QMainWindow):
         """
         self.ui.doctorNameComboBox.clear()
         self.ui.doctorNameComboBox.addItem('Не выбрано')
-        self.ui.doctorNameComboBox.addItems(doctors['doctor_name'].to_list())
+        self.ui.doctorNameComboBox.addItems(self.doctors['doctor_name'].to_list())
 
     def addNewCouch(self):
         """
         Создание нового тренера
         """
-        global couches
-        dialog = CreateAccount('couch', couches)
+        dialog = CreateAccount('couch', self.couches)
         dialog.show()
         dialog.exec()
-        couches = dialog.table
+        self.couches = dialog.table
         self.updateCouchesList()
 
     def addNewDoctor(self):
         """
         Создание нового врача
         """
-        global doctors
-        dialog = CreateAccount('doctor', doctors)
+        dialog = CreateAccount('doctor', self.doctors)
         dialog.show()
         dialog.exec()
-        doctors = dialog.table
+        self.doctors = dialog.table
         self.updateDoctorList()
 
     def updateAge(self):
@@ -160,7 +165,6 @@ class Window(QtWidgets.QMainWindow):
         создание нового пользователя
         :return: None
         """
-        global users
         rows = self.ui.table.rowCount()
         date = QtCore.QDate.currentDate().toString('dd.MM.yyyy')
 
@@ -184,7 +188,7 @@ class Window(QtWidgets.QMainWindow):
             'couch_name': 'None'
         }
         user = pd.DataFrame([list(user.values())], columns=list(user.keys()))
-        users = pd.concat([users, user], ignore_index=True)
+        self.users = pd.concat([self.users, user], ignore_index=True)
 
         self.updateTable()
 
@@ -193,16 +197,15 @@ class Window(QtWidgets.QMainWindow):
         удаление выбранного пользователя и всех его данных
         :return: None
         """
-        global users
         row = self.ui.table.currentRow()
         if row > -1:
-            user = users.iloc[self.user]
+            user = self.users.iloc[self.user]
             shutil.rmtree(user['dir_path'])  # удаление папки пользователя
 
-            users.drop(index=[row], axis=0, inplace=True)
-            users.reset_index(drop=True, inplace=True)
+            self.users.drop(index=[row], axis=0, inplace=True)
+            self.users.reset_index(drop=True, inplace=True)
 
-            if len(users) > 0:
+            if len(self.users) > 0:
                 self.user = 0
                 self.updateCard()
             else:
@@ -244,7 +247,7 @@ class Window(QtWidgets.QMainWindow):
 
         # если выбран пользователь, загрузить его данные
         if self.user is not None:
-            user = users.iloc[self.user]
+            user = self.users.iloc[self.user]
             self.ui.nameEdit.setText(user['name'])
             self.ui.surnameEdit.setText(user['surname'])
             self.ui.middleNameEdit.setText(user['middleName'])
@@ -300,12 +303,12 @@ class Window(QtWidgets.QMainWindow):
             if user['couch_name'] == 'None':
                 self.ui.couchNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.couchNameComboBox.setCurrentIndex(couches['couch_name'].to_list().index(user['couch_name']) + 1)
+                self.ui.couchNameComboBox.setCurrentIndex(self.couches['couch_name'].to_list().index(user['couch_name']) + 1)
 
             if user['doctor_name'] == 'None':
                 self.ui.doctorNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.doctorNameComboBox.setCurrentIndex(doctors['doctor_name'].to_list().index(user['doctor_name'])
+                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['doctor_name'].to_list().index(user['doctor_name'])
                                                            + 1)
 
     def clearLabels(self):
@@ -331,10 +334,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.table.clear()
         # self.ui.table.setHorizontalHeaderLabels(['', 'Спортсмен'])
 
-        if len(users) > 0:
-            self.ui.table.setRowCount(len(users))
-            for i in range(len(users)):
-                user = users.iloc[i]
+        if len(self.users) > 0:
+            self.ui.table.setRowCount(len(self.users))
+            for i in range(len(self.users)):
+                user = self.users.iloc[i]
                 name = ' '.join([user['surname'], user['name'], user['middleName']])
                 name = QTableWidgetItem(name)
                 name.setFlags(
@@ -376,36 +379,36 @@ class Window(QtWidgets.QMainWindow):
             self.ui.updateUserButton.setText('Сохранить')
         else:
             if self.ui.surnameEdit.text() != '':
-                users.at[self.user, 'surname'] = self.ui.surnameEdit.text()
+                self.users.at[self.user, 'surname'] = self.ui.surnameEdit.text()
                 self.ui.surnameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
             else:
                 self.ui.surnameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
                 return
 
             if self.ui.nameEdit.text() != '':
-                users.at[self.user, 'name'] = self.ui.nameEdit.text()
+                self.users.at[self.user, 'name'] = self.ui.nameEdit.text()
                 self.ui.nameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
             else:
                 self.ui.nameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
                 return
 
             if self.ui.middleNameEdit.text() != '':
-                users.at[self.user, 'middleName'] = self.ui.middleNameEdit.text()
+                self.users.at[self.user, 'middleName'] = self.ui.middleNameEdit.text()
                 self.ui.middleNameEdit.setStyleSheet("QLineEdit { background-color : #ffffff; }")
             else:
                 self.ui.middleNameEdit.setStyleSheet("QLineEdit { background-color : #c73636; }")
                 return
 
-            users.at[self.user, 'birthday'] = self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
+            self.users.at[self.user, 'birthday'] = self.ui.birthdayEdit.dateTime().toString('dd.MM.yyyy')
             if self.ui.couchNameComboBox.currentText() == 'Не выбрано':
-                users.at[self.user, 'couch_name'] = 'None'
+                self.users.at[self.user, 'couch_name'] = 'None'
             else:
-                users.at[self.user, 'couch_name'] = self.ui.couchNameComboBox.currentText()
+                self.users.at[self.user, 'couch_name'] = self.ui.couchNameComboBox.currentText()
 
             if self.ui.doctorNameComboBox.currentText() == 'Не выбрано':
-                users.at[self.user, 'doctor_name'] = 'None'
+                self.users.at[self.user, 'doctor_name'] = 'None'
             else:
-                users.at[self.user, 'doctor_name'] = self.ui.doctorNameComboBox.currentText()
+                self.users.at[self.user, 'doctor_name'] = self.ui.doctorNameComboBox.currentText()
 
             self.updateTable()
 
@@ -419,7 +422,7 @@ class Window(QtWidgets.QMainWindow):
         """
         time_format = '%d.%m.%Y %H-%M-%S'
 
-        user = users.iloc[self.user]
+        user = self.users.iloc[self.user]
         dir_path = user['dir_path']
         # проверка на повторность записи. Если с предыдущей записи прошло менее 2 минут, перезаписать
         date = datetime.datetime.now().strftime(time_format)
@@ -452,15 +455,15 @@ class Window(QtWidgets.QMainWindow):
                 timeECG=time_ecg, timeEEG=time_eeg,
                 enableECG=enable_ecg, enableEEG=enable_eeg, enableGSR=enable_gsr):
             recommendation_text = self.analysis(file_path)
-            couch = couches.set_index('couch_name').loc[user['couch_name']]
-            bot_thread.writeTg(user, file_path, recommendation_text, couch)
-            users.at[self.user, 'last_result'] = self.ui.resultTextLabel.color
+            couch = self.couches.set_index('couch_name').loc[user['couch_name']]
+            self.bot.writeTg(user, file_path, recommendation_text, couch)
+            self.users.at[self.user, 'last_result'] = self.ui.resultTextLabel.color
         else:
             if test:
                 file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
                 recommendation_text = self.analysis(file_path)
-                couch = couches.set_index('couch_name').loc[user['couch_name']]
-                bot_thread.writeTg(user, file_path, recommendation_text, couch)
+                couch = self.couches.set_index('couch_name').loc[user['couch_name']]
+                self.bot.writeTg(user, file_path, recommendation_text, couch)
             self.ui.resultTextLabel.setText("не удалось подключиться")
             self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
 
@@ -470,7 +473,7 @@ class Window(QtWidgets.QMainWindow):
         :param file: имя файла (без разрешения и пути)
         :return: None
         """
-        dir_path = users.iloc[self.user]['dir_path']
+        dir_path = self.users.iloc[self.user]['dir_path']
         filename = os.path.normpath(os.path.join(dir_path, file))
         self.analysis(f"{filename}.csv")
 
@@ -479,7 +482,7 @@ class Window(QtWidgets.QMainWindow):
         удаление выбранного файла сигнала
         :return: None
         """
-        user = users.iloc[self.user]
+        user = self.users.iloc[self.user]
 
         filename = self.ui.filesCombo.currentText()
         file = f"{filename}.csv"
@@ -524,7 +527,7 @@ class Window(QtWidgets.QMainWindow):
         p_file = f"{filename}_p.csv"
         # проверка на наличие файла с размеченными результатами
         if not os.path.exists(r_file):  # and not os.path.exists(p_file):
-            cnt_r_files = sum(map(lambda x: x.find('_r') != -1, os.listdir(users.at[self.user, 'dir_path'])))
+            cnt_r_files = sum(map(lambda x: x.find('_r') != -1, os.listdir(self.users.at[self.user, 'dir_path'])))
             # проверка на количество помеченных файлов
             if cnt_r_files < 5:
                 self.warningDialog.show()
@@ -568,7 +571,7 @@ class Window(QtWidgets.QMainWindow):
         :param file_path: имя файла с путем
         :return: None
         """
-        users.at[self.user, 'is_editing_result_files'] = 1
+        self.users.at[self.user, 'is_editing_result_files'] = 1
 
         # создание файла
         result = [
@@ -702,12 +705,12 @@ class Window(QtWidgets.QMainWindow):
         Проверка пароля для режима изменения результатов
         :return: None
         """
-        user = users.iloc[self.user]
+        user = self.users.iloc[self.user]
         if user['doctor_name'] == 'None':
             self.ui.password.setText('')
             return
 
-        if self.ui.password.text() == doctors.loc[user['doctor_name'], 'doctor_password'] and \
+        if self.ui.password.text() == self.doctors.set_index('doctor_name').at[user['doctor_name'], 'doctor_password'] and \
                 self.file_path is not None:
             self.editingResultFileMode(True)
             self.ui.password.setStyleSheet("QLineEdit { background-color : #ffffff }")
@@ -730,7 +733,7 @@ class Window(QtWidgets.QMainWindow):
         Функция предсказания результата при помощи машинного обучения
         :return: None
         """
-        user = users.iloc[self.user]
+        user = self.users.iloc[self.user]
         dir_path = user['dir_path']
 
         file = self.ui.filesCombo.currentText()
@@ -746,7 +749,7 @@ class Window(QtWidgets.QMainWindow):
         if int(user['is_editing_result_files']) == 1:
             models = fit(dir_path, ignor_index)
             save_models(dir_path, models)
-            users.at[self.user, 'is_editing_result_files'] = 0
+            self.users.at[self.user, 'is_editing_result_files'] = 0
         else:
             models = load_models(dir_path)
 
@@ -781,11 +784,11 @@ class Window(QtWidgets.QMainWindow):
         Сохранение настроек пользователя
         :return: None
         """
-        users.at[self.user, 'timeECG'] = self.ui.timeECG.text()
-        users.at[self.user, 'enableECG'] = int(self.ui.checkECG.isChecked())
-        users.at[self.user, 'timeEEG'] = self.ui.timeEEG.text()
-        users.at[self.user, 'enableEEG'] = int(self.ui.checkEEG.isChecked())
-        users.at[self.user, 'enableGSR'] = int(self.ui.checkGSR.isChecked())
+        self.users.at[self.user, 'timeECG'] = self.ui.timeECG.text()
+        self.users.at[self.user, 'enableECG'] = int(self.ui.checkECG.isChecked())
+        self.users.at[self.user, 'timeEEG'] = self.ui.timeEEG.text()
+        self.users.at[self.user, 'enableEEG'] = int(self.ui.checkEEG.isChecked())
+        self.users.at[self.user, 'enableGSR'] = int(self.ui.checkGSR.isChecked())
 
     def recommendations(self):
         """
@@ -877,9 +880,9 @@ class Window(QtWidgets.QMainWindow):
         :return: None
         """
         self.saveSettings()
-        users.to_csv('users.csv', index=False)  # сохранение таблицы пользователей
-        couches.to_csv('couches.csv', index=False)  # сохранение таблицы тренеров
-        doctors.to_csv('doctors.csv', index=False)  # сохранение таблицы врачей
+        self.users.to_csv('users.csv', index=False)  # сохранение таблицы пользователей
+        self.couches.to_csv('couches.csv', index=False)  # сохранение таблицы тренеров
+        self.doctors.to_csv('doctors.csv', index=False)  # сохранение таблицы врачей
         self.close()
         self.warningDialog.close()
         self.editRecommendationsDialog.close()
@@ -890,25 +893,15 @@ class Window(QtWidgets.QMainWindow):
 
 
 class Gui(Thread):
+    def __init__(self, users, couches, doctors, bot):
+        super().__init__()
+        self.users = users
+        self.couches = couches
+        self.doctors = doctors
+        self.bot = bot
+
     def run(self):
         app = QtWidgets.QApplication([])
-        application = Window()
+        application = Window(self.users, self.couches, self.doctors, self.bot)
         application.show()
         sys.exit(app.exec())
-
-
-if __name__ == "__main__":
-    # чтение таблицы пользователей из файла
-    users_data = pd.read_csv('users.csv', delimiter=',')
-    users = pd.DataFrame(users_data)
-    couches_data = pd.read_csv('couches.csv', delimiter=',', dtype='str')
-    couches = pd.DataFrame(couches_data)
-    doctors_data = pd.read_csv('doctors.csv', delimiter=',', dtype='str')
-    doctors = pd.DataFrame(doctors_data)
-
-    test = True
-
-    bot_thread = Bot(users, couches, doctors, 'NTc4OTExODUyOTpBQUZoSi1yUEZhSnVqU2xGZXVBMmtpY3lJck5rOVpOOTM0dw==')
-    bot_thread.start()
-    gui_thread = Gui()
-    gui_thread.start()
