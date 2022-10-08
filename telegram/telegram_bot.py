@@ -3,35 +3,6 @@ import telebot
 from base64 import b64decode
 from threading import Thread
 
-couches = None
-tg_bot = telebot.TeleBot(b64decode('NTc4OTExODUyOTpBQUZoSi1yUEZhSnVqU2xGZXVBMmtpY3lJck5rOVpOOTM0dw==').decode())
-
-
-def writeTg(user, file_path, recommendation_text, receiver):
-    receiver_id = receiver['linked_account']
-    if receiver_id != 'None':
-        user_name = user['name'] + ' ' + user['surname']
-        file_path = file_path[:-4] + '_r.csv'
-        file_data = pd.read_csv(file_path, delimiter=',')
-        file = pd.DataFrame(file_data)
-        file = file.set_index('ind').loc[::, 'value']
-
-        results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
-                  + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
-                  + str(int(file['variability_index'])) + '\r\n'
-        alpha_time = int(file['start_time'])
-        if alpha_time >= 0:
-            results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд\r\n\r\n'
-        else:
-            results += 'Альфа ритм не обнаружен\r\n\r\n'
-
-        recommendation_text = recommendation_text.replace('<br>', '\r\n')
-        recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
-        text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
-            + '<i>Вывод:</i>\r\n' + recommendation_text
-
-        tg_bot.send_message(receiver_id, text, parse_mode='HTML')
-
 
 class Bot(Thread):
     def __init__(self, tg_users, tg_couches, tg_doctors, token):
@@ -74,7 +45,7 @@ class Bot(Thread):
             if message.chat.id in self.state.keys():
                 if self.state[message.chat.id] == [0, None]:
                     name = self.formatName(message.text)
-                    if name in couches.get('couch_name').to_numpy():
+                    if name in self.couches.get('couch_name').to_numpy():
                         self.state[message.chat.id] = [1, name]
                         self.tg_bot.send_message(message.chat.id, 'Введите ваш пароль')
                     else:
@@ -103,7 +74,7 @@ class Bot(Thread):
         return name
 
     def readCouches(self):
-        for couch in couches.iterrows():
+        for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
                 self.state[int(couch[1]['linked_account'])] = [2, couch[1]['couch_name']]
 
@@ -122,3 +93,28 @@ class Bot(Thread):
         self.couches.at[couch_name, 'linked_account'] = 'None'
         self.couches.reset_index(inplace=True)
         self.couches.to_csv('couches.csv', index=False)
+
+    def writeTg(self, user, file_path, recommendation_text, receiver):
+        receiver_id = receiver['linked_account']
+        if receiver_id != 'None':
+            user_name = user['name'] + ' ' + user['surname']
+            file_path = file_path[:-4] + '_r.csv'
+            file_data = pd.read_csv(file_path, delimiter=',')
+            file = pd.DataFrame(file_data)
+            file = file.set_index('ind').loc[::, 'value']
+
+            results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
+                      + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
+                      + str(int(file['variability_index'])) + '\r\n'
+            alpha_time = int(file['start_time'])
+            if alpha_time >= 0:
+                results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд\r\n\r\n'
+            else:
+                results += 'Альфа ритм не обнаружен\r\n\r\n'
+
+            recommendation_text = recommendation_text.replace('<br>', '\r\n')
+            recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
+            text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results \
+                   + '<i>Вывод:</i>\r\n' + recommendation_text
+
+            self.tg_bot.send_message(receiver_id, text, parse_mode='HTML')

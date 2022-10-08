@@ -23,7 +23,7 @@ from analysis.signal_analysis import open_csv_file
 from prediction.prior import prior_analysis
 from prediction.prediction import fit, predict, crate_prediction_file, load_models, save_models
 from editing_recommendations import EditRecommendations
-from telegram.telegram_bot import Bot, writeTg
+from telegram.telegram_bot import Bot
 from create_account import CreateAccount
 # модуль холста для графиков
 from mplcanvas import MplCanvas
@@ -453,14 +453,14 @@ class Window(QtWidgets.QMainWindow):
                 enableECG=enable_ecg, enableEEG=enable_eeg, enableGSR=enable_gsr):
             recommendation_text = self.analysis(file_path)
             couch = couches.set_index('couch_name').loc[user['couch_name']]
-            writeTg(user, file_path, recommendation_text, couch)
+            bot_thread.writeTg(user, file_path, recommendation_text, couch)
             users.at[self.user, 'last_result'] = self.ui.resultTextLabel.color
         else:
             if test:
                 file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
                 recommendation_text = self.analysis(file_path)
                 couch = couches.set_index('couch_name').loc[user['couch_name']]
-                writeTg(user, file_path, recommendation_text, couch)
+                bot_thread.writeTg(user, file_path, recommendation_text, couch)
             self.ui.resultTextLabel.setText("не удалось подключиться")
             self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
 
@@ -908,7 +908,6 @@ if __name__ == "__main__":
 
     test = True
 
-    telegram.telegram_bot.couches = couches
     bot_thread = Bot(users, couches, doctors, 'NTc4OTExODUyOTpBQUZoSi1yUEZhSnVqU2xGZXVBMmtpY3lJck5rOVpOOTM0dw==')
     bot_thread.start()
     gui_thread = Gui()
