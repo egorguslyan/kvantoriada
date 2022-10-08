@@ -10,9 +10,6 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
         super(CreateAccount, self).__init__()
         self.setupUi(self)
         self.setModal(True)
-        endings = {'doctor': 's',
-                   'couch': 'es'}
-        self.filename = f'{mode}{endings[mode]}.csv'
         self.mode = mode
         self.table = table
         self.account = None
@@ -29,7 +26,7 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
         self.passwordWarning.setHidden(True)
 
     def checkName(self):
-        return self.table[self.mode + '_name'].isin([self.nameEdit.text()]).any()\
+        return self.table[self.mode + '_name'].isin([self.nameEdit.text().title()]).any()\
                and self.nameEdit.text() != ''
 
     def checkPassword(self):
@@ -48,9 +45,8 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
         else:
             self.passwordWarning.setHidden(True)
 
-        account = pd.DataFrame([[self.nameEdit.text(), self.passwordEdit.text(), 'None']],
+        account = pd.DataFrame([[self.nameEdit.text().title(), self.passwordEdit.text(), 'None']],
                                columns=[(self.mode + '_name'), self.mode + '_password', 'linked_account'])
         self.table = pd.concat([self.table, account], ignore_index=True)
 
         self.close()
-

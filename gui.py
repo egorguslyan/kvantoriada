@@ -178,7 +178,7 @@ class Window(QtWidgets.QMainWindow):
             'birthday': date,
             'dir_path': dir_path,
             'doctor_name': 'None',
-            'last_result': '',
+            'last_result': 'None',
             'is_editing_result_files': 0,
             'enableECG': 1,
             'timeECG': 10,
@@ -457,7 +457,7 @@ class Window(QtWidgets.QMainWindow):
             recommendation_text = self.analysis(file_path)
             couch = self.couches.set_index('couch_name').loc[user['couch_name']]
             self.bot.writeTg(user, file_path, recommendation_text, couch)
-            self.users.at[self.user, 'last_result'] = self.ui.resultTextLabel.color
+            self.users.at[self.user, 'last_result'] = self.ui.resultTextLabel.get_result()
         else:
             if test:
                 file_path = 'users/1656666431/01.07.2022 14-41-11.csv'

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>774</width>
-    <height>562</height>
+    <height>567</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -42,7 +42,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>250</width>
+          <width>300</width>
           <height>16777215</height>
          </size>
         </property>
@@ -755,17 +755,7 @@ alternate-background-color: rgb(170, 85, 255);</string>
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout_6">
-            <item row="0" column="0">
-             <widget class="QLabel" name="couchLabel">
-              <property name="text">
-               <string>Тренер</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="4">
+            <item row="0" column="5">
              <widget class="QLabel" name="doctorLabel">
               <property name="text">
                <string>Лечащий врач</string>
@@ -778,7 +768,91 @@ alternate-background-color: rgb(170, 85, 255);</string>
               </property>
              </widget>
             </item>
+            <item row="0" column="9">
+             <spacer name="horizontalSpacer_12">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
             <item row="0" column="2">
+             <widget class="QPushButton" name="editCouchesButton">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(225, 194, 36);</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>images/edit.png</normaloff>images/edit.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>12</width>
+                <height>12</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="couchNameComboBox">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+selection-color: rgb(0, 0, 0);
+selection-background-color: rgb(167, 255, 253);
+alternate-background-color: rgb(255, 255, 255);</string>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="6">
+             <widget class="QComboBox" name="doctorNameComboBox">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(255, 255, 255);
+selection-color: rgb(0, 0, 0);
+selection-background-color: rgb(167, 255, 253);</string>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="couchLabel">
+              <property name="text">
+               <string>Тренер</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="4">
+             <spacer name="horizontalSpacer_13">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="3">
              <widget class="QPushButton" name="addNewCouchButton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -804,16 +878,7 @@ alternate-background-color: rgb(170, 85, 255);</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="5">
-             <widget class="QComboBox" name="doctorNameComboBox">
-              <property name="styleSheet">
-               <string notr="true">background-color: rgb(255, 255, 255);
-selection-color: rgb(0, 0, 0);
-selection-background-color: rgb(167, 255, 253);</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="6">
+            <item row="0" column="8">
              <widget class="QPushButton" name="addNewDoctorButton">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(137, 173, 59);</string>
@@ -833,47 +898,25 @@ selection-background-color: rgb(167, 255, 253);</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QComboBox" name="couchNameComboBox">
+            <item row="0" column="7">
+             <widget class="QPushButton" name="editDoctorsButton">
               <property name="styleSheet">
-               <string notr="true">background-color: rgb(255, 255, 255);
-selection-color: rgb(0, 0, 0);
-selection-background-color: rgb(167, 255, 253);
-alternate-background-color: rgb(255, 255, 255);</string>
+               <string notr="true">background-color: rgb(225, 194, 36);</string>
               </property>
-              <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>images/edit.png</normaloff>images/edit.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>12</width>
+                <height>12</height>
+               </size>
               </property>
              </widget>
-            </item>
-            <item row="0" column="7">
-             <spacer name="horizontalSpacer_12">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="3">
-             <spacer name="horizontalSpacer_13">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Maximum</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>100</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </item>
@@ -1009,8 +1052,8 @@ alternate-background-color: rgb(255, 255, 255);</string>
                <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Рекомендации&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8.25pt;&quot;&gt;Рекомендации&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
