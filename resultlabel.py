@@ -11,6 +11,7 @@ class ResultLabel(QtWidgets.QLabel):
         self.color = 1
         self.setStyleSheet("QLabel { background-color : white; }")
         self.__colors = ['#5555ff', '#89ad3b', '#c73636', '#ffffff']
+
         self._results = {
             'normal': 1,
             'depressed': 0,
@@ -107,6 +108,7 @@ class Result(ResultLabel):
         elif isinstance(result, int) or isinstance(result, float):
             self.color = int(result)
         self.set_background_color()
+
         results = {
             1: "Норма",
             0: "Подавлен",
