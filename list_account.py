@@ -1,18 +1,38 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QTableWidgetItem
-from PyQt5 import QtCore
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWidgets import QTableWidgetItem, QStyledItemDelegate
+from PyQt5.QtGui import QColor, QPalette
 from list_account_design import Ui_Dialog
 # import sys
 # import pandas as pd
 
 
+class ColorDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        if index.data() == 'normal':
+            option.palette.setColor(QPalette.Text, QColor("green"))
+        elif index.data() == 'depressed':
+            option.palette.setColor(QPalette.Text, QColor("blue"))
+        elif index.data() == 'excited':
+            option.palette.setColor(QPalette.Text, QColor("red"))
+        QStyledItemDelegate.paint(self, painter, option, index)
+
+
 class ListAccount(QtWidgets.QDialog, Ui_Dialog):
-    def __init__(self, mode, users):
+    def __init__(self, mode, users, sportsmen):
         super().__init__()
         self.setupUi(self)
         self.setModal(True)
         self.mode = mode
         self.users = users
+        self.sportsmen = sportsmen
+
+        self.spacer1.setVisible(False)
+        self.spacer2.setVisible(False)
+        # добавление событий
+        self.tableWidget.cellClicked.connect(self.chooseUser)
+        self.newPasswordButton.clicked.connect(self.newPassword)
+        self.savePasswordButton.clicked.connect(self.saveNewPassword)
+        self.updateUserButton.clicked.connect(self.updateUser)
 
         self.updateTable()  # обновление таблицы пользователей
 
@@ -22,6 +42,15 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.updateCard()
         else:
             self.user = None
+
+    def chooseUser(self):
+        """
+        Выбор пользователя
+        :return: None
+        """
+        row = self.tableWidget.currentRow()
+        self.user = row
+        self.updateCard()
 
     def updateTable(self):
         """
@@ -35,7 +64,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.tableWidget.setRowCount(len(self.users))
             for i in range(len(self.users)):
                 user = self.users.iloc[i]
-                name = QTableWidgetItem(user[self.mode + '_name'])
+                name = QTableWidgetItem(user['name'])
                 name.setFlags(
                     QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
                 )
@@ -46,16 +75,19 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         Обновление карточки пользователя
         :return: None
         """
-        self.ui.tab.setCurrentIndex(0)
+        # сброс всех настроек
+        self.tabWidget.setCurrentIndex(0)
+        self.passwordWarning.setVisible(False)
+        self.newPasswordMode(False)
 
         # если выбран пользователь, загрузить его данные
         if self.user is not None:
             user = self.users.iloc[self.user]
-            a = user[self.mode + '_name']
+            a = user['name'].split()
             name, surname, middlename = '', '', ''
 
             if len(a) >= 1:
-                name = a[0]
+                surname = a[0]
             if len(a) >= 2:
                 name = a[1]
             if len(a) >= 3:
@@ -64,4 +96,116 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.surnameEdit.setText(surname)
             self.middleNameEdit.setText(middlename)
 
-            # ДОБАВИТЬ ОБНОВЛЕНИЕ СПИСКА СПОРТСМЕНОВ
+            self.updateSportsmen(user['name'])  # Обновление списка спортсменов
+
+    def updateSportsmen(self, username):
+        """
+        Обнволение списка спортсменов
+        """
+        self.sportsmenTable.clear()  # Очищение таблицы
+        self.sportsmenTable.setItemDelegateForColumn(1, ColorDelegate())
+        # Получение списка спортсменов, находящихся под руководством пользователя
+        sportsmen = self.sportsmen[self.sportsmen[self.mode + '_name'] == username]
+        self.sportsmenTable.setRowCount(len(sportsmen))
+
+        # Задавание горизонтального заголовка
+        self.sportsmenTable.setHorizontalHeaderLabels(['Спортсмен', 'Результат тестирования'])
+        # Отображение спортсменов в таблице
+        for i in range(len(sportsmen)):
+            sportsman = sportsmen.iloc[i]
+            # print(i, sportsman)
+            full_name = ' '.join([sportsman['surname'], sportsman['name'], sportsman['middleName']])
+            name = QTableWidgetItem(full_name)
+            self.sportsmenTable.setItem(i, 0, name)
+
+            result = QTableWidgetItem(sportsman['last_result'])
+            self.sportsmenTable.setItem(i, 1, result)
+        self.sportsmenTable.resizeColumnsToContents()
+
+    def updatingUserMode(self, flag):
+        """
+        Режим изменения данных пользователя
+        :param flag:
+        :return: None
+        """
+        self.surnameEdit.setReadOnly(flag)
+        self.nameEdit.setReadOnly(flag)
+        self.middleNameEdit.setReadOnly(flag)
+        self.newUserButton.setEnabled(flag)
+        self.deleteUserButton.setEnabled(flag)
+        self.tableWidget.setEnabled(flag)
+
+    def updateUser(self):
+        """
+        Изменение данных пользователя
+        :return: None
+        """
+        if self.updateUserButton.text() == 'Изменить':
+            self.updatingUserMode(False)
+            self.updateUserButton.setText('Сохранить')
+        else:
+            name, surname, middlename = '', '', ''
+            if self.surnameEdit.text() != '':
+                surname = self.surnameEdit.text()
+                self.surnameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
+            else:
+                self.surnameEdit.setStyleSheet('QLineEdit { background-color : #c73636; }')
+
+            if self.nameEdit.text() != '':
+                name = self.nameEdit.text()
+                self.nameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
+            else:
+                self.nameEdit.setStyleSheet('QLineEdit { background-color : #c73636; }')
+
+            if self.middleNameEdit.text() != '':
+                middlename = self.middleNameEdit.text()
+                self.middleNameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
+
+            if name == '' or surname == '':
+                return
+
+            full_name = ' '.join([surname, name, middlename])
+            self.users.at[self.user, 'name'] = full_name
+
+            self.updateTable()
+
+            self.updatingUserMode(True)
+            self.updateUserButton.setText('Изменить')
+
+    def newPasswordMode(self, flag):
+        self.newPasswordButton.setVisible(not flag)
+        self.passwordEdit.setVisible(flag)
+        self.repeatPasswordEdit.setVisible(flag)
+        self.passwordLabel.setVisible(flag)
+        self.repeatPasswordLabel.setVisible(flag)
+        self.savePasswordButton.setVisible(flag)
+
+    def checkPassword(self):
+        return self.passwordEdit.text() == self.repeatPasswordEdit.text() and \
+               self.passwordEdit.text() != ''
+
+    def saveNewPassword(self):
+        if self.checkPassword():
+            self.users.at[self.user, 'password'] = self.passwordEdit.text()
+            self.passwordWarning.setVisible(False)
+            self.passwordEdit.setText('')
+            self.repeatPasswordEdit.setText('')
+            self.newPasswordMode(False)
+        else:
+            self.passwordWarning.setVisible(True)
+
+    def newPassword(self):
+        self.newPasswordMode(True)
+
+    def closeEvent(self, event):
+        """
+        Закрытие главного окна
+        :return: None
+        """
+        print(1)
+        filename = {
+            'couch': 'couches.csv',
+            'doctor': 'doctors.csv'
+        }
+        self.users.to_csv(filename[self.mode], index=False)  # сохранение таблицы пользователей
+        self.close()

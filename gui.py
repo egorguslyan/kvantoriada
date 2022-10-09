@@ -110,7 +110,7 @@ class Window(QtWidgets.QMainWindow):
         """
         self.ui.couchNameComboBox.clear()
         self.ui.couchNameComboBox.addItem('Не выбрано')
-        self.ui.couchNameComboBox.addItems(self.couches['couch_name'].to_list())
+        self.ui.couchNameComboBox.addItems(self.couches['name'].to_list())
 
     def updateDoctorList(self):
         """
@@ -118,7 +118,7 @@ class Window(QtWidgets.QMainWindow):
         """
         self.ui.doctorNameComboBox.clear()
         self.ui.doctorNameComboBox.addItem('Не выбрано')
-        self.ui.doctorNameComboBox.addItems(self.doctors['doctor_name'].to_list())
+        self.ui.doctorNameComboBox.addItems(self.doctors['name'].to_list())
 
     def addNewCouch(self):
         """
@@ -193,7 +193,7 @@ class Window(QtWidgets.QMainWindow):
 
     def deleteUser(self):
         """
-        удаление выбранного пользователя и всех его данных
+        Удаление выбранного пользователя и всех его данных
         :return: None
         """
         row = self.ui.table.currentRow()
@@ -347,7 +347,7 @@ class Window(QtWidgets.QMainWindow):
 
     def updatingUserMode(self, flag):
         """
-        режим изменения данных пользователя
+        Режим изменения данных пользователя
         :param flag:
         :return: None
         """
@@ -371,7 +371,7 @@ class Window(QtWidgets.QMainWindow):
 
     def updateUser(self):
         """
-        изменение данных пользователя
+        Изменение данных пользователя
         :return: None
         """
         if self.ui.updateUserButton.text() == 'Изменить':

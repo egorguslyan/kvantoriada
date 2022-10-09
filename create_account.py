@@ -10,7 +10,6 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
         super(CreateAccount, self).__init__()
         self.setupUi(self)
         self.setModal(True)
-        self.mode = mode
         self.table = table
         self.account = None
 
