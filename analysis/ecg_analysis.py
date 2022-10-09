@@ -283,7 +283,7 @@ def main():
     breath = [g[i] for i in r_old]
     max_breath = max(breath)
     min_breath = min(breath)
-    ampl_breath = max_breath - min_breath
+    # ampl_breath = max_breath - min_breath
     points = find_breath_freq(breath)
     print(points)
     ax[5].plot(g)

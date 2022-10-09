@@ -14,6 +14,7 @@ def find_alpha(size, sig, ratio):
     freq, x = get_spectrum(4, 70, sig, RATE)
     max_amp = max(x)
     freq, x = get_spectrum(8, 14, sig, RATE)
+
     if max(x) == max_amp:
         th = ratio * max_amp
         for i in range(len(sig) - size):
@@ -51,11 +52,13 @@ def analysis_eeg(data):
         properties['time'] = t
         eeg_filtered = filter_low_high_freq(4, 50, eeg, RATE)
         properties['filtered'] = eeg_filtered.copy()
+
         freq, x = get_spectrum(0, 100, eeg_filtered, RATE)
         size = 100
         points = find_alpha(size, eeg_filtered, 1.9)
         time_start, amp = find_time_and_amp(eeg_filtered, points, t, size)
         coeff = find_coeff(eeg_filtered, points, amp, size)
+
         properties["spectrum"] = {
             "amp": "{0:.2f}".format(coeff),
             "start_time": time_start,
@@ -79,12 +82,14 @@ def find_coeff(eeg, points, amp, size):
         elif curr:
             prom.append(curr)
             curr = []
+
     if curr:
         prom.append(curr)
     am = []
     for ee in prom:
         freq, x = get_spectrum(8, 14, ee, RATE)
         am.append(sum(x)*size/len(ee))
+
     ampl = sum(am)/len(am)
     if amp > 0:
         return amp/ampl
@@ -100,12 +105,14 @@ def find_time_and_amp(eeg, points, t, size, delay=1):
     amp = -1
     if points:
         count = 0
+
         for i in range(1, len(points)):
             if points[i] == points[i - 1] + 1:
                 count += 1
                 if count > RATE * delay:
                     time_start = round(convert_points_to_time(points, t)[i - count], 1)
                     break
+
         amps = []
         for i in points:
             freq, x = get_spectrum(8, 14, eeg[i - size // 2:i + size // 2], RATE)
@@ -119,6 +126,7 @@ def main():
     global RATE
     RATE = len(eeg) / 10
     t = get_time(len(eeg), RATE)
+
     eeg_filtered = filter_low_high_freq(4, 50, eeg, RATE)
     freq, x = get_spectrum(0, 100, eeg_filtered, RATE)
     p = find_alpha(100, eeg_filtered, 1.9)
