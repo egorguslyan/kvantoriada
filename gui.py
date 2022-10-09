@@ -21,6 +21,7 @@ from prediction.prior import prior_analysis
 from prediction.prediction import fit, predict, crate_prediction_file, load_models, save_models
 from editing_recommendations import EditRecommendations
 from create_account import CreateAccount
+from list_account import ListAccount
 # модуль холста для графиков
 from mplcanvas import MplCanvas
 
@@ -67,6 +68,8 @@ class Window(QtWidgets.QMainWindow):
         self.ui.btnPassword.clicked.connect(self.editingResult)
         self.ui.addNewDoctorButton.clicked.connect(self.addNewDoctor)
         self.ui.addNewCouchButton.clicked.connect(self.addNewCouch)
+        self.ui.editCouchesButton.clicked.connect(self.editCouch)
+        self.ui.editDoctorsButton.clicked.connect(self.editDoctor)
 
         # создание виджетов графиков
         self.ui.canvasECG = MplCanvas()  # ЭКГ
@@ -139,6 +142,22 @@ class Window(QtWidgets.QMainWindow):
         dialog.show()
         dialog.exec()
         self.doctors = dialog.table
+        self.bot.doctors = self.doctors
+        self.updateDoctorList()
+
+    def editCouch(self):
+        dialog = ListAccount('couch', self.couches, self.users)
+        dialog.show()
+        dialog.exec()
+        self.couches = dialog.users
+        self.bot.couches = self.couches
+        self.updateCouchesList()
+
+    def editDoctor(self):
+        dialog = ListAccount('doctor', self.doctors, self.users)
+        dialog.show()
+        dialog.exec()
+        self.doctors = dialog.users
         self.bot.doctors = self.doctors
         self.updateDoctorList()
 
