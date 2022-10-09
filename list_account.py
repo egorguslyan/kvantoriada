@@ -2,8 +2,9 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QTableWidgetItem, QStyledItemDelegate
 from PyQt5.QtGui import QColor, QPalette
 from list_account_design import Ui_Dialog
+from input_password import CheckPassword
 # import sys
-# import pandas as pd
+import pandas as pd
 
 
 class ColorDelegate(QStyledItemDelegate):
@@ -28,11 +29,15 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
 
         self.spacer1.setVisible(False)
         self.spacer2.setVisible(False)
+
         # добавление событий
         self.tableWidget.cellClicked.connect(self.chooseUser)
         self.newPasswordButton.clicked.connect(self.newPassword)
         self.savePasswordButton.clicked.connect(self.saveNewPassword)
         self.updateUserButton.clicked.connect(self.updateUser)
+        self.newUserButton.clicked.connect(self.addNewUser)
+        self.deleteUserButton.clicked.connect(self.deleteUser)
+        self.unlinkAccountButton.clicked.connect(self.unlinkUser)
 
         self.updateTable()  # обновление таблицы пользователей
 
@@ -49,8 +54,12 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         :return: None
         """
         row = self.tableWidget.currentRow()
-        self.user = row
-        self.updateCard()
+        dialog = CheckPassword(self.users.iloc[row])
+        dialog.show()
+        dialog.exec()
+        if dialog.check:
+            self.user = row
+            self.updateCard()
 
     def updateTable(self):
         """
@@ -135,6 +144,48 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         self.deleteUserButton.setEnabled(flag)
         self.tableWidget.setEnabled(flag)
 
+    def addNewUser(self):
+        """
+        Создание нового пользователя
+        :return: None
+        """
+        rows = self.tableWidget.rowCount()
+
+        user = {
+            'name': 'Name' + str(rows),
+            'password': '12345678',
+            'linked_account': 'None'
+        }
+        user = pd.DataFrame([list(user.values())], columns=list(user.keys()))
+        self.users = pd.concat([self.users, user], ignore_index=True)
+
+        self.updateTable()
+
+        self.saveTable()
+
+    def deleteUser(self):
+        """
+        Удаление выбранного пользователя и всех его данных
+        :return: None
+        """
+        row = self.tableWidget.currentRow()
+        if row > -1:
+            user = self.users.iloc[self.user]
+
+            self.users.drop(index=[row], axis=0, inplace=True)
+            self.users.reset_index(drop=True, inplace=True)
+
+            if len(self.users) > 0:
+                self.user = 0
+                self.updateCard()
+            else:
+                self.user = None
+
+            self.updateTable()
+            self.tableWidget.selectionModel().clearCurrentIndex()
+
+            self.saveTable()
+
     def updateUser(self):
         """
         Изменение данных пользователя
@@ -172,6 +223,12 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.updatingUserMode(True)
             self.updateUserButton.setText('Изменить')
 
+            self.saveTable()
+
+    def unlinkUser(self):
+        self.users.at[self.user, 'linked_account'] = 'None'
+        self.saveTable()
+
     def newPasswordMode(self, flag):
         self.newPasswordButton.setVisible(not flag)
         self.passwordEdit.setVisible(flag)
@@ -191,21 +248,27 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.passwordEdit.setText('')
             self.repeatPasswordEdit.setText('')
             self.newPasswordMode(False)
+
+            self.saveTable()
         else:
             self.passwordWarning.setVisible(True)
 
     def newPassword(self):
         self.newPasswordMode(True)
 
-    def closeEvent(self, event):
+    def saveTable(self):
         """
-        Закрытие главного окна
-        :return: None
+        Сохранение таблицы пользователя
         """
-        print(1)
         filename = {
             'couch': 'couches.csv',
             'doctor': 'doctors.csv'
         }
         self.users.to_csv(filename[self.mode], index=False)  # сохранение таблицы пользователей
+
+    def closeEvent(self, event):
+        """
+        Закрытие главного окна
+        :return: None
+        """
         self.close()
