@@ -4,10 +4,7 @@ from base64 import b64decode
 from threading import Thread
 from itertools import permutations
 
-CONTENT_TYPES = ["text", "audio", "document", "photo", "sticker", "video", "video_note", "voice", "location", "contact",
-                 "new_chat_members", "left_chat_member", "new_chat_title", "new_chat_photo", "delete_chat_photo",
-                 "group_chat_created", "supergroup_chat_created", "channel_chat_created", "migrate_to_chat_id",
-                 "migrate_from_chat_id", "pinned_message"]
+CONTENT_TYPES = ["text", "audio", "document", "photo", "sticker", "video", "video_note", "voice", "location", "contact"]
 
 
 class Bot(Thread):
@@ -21,10 +18,9 @@ class Bot(Thread):
         self.readAccounts()
 
     def run(self):
-
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, [None]), commands=['login', 'start'])
         def handle_login(message):
-            markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+            markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
             coach_btn = telebot.types.KeyboardButton('Тренер')
             doctor_btn = telebot.types.KeyboardButton('Врач')
             markup.add(coach_btn, doctor_btn)
@@ -37,14 +33,16 @@ class Bot(Thread):
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['wait_role']))
         def handle_role(message):
+            markup = telebot.types.ReplyKeyboardRemove()
             if message.text == 'Тренер':
                 self.state[message.chat.id][0] = 'c_wait_name'
-                self.tg_bot.send_message(message.chat.id, 'Введите ваше ФИО')
+                self.tg_bot.send_message(message.chat.id, 'Введите ваше ФИО', reply_markup=markup)
             elif message.text == 'Врач':
                 self.state[message.chat.id][0] = 'd_wait_name'
-                self.tg_bot.send_message(message.chat.id, 'Введите ваше ФИО')
+                self.tg_bot.send_message(message.chat.id, 'Введите ваше ФИО', reply_markup=markup)
+
             else:
-                self.tg_bot.send_message(message.chat.id, 'Ошибка')
+                self.tg_bot.send_message(message.chat.id, 'Ошибка', reply_markup=markup)
                 self.state.pop(message.chat.id)
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_wait_name', 'd_wait_name']))
@@ -55,6 +53,7 @@ class Bot(Thread):
             elif self.state[message.chat.id][0][0] == 'd':
                 names = self.doctors.get('doctor_name').to_numpy()
             flag, name = self.checkName(message.text, names)
+
             if flag:
                 self.state[message.chat.id] = [self.state[message.chat.id][0][0] + '_wait_pass', name]
                 self.tg_bot.send_message(message.chat.id, 'Введите ваш пароль')
@@ -68,6 +67,7 @@ class Bot(Thread):
                 self.tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
                 self.saveTgId(message.chat.id, self.state[message.chat.id])
                 self.state[message.chat.id][0] = self.state[message.chat.id][0][0] + '_logged'
+
             else:
                 self.tg_bot.send_message(message.chat.id, 'Введен неверный пароль')
                 self.state.pop(message.chat.id)
@@ -104,6 +104,7 @@ class Bot(Thread):
             return True, name
         name_set = permutations(name.split())
         names_set = [tuple(set_name.split()) for set_name in names]
+
         for n in name_set:
             if n in names_set:
                 return True, ' '.join(n)
@@ -113,6 +114,7 @@ class Bot(Thread):
         for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
                 self.state[int(couch[1]['linked_account'])] = ['c_logged', couch[1]['couch_name']]
+
         for doctor in self.doctors.iterrows():
             if doctor[1]['linked_account'] != 'None':
                 self.state[int(doctor[1]['linked_account'])] = ['d_logged', doctor[1]['doctor_name']]
@@ -120,21 +122,25 @@ class Bot(Thread):
     def checkPassword(self, account, password):
         acc_name = account[1]
         acc_type = account[0][0]
+
         if acc_type == 'c':
             couch = self.couches.set_index('couch_name').loc[acc_name]
             return couch['couch_password'] == password
         elif acc_type == 'd':
+
             doctor = self.doctors.set_index('doctor_name').loc[acc_name]
             return doctor['doctor_password'] == password
 
     def saveTgId(self, tg_id, account):
         acc_name = account[1]
         acc_type = account[0][0]
+
         if acc_type == 'c':
             self.couches.set_index('couch_name', inplace=True)
             self.couches.at[acc_name, 'linked_account'] = str(tg_id)
             self.couches.reset_index(inplace=True)
             self.couches.to_csv('couches.csv', index=False)
+
         elif acc_type == 'd':
             self.doctors.set_index('doctor_name', inplace=True)
             self.doctors.at[acc_name, 'linked_account'] = str(tg_id)
@@ -144,11 +150,13 @@ class Bot(Thread):
     def deleteTgId(self, account):
         acc_name = account[1]
         acc_type = account[0][0]
+
         if acc_type == 'c':
             self.couches.set_index('couch_name', inplace=True)
             self.couches.at[acc_name, 'linked_account'] = 'None'
             self.couches.reset_index(inplace=True)
             self.couches.to_csv('couches.csv', index=False)
+
         elif acc_type == 'd':
             self.doctors.set_index('doctor_name', inplace=True)
             self.doctors.at[acc_name, 'linked_account'] = 'None'
@@ -157,6 +165,7 @@ class Bot(Thread):
 
     def writeTg(self, user, file_path, receiver):
         receiver_id = receiver['linked_account']
+
         if receiver_id != 'None':
             user_name = user['name'] + ' ' + user['surname']
             file_path = file_path[:-4] + '_r.csv'

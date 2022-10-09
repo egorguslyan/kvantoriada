@@ -14,5 +14,6 @@ if __name__ == "__main__":
 
     bot_thread = Bot(users, couches, doctors, 'NTc4OTExODUyOTpBQUZoSi1yUEZhSnVqU2xGZXVBMmtpY3lJck5rOVpOOTM0dw==')
     bot_thread.start()
+
     gui_thread = Gui(users, couches, doctors, bot_thread)
     gui_thread.start()

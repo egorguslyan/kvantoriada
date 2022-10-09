@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5 import QtCore
 from list_account_design import Ui_Dialog
 # import sys
-import pandas as pd
+# import pandas as pd
 
 
 class ListAccount(QtWidgets.QDialog, Ui_Dialog):
