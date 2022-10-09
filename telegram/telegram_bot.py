@@ -24,12 +24,28 @@ class Bot(Thread):
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, [None]), commands=['login', 'start'])
         def handle_login(message):
-            self.state[message.chat.id] = ['c_wait_name', None]
-            self.tg_bot.send_message(message.chat.id, 'Введите свое имя и фамилию')
+            markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+            coach_btn = telebot.types.KeyboardButton('Тренер')
+            doctor_btn = telebot.types.KeyboardButton('Врач')
+            markup.add(coach_btn, doctor_btn)
+            self.tg_bot.send_message(message.chat.id, text='Укажите вашу профессию', reply_markup=markup)
+            self.state[message.chat.id] = ['wait_role', None]
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, [None]), content_types=CONTENT_TYPES)
         def handle_unlogged(message):
             self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
+
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['wait_role']))
+        def handle_role(message):
+            if message.text == 'Тренер':
+                self.state[message.chat.id][0] = 'c_wait_name'
+                self.tg_bot.send_message(message.chat.id, 'Введите ваше ФИО')
+            elif message.text == 'Врач':
+                self.state[message.chat.id][0] = 'd_wait_name'
+                self.tg_bot.send_message(message.chat.id, 'Введите ваше ФИО')
+            else:
+                self.tg_bot.send_message(message.chat.id, 'Ошибка')
+                self.state.pop(message.chat.id)
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_wait_name', 'd_wait_name']))
         def handle_username(message):
@@ -102,13 +118,13 @@ class Bot(Thread):
                 self.state[int(doctor[1]['linked_account'])] = ['d_logged', doctor[1]['doctor_name']]
 
     def checkPassword(self, account, password):
+        acc_name = account[1]
         acc_type = account[0][0]
-        name = account[1]
         if acc_type == 'c':
-            couch = self.couches.set_index('couch_name').loc[name]
+            couch = self.couches.set_index('couch_name').loc[acc_name]
             return couch['couch_password'] == password
         elif acc_type == 'd':
-            doctor = self.doctors.set_index('doctor_name').loc[name]
+            doctor = self.doctors.set_index('doctor_name').loc[acc_name]
             return doctor['doctor_password'] == password
 
     def saveTgId(self, tg_id, account):
