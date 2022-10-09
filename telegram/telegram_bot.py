@@ -4,6 +4,11 @@ from base64 import b64decode
 from threading import Thread
 from itertools import permutations
 
+CONTENT_TYPES = ["text", "audio", "document", "photo", "sticker", "video", "video_note", "voice", "location", "contact",
+                 "new_chat_members", "left_chat_member", "new_chat_title", "new_chat_photo", "delete_chat_photo",
+                 "group_chat_created", "supergroup_chat_created", "channel_chat_created", "migrate_to_chat_id",
+                 "migrate_from_chat_id", "pinned_message"]
+
 
 class Bot(Thread):
     def __init__(self, tg_users, tg_couches, tg_doctors, token):
@@ -17,54 +22,58 @@ class Bot(Thread):
 
     def run(self):
 
-        @self.tg_bot.message_handler(commands=['logout'])
-        def handle_logout(message):
-            if message.chat.id in self.state.keys():
-                if self.state[message.chat.id][0] == 2:
-                    self.deleteTgId(self.state[message.chat.id][1])
-                    self.tg_bot.send_message(message.chat.id, 'Вы успешно вышли из аккаунта')
-                else:
-                    self.tg_bot.send_message(message.chat.id, 'Вы не вошли в аккаунт')
-                self.state.pop(message.chat.id)
-            else:
-                self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт тренера напишите "/login"')
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), commands=['login', 'start'])
+        def handle_login(message):
+            self.state[message.chat.id] = ['wait_name', None]
+            self.tg_bot.send_message(message.chat.id, 'Введите свое имя и фамилию')
 
-        @self.tg_bot.message_handler(func=lambda message: message.chat.id in self.state.keys() and
-                                     self.state[message.chat.id][0] == 2)
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), content_types=CONTENT_TYPES)
+        def handle_unlogged(message):
+            self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
+
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'wait_name'))
+        def handle_username(message):
+            name = self.formatName(message.text)
+            if name in self.couches.get('couch_name').to_numpy():
+                self.state[message.chat.id] = ['wait_pass', name]
+                self.tg_bot.send_message(message.chat.id, 'Введите ваш пароль')
+            else:
+                self.tg_bot.send_message(message.chat.id, 'Тренера с таким именем не существует')
+                self.state.pop(message.chat.id)
+
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'wait_pass'))
+        def handle_password(message):
+            if self.checkPassword(self.state[message.chat.id][1], message.text):
+                self.tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
+                self.saveTgId(message.chat.id, self.state[message.chat.id][1])
+                self.state[message.chat.id] = ['logged', self.state[message.chat.id][1]]
+            else:
+                self.tg_bot.send_message(message.chat.id, 'Введен неверный пароль')
+                self.state.pop(message.chat.id)
+
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'logged'), commands=['logout'])
+        def handle_logout(message):
+            self.deleteTgId(self.state[message.chat.id][1])
+            self.tg_bot.send_message(message.chat.id, 'Вы успешно вышли из аккаунта')
+            self.state.pop(message.chat.id)
+
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'logged'), content_types=CONTENT_TYPES)
         def handle_logged(message):
             self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт под именем ' +
                                      self.state[message.chat.id][1] +
                                      '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
 
-        @self.tg_bot.message_handler(commands=['login'])
-        def handle_login(message):
-            self.state[message.chat.id] = [0, None]
-            self.tg_bot.send_message(message.chat.id, 'Введите свое имя и фамилию')
-
-        @self.tg_bot.message_handler(content_types=['text'])
-        def handle_text(message):
-            if message.chat.id in self.state.keys():
-                if self.state[message.chat.id] == [0, None]:
-                    name = self.formatName(message.text)
-                    if name in self.couches.get('couch_name').to_numpy():
-                        self.state[message.chat.id] = [1, name]
-                        self.tg_bot.send_message(message.chat.id, 'Введите ваш пароль')
-                    else:
-                        self.tg_bot.send_message(message.chat.id, 'Тренера с таким именем не существует')
-                        self.state.pop(message.chat.id)
-
-                elif self.state[message.chat.id][0] == 1:
-                    if self.checkPassword(self.state[message.chat.id][1], message.text):
-                        self.tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
-                        self.saveTgId(message.chat.id, self.state[message.chat.id][1])
-                        self.state[message.chat.id] = [2, self.state[message.chat.id][1]]
-                    else:
-                        self.tg_bot.send_message(message.chat.id, 'Введен неверный пароль')
-                        self.state.pop(message.chat.id)
-            else:
-                self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт тренера напишите "/login"')
+        @self.tg_bot.message_handler(content_types=CONTENT_TYPES)
+        def handle_misc(message):
+            self.tg_bot.send_message(message.chat.id, 'Ошибка')
+            self.state.pop(message.chat.id)
 
         self.tg_bot.infinity_polling(interval=1)
+
+    def checkState(self, message, state):
+        if message.chat.id in self.state.keys():
+            return self.state[message.chat.id][0] == state
+        return state is None
 
     def formatName(self, name):
         name = name.title()
@@ -81,7 +90,7 @@ class Bot(Thread):
     def readCouches(self):
         for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
-                self.state[int(couch[1]['linked_account'])] = [2, couch[1]['couch_name']]
+                self.state[int(couch[1]['linked_account'])] = ['logged', couch[1]['couch_name']]
 
     def checkPassword(self, couch_name, password):
         couch = self.couches.set_index('couch_name').loc[couch_name]
