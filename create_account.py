@@ -26,7 +26,7 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
         self.passwordWarning.setHidden(True)
 
     def checkName(self):
-        return self.table[self.mode + '_name'].isin([self.nameEdit.text().title()]).any()\
+        return self.table['name'].isin([self.nameEdit.text().title()]).any()\
                and self.nameEdit.text() != ''
 
     def checkPassword(self):
@@ -46,7 +46,7 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
             self.passwordWarning.setHidden(True)
 
         account = pd.DataFrame([[self.nameEdit.text().title(), self.passwordEdit.text(), 'None']],
-                               columns=[(self.mode + '_name'), self.mode + '_password', 'linked_account'])
+                               columns=['name', 'password', 'linked_account'])
         self.table = pd.concat([self.table, account], ignore_index=True)
 
         self.close()

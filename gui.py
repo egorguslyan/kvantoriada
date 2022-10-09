@@ -456,10 +456,10 @@ class Window(QtWidgets.QMainWindow):
                 enableECG=enable_ecg, enableEEG=enable_eeg, enableGSR=enable_gsr):
             self.analysis(file_path)
             if user['couch_name'] != 'None':
-                couch = self.couches.set_index('couch_name').loc[user['couch_name']]
+                couch = self.couches.set_index('name').loc[user['couch_name']]
                 self.bot.writeTg(user, file_path, couch)
             if user['doctor_name'] != 'None':
-                doctor = self.doctors.set_index('doctor_name').loc[user['doctor_name']]
+                doctor = self.doctors.set_index('name').loc[user['doctor_name']]
                 self.bot.writeTg(user, file_path, doctor)
             self.users.at[self.user, 'last_result'] = self.ui.resultTextLabel.get_result()
         else:
@@ -467,10 +467,10 @@ class Window(QtWidgets.QMainWindow):
                 file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
                 self.analysis(file_path)
                 if user['couch_name'] != 'None':
-                    couch = self.couches.set_index('couch_name').loc[user['couch_name']]
+                    couch = self.couches.set_index('name').loc[user['couch_name']]
                     self.bot.writeTg(user, file_path, couch)
                 if user['doctor_name'] != 'None':
-                    doctor = self.doctors.set_index('doctor_name').loc[user['doctor_name']]
+                    doctor = self.doctors.set_index('name').loc[user['doctor_name']]
                     self.bot.writeTg(user, file_path, doctor)
             self.ui.resultTextLabel.setText('Не удалось подключиться')
             self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
