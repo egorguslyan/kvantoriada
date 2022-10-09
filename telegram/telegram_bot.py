@@ -18,46 +18,52 @@ class Bot(Thread):
         self.couches = tg_couches
         self.doctors = tg_doctors
         self.state = {}
-        self.readCouches()
+        self.readAccounts()
 
     def run(self):
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), commands=['login', 'start'])
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, [None]), commands=['login', 'start'])
         def handle_login(message):
-            self.state[message.chat.id] = ['wait_name', None]
+            self.state[message.chat.id] = ['c_wait_name', None]
             self.tg_bot.send_message(message.chat.id, 'Введите свое имя и фамилию')
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), content_types=CONTENT_TYPES)
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, [None]), content_types=CONTENT_TYPES)
         def handle_unlogged(message):
             self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'wait_name'))
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_wait_name', 'd_wait_name']))
         def handle_username(message):
-            name = self.formatName(message.text)
-            if name in self.couches.get('couch_name').to_numpy():
-                self.state[message.chat.id] = ['wait_pass', name]
+            names = []
+            if self.state[message.chat.id][0][0] == 'c':
+                names = self.couches.get('couch_name').to_numpy()
+            elif self.state[message.chat.id][0][0] == 'd':
+                names = self.doctors.get('doctor_name').to_numpy()
+            flag, name = self.checkName(message.text, names)
+            if flag:
+                self.state[message.chat.id] = [self.state[message.chat.id][0][0] + '_wait_pass', name]
                 self.tg_bot.send_message(message.chat.id, 'Введите ваш пароль')
             else:
-                self.tg_bot.send_message(message.chat.id, 'Тренера с таким именем не существует')
+                self.tg_bot.send_message(message.chat.id, 'Пользователя с таким именем не существует')
                 self.state.pop(message.chat.id)
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'wait_pass'))
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_wait_pass', 'd_wait_pass']))
         def handle_password(message):
-            if self.checkPassword(self.state[message.chat.id][1], message.text):
+            if self.checkPassword(self.state[message.chat.id], message.text):
                 self.tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
-                self.saveTgId(message.chat.id, self.state[message.chat.id][1])
-                self.state[message.chat.id] = ['logged', self.state[message.chat.id][1]]
+                self.saveTgId(message.chat.id, self.state[message.chat.id])
+                self.state[message.chat.id][0] = self.state[message.chat.id][0][0] + '_logged'
             else:
                 self.tg_bot.send_message(message.chat.id, 'Введен неверный пароль')
                 self.state.pop(message.chat.id)
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'logged'), commands=['logout'])
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_logged', 'd_logged']), commands=['logout'])
         def handle_logout(message):
-            self.deleteTgId(self.state[message.chat.id][1])
+            self.deleteTgId(self.state[message.chat.id])
             self.tg_bot.send_message(message.chat.id, 'Вы успешно вышли из аккаунта')
             self.state.pop(message.chat.id)
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'logged'), content_types=CONTENT_TYPES)
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_logged', 'd_logged']),
+                                     content_types=CONTENT_TYPES)
         def handle_logged(message):
             self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт под именем ' +
                                      self.state[message.chat.id][1] +
@@ -70,43 +76,68 @@ class Bot(Thread):
 
         self.tg_bot.infinity_polling(interval=1)
 
-    def checkState(self, message, state):
+    def checkState(self, message, states):
         if message.chat.id in self.state.keys():
-            return self.state[message.chat.id][0] == state
-        return state is None
+            return self.state[message.chat.id][0] in states
+        return None in states
 
-    def formatName(self, name):
+    @staticmethod
+    def checkName(name, names):
         name = name.title()
-        names = self.couches.get('couch_name').to_numpy()
         if name in names:
-            return name
+            return True, name
         name_set = permutations(name.split())
         names_set = [tuple(set_name.split()) for set_name in names]
         for n in name_set:
             if n in names_set:
-                return ' '.join(n)
-        return name
+                return True, ' '.join(n)
+        return False, None
 
-    def readCouches(self):
+    def readAccounts(self):
         for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
-                self.state[int(couch[1]['linked_account'])] = ['logged', couch[1]['couch_name']]
+                self.state[int(couch[1]['linked_account'])] = ['c_logged', couch[1]['couch_name']]
+        for doctor in self.doctors.iterrows():
+            if doctor[1]['linked_account'] != 'None':
+                self.state[int(doctor[1]['linked_account'])] = ['d_logged', doctor[1]['doctor_name']]
 
-    def checkPassword(self, couch_name, password):
-        couch = self.couches.set_index('couch_name').loc[couch_name]
-        return couch['couch_password'] == password
+    def checkPassword(self, account, password):
+        acc_type = account[0][0]
+        name = account[1]
+        if acc_type == 'c':
+            couch = self.couches.set_index('couch_name').loc[name]
+            return couch['couch_password'] == password
+        elif acc_type == 'd':
+            doctor = self.doctors.set_index('doctor_name').loc[name]
+            return doctor['doctor_password'] == password
 
-    def saveTgId(self, tg_id, couch_name):
-        self.couches.set_index('couch_name', inplace=True)
-        self.couches.at[couch_name, 'linked_account'] = str(tg_id)
-        self.couches.reset_index(inplace=True)
-        self.couches.to_csv('couches.csv', index=False)
+    def saveTgId(self, tg_id, account):
+        acc_name = account[1]
+        acc_type = account[0][0]
+        if acc_type == 'c':
+            self.couches.set_index('couch_name', inplace=True)
+            self.couches.at[acc_name, 'linked_account'] = str(tg_id)
+            self.couches.reset_index(inplace=True)
+            self.couches.to_csv('couches.csv', index=False)
+        elif acc_type == 'd':
+            self.doctors.set_index('doctor_name', inplace=True)
+            self.doctors.at[acc_name, 'linked_account'] = str(tg_id)
+            self.doctors.reset_index(inplace=True)
+            self.doctors.to_csv('doctors.csv', index=False)
 
-    def deleteTgId(self, couch_name):
-        self.couches.set_index('couch_name', inplace=True)
-        self.couches.at[couch_name, 'linked_account'] = 'None'
-        self.couches.reset_index(inplace=True)
-        self.couches.to_csv('couches.csv', index=False)
+    def deleteTgId(self, account):
+        acc_name = account[1]
+        acc_type = account[0][0]
+        if acc_type == 'c':
+            self.couches.set_index('couch_name', inplace=True)
+            self.couches.at[acc_name, 'linked_account'] = 'None'
+            self.couches.reset_index(inplace=True)
+            self.couches.to_csv('couches.csv', index=False)
+        elif acc_type == 'd':
+            self.doctors.set_index('doctor_name', inplace=True)
+            self.doctors.at[acc_name, 'linked_account'] = 'None'
+            self.doctors.reset_index(inplace=True)
+            self.doctors.to_csv('doctors.csv', index=False)
 
     def writeTg(self, user, file_path, receiver):
         receiver_id = receiver['linked_account']
