@@ -110,7 +110,7 @@ class Window(QtWidgets.QMainWindow):
         """
         self.ui.couchNameComboBox.clear()
         self.ui.couchNameComboBox.addItem('Не выбрано')
-        self.ui.couchNameComboBox.addItems(self.couches['couch_name'].to_list())
+        self.ui.couchNameComboBox.addItems(self.couches['name'].to_list())
 
     def updateDoctorList(self):
         """
@@ -118,7 +118,7 @@ class Window(QtWidgets.QMainWindow):
         """
         self.ui.doctorNameComboBox.clear()
         self.ui.doctorNameComboBox.addItem('Не выбрано')
-        self.ui.doctorNameComboBox.addItems(self.doctors['doctor_name'].to_list())
+        self.ui.doctorNameComboBox.addItems(self.doctors['name'].to_list())
 
     def addNewCouch(self):
         """
@@ -302,13 +302,13 @@ class Window(QtWidgets.QMainWindow):
             if user['couch_name'] == 'None':
                 self.ui.couchNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.couchNameComboBox.setCurrentIndex(self.couches['couch_name'].to_list().index(user['couch_name'])
+                self.ui.couchNameComboBox.setCurrentIndex(self.couches['name'].to_list().index(user['couch_name'])
                                                           + 1)
 
             if user['doctor_name'] == 'None':
                 self.ui.doctorNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['doctor_name'].to_list().index(
+                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['name'].to_list().index(
                     user['doctor_name']) + 1)
 
     def clearLabels(self):
@@ -457,12 +457,10 @@ class Window(QtWidgets.QMainWindow):
             self.analysis(file_path)
 
             if user['couch_name'] != 'None':
-                couch = self.couches.set_index('name').loc[user['couch_name']]
-                self.bot.writeTg(user, file_path, couch)
+                self.bot.writeTg(user, file_path, 'couch')
 
             if user['doctor_name'] != 'None':
-                doctor = self.doctors.set_index('name').loc[user['doctor_name']]
-                self.bot.writeTg(user, file_path, doctor)
+                self.bot.writeTg(user, file_path, 'doctor')
 
             self.users.at[self.user, 'last_result'] = self.ui.resultTextLabel.get_result()
         else:
@@ -471,11 +469,9 @@ class Window(QtWidgets.QMainWindow):
                 file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
                 self.analysis(file_path)
                 if user['couch_name'] != 'None':
-                    couch = self.couches.set_index('name').loc[user['couch_name']]
-                    self.bot.writeTg(user, file_path, couch)
+                    self.bot.writeTg(user, file_path, 'couch')
                 if user['doctor_name'] != 'None':
-                    doctor = self.doctors.set_index('name').loc[user['doctor_name']]
-                    self.bot.writeTg(user, file_path, doctor)
+                    self.bot.writeTg(user, file_path, 'doctor')
 
             self.ui.resultTextLabel.setText('Не удалось подключиться')
             self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
@@ -556,7 +552,6 @@ class Window(QtWidgets.QMainWindow):
                 self.ui.startTimeAlphaLabel.setColor(status['spectrum']['start_time'])
             else:
                 self.prediction()  # машинное обучение на размеченных файлах
-
         else:
             # загрузка результатов
             if os.path.exists(r_file):
