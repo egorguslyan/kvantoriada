@@ -49,9 +49,9 @@ class Bot(Thread):
         def handle_username(message):
             names = []
             if self.state[message.chat.id][0][0] == 'c':
-                names = self.couches.get('couch_name').to_numpy()
+                names = self.couches.get('name').to_numpy()
             elif self.state[message.chat.id][0][0] == 'd':
-                names = self.doctors.get('doctor_name').to_numpy()
+                names = self.doctors.get('name').to_numpy()
             flag, name = self.checkName(message.text, names)
 
             if flag:
@@ -113,36 +113,35 @@ class Bot(Thread):
     def readAccounts(self):
         for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
-                self.state[int(couch[1]['linked_account'])] = ['c_logged', couch[1]['couch_name']]
+                self.state[int(couch[1]['linked_account'])] = ['c_logged', couch[1]['name']]
 
         for doctor in self.doctors.iterrows():
             if doctor[1]['linked_account'] != 'None':
-                self.state[int(doctor[1]['linked_account'])] = ['d_logged', doctor[1]['doctor_name']]
+                self.state[int(doctor[1]['linked_account'])] = ['d_logged', doctor[1]['name']]
 
     def checkPassword(self, account, password):
         acc_name = account[1]
         acc_type = account[0][0]
 
         if acc_type == 'c':
-            couch = self.couches.set_index('couch_name').loc[acc_name]
-            return couch['couch_password'] == password
+            couch = self.couches.set_index('name').loc[acc_name]
+            return couch['password'] == password
         elif acc_type == 'd':
-
-            doctor = self.doctors.set_index('doctor_name').loc[acc_name]
-            return doctor['doctor_password'] == password
+            doctor = self.doctors.set_index('name').loc[acc_name]
+            return doctor['password'] == password
 
     def saveTgId(self, tg_id, account):
         acc_name = account[1]
         acc_type = account[0][0]
 
         if acc_type == 'c':
-            self.couches.set_index('couch_name', inplace=True)
+            self.couches.set_index('name', inplace=True)
             self.couches.at[acc_name, 'linked_account'] = str(tg_id)
             self.couches.reset_index(inplace=True)
             self.couches.to_csv('couches.csv', index=False)
 
         elif acc_type == 'd':
-            self.doctors.set_index('doctor_name', inplace=True)
+            self.doctors.set_index('name', inplace=True)
             self.doctors.at[acc_name, 'linked_account'] = str(tg_id)
             self.doctors.reset_index(inplace=True)
             self.doctors.to_csv('doctors.csv', index=False)
@@ -152,20 +151,26 @@ class Bot(Thread):
         acc_type = account[0][0]
 
         if acc_type == 'c':
-            self.couches.set_index('couch_name', inplace=True)
+            self.couches.set_index('name', inplace=True)
             self.couches.at[acc_name, 'linked_account'] = 'None'
             self.couches.reset_index(inplace=True)
             self.couches.to_csv('couches.csv', index=False)
 
         elif acc_type == 'd':
-            self.doctors.set_index('doctor_name', inplace=True)
+            self.doctors.set_index('name', inplace=True)
             self.doctors.at[acc_name, 'linked_account'] = 'None'
             self.doctors.reset_index(inplace=True)
             self.doctors.to_csv('doctors.csv', index=False)
 
-    def writeTg(self, user, file_path, receiver):
-        receiver_id = receiver['linked_account']
+    def writeTg(self, user, file_path, target):
+        if target == 'couch':
+            receiver = self.couches.set_index('name').loc[user['couch_name']]
+        elif target == 'doctor':
+            receiver = self.doctors.set_index('name').loc[user['doctor_name']]
+        else:
+            return
 
+        receiver_id = receiver['linked_account']
         if receiver_id != 'None':
             user_name = user['name'] + ' ' + user['surname']
             file_path = file_path[:-4] + '_r.csv'
@@ -173,8 +178,8 @@ class Bot(Thread):
             file = pd.DataFrame(file_data)
             file.set_index('ind', inplace=True)
 
-            if receiver.index[0] == 'doctor_password':
-                file = file.loc[::, 'value']
+            if target == 'couch':
+                file = file.get('value')
 
                 results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
                           + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
@@ -188,7 +193,7 @@ class Bot(Thread):
                 if user['couch_name'] != 'None':
                     text += '\r\n\r\nТестирование провел тренер ' + user['couch_name']
 
-            elif receiver.index[0] == 'couch_password':
+            elif target == 'doctor':
                 # recommendation_text = recommendation_text.replace('<br>', '\r\n')
                 # recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
                 result = file.at['result', 'result']
