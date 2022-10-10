@@ -650,15 +650,18 @@ class Window(QtWidgets.QMainWindow):
         data = open_csv_file(file_path)
         properties = analysis_ecg(data['ecg'])
 
+        # Очистка графика ЭКГ и вариабельности
         self.ui.canvasECG.clear()
-        self.ui.canvasECG.plot(properties['time'], data['ecg'][0])
-        self.ui.canvasECG.save_data()
-        self.ui.canvasECG.set_ylim()
-
         self.ui.canvasVar.clear()
-        self.ui.canvasVar.plot(range(0, 2000, 50), properties['variability']['histogram'])
-        self.ui.canvasVar.save_data()
-        self.ui.canvasVar.set_ylim()
+        # Вывод графика ЭКГ и вариабельности, если была запись ЭКГ
+        if data['ecg'][2] == 1:
+            self.ui.canvasECG.plot(properties['time'], data['ecg'][0])
+            self.ui.canvasECG.save_data()
+            self.ui.canvasECG.set_ylim()
+
+            self.ui.canvasVar.plot(range(0, 2000, 50), properties['variability']['histogram'])
+            self.ui.canvasVar.save_data()
+            self.ui.canvasVar.set_ylim()
 
         self.ui.heartRateLabel.setText(str(properties['heart_rate']))
         self.ui.variabilityAmplitudeLabel.setText(str(properties['variability']['amplitude']))
@@ -687,15 +690,18 @@ class Window(QtWidgets.QMainWindow):
         data = open_csv_file(file_path)
         properties = analysis_eeg(data['eeg'])
 
+        # Очистка графика ЭЭГ и его спектра
         self.ui.canvasEEG.clear()
-        self.ui.canvasEEG.plot(properties['time'], properties['filtered'])
-        self.ui.canvasEEG.save_data()
-        self.ui.canvasEEG.set_ylim()
-
         self.ui.canvasSpectrum.clear()
-        self.ui.canvasSpectrum.plot(properties['spectrum']['freq'], properties['spectrum']['x'])
-        self.ui.canvasSpectrum.save_data()
-        self.ui.canvasSpectrum.set_ylim()
+        # Вывод графика ЭЭГ и его спектра, если была запись ЭЭГ
+        if data['eeg'][2] == 1:
+            self.ui.canvasEEG.plot(properties['time'], properties['filtered'])
+            self.ui.canvasEEG.save_data()
+            self.ui.canvasEEG.set_ylim()
+
+            self.ui.canvasSpectrum.plot(properties['spectrum']['freq'], properties['spectrum']['x'])
+            self.ui.canvasSpectrum.save_data()
+            self.ui.canvasSpectrum.set_ylim()
 
         self.ui.amplitudeAlphaLabel.setText(str(properties['spectrum']['amp']))
         self.ui.startTimeAlphaLabel.setText(str(properties['spectrum']['start_time']))
