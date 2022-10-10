@@ -78,12 +78,27 @@ class Bot(Thread):
             self.tg_bot.send_message(message.chat.id, 'Вы успешно вышли из аккаунта')
             self.state.pop(message.chat.id)
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_logged', 'd_logged']),
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_logged']),
                                      content_types=CONTENT_TYPES)
-        def handle_logged(message):
-            self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт под именем ' +
-                                     self.state[message.chat.id][1] +
-                                     '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
+        def handle_logged_couch(message):
+            if self.isDeleted(self.doctors, self.state[message.chat.id][1]):
+                self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
+                self.state.pop(message.chat.id)
+            else:
+                self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт под именем ' +
+                                         self.state[message.chat.id][1] +
+                                         '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
+
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['d_logged']),
+                                     content_types=CONTENT_TYPES)
+        def handle_logged_doctor(message):
+            if self.isDeleted(self.doctors, self.state[message.chat.id][1]):
+                self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
+                self.state.pop(message.chat.id)
+            else:
+                self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт под именем ' +
+                                         self.state[message.chat.id][1] +
+                                         '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
 
         @self.tg_bot.message_handler(content_types=CONTENT_TYPES)
         def handle_misc(message):
@@ -91,6 +106,9 @@ class Bot(Thread):
             self.state.pop(message.chat.id)
 
         self.tg_bot.infinity_polling(interval=1)
+
+    def isDeleted(self, accounts, name):
+        return accounts.set_index('name').at[name, 'linked_account'] == 'None'
 
     def checkState(self, message, states):
         if message.chat.id in self.state.keys():
@@ -179,21 +197,6 @@ class Bot(Thread):
             file.set_index('ind', inplace=True)
 
             if target == 'couch':
-                file = file.get('value')
-
-                results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
-                          + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
-                          + str(int(file['variability_index'])) + '\r\n'
-                alpha_time = int(file['start_time'])
-                if alpha_time >= 0:
-                    results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд'
-                else:
-                    results += 'Альфа ритм не обнаружен'
-                text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results
-                if user['couch_name'] != 'None':
-                    text += '\r\n\r\nТестирование провел тренер ' + user['couch_name']
-
-            elif target == 'doctor':
                 # recommendation_text = recommendation_text.replace('<br>', '\r\n')
                 # recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
                 result = file.at['result', 'result']
@@ -208,6 +211,21 @@ class Bot(Thread):
                 text = user_name + ' прошел тестирование.\r\n\r\n<i>Результат:</i>\r\n' + results
                 if user['doctor_name'] != 'None':
                     text += '\r\n\r\nТестирование провел врач ' + user['doctor_name']
+
+            elif target == 'doctor':
+                file = file.get('value')
+
+                results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
+                          + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
+                          + str(int(file['variability_index'])) + '\r\n'
+                alpha_time = int(file['start_time'])
+                if alpha_time >= 0:
+                    results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд'
+                else:
+                    results += 'Альфа ритм не обнаружен'
+                text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results
+                if user['couch_name'] != 'None':
+                    text += '\r\n\r\nТестирование провел тренер ' + user['couch_name']
 
             else:
                 text = 'Error'
