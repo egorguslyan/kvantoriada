@@ -93,8 +93,6 @@ class Window(QtWidgets.QMainWindow):
 
         self.updateTable()  # обновление таблицы пользователей
 
-        self.updateCouchesList()  # обновление списка тренеров
-        self.updateDoctorList()  # обновление списка докторов
         self.ui.couchNameComboBox.setEnabled(False)
         self.ui.doctorNameComboBox.setEnabled(False)
         self.ui.addNewCouchButton.setEnabled(False)
@@ -107,6 +105,9 @@ class Window(QtWidgets.QMainWindow):
         else:
             self.user = None
 
+        self.updateCouchesList()  # обновление списка тренеров
+        self.updateDoctorList()  # обновление списка докторов
+
     def updateCouchesList(self):
         """
         Обновление списка тренеров
@@ -114,6 +115,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.couchNameComboBox.clear()
         self.ui.couchNameComboBox.addItem('Не выбрано')
         self.ui.couchNameComboBox.addItems(self.couches['name'].to_list())
+        self.updateCouchAndDoctor()
 
     def updateDoctorList(self):
         """
@@ -122,6 +124,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.doctorNameComboBox.clear()
         self.ui.doctorNameComboBox.addItem('Не выбрано')
         self.ui.doctorNameComboBox.addItems(self.doctors['name'].to_list())
+        self.updateCouchAndDoctor()
 
     def addNewCouch(self):
         """
@@ -317,6 +320,16 @@ class Window(QtWidgets.QMainWindow):
             self.ui.timeEEG.setValue(int(user['timeEEG']))
             self.ui.checkGSR.setChecked(bool(user['enableGSR']))
 
+            self.updateCouchAndDoctor()
+
+    def updateCouchAndDoctor(self):
+        """
+        Отобразить тренера и лечащего врача спортсмена
+        :return:
+        """
+        # если выбран пользователь, загрузить его данные
+        if self.user is not None:
+            user = self.users.iloc[self.user]
             # Отображение тренера и доктора
             if user['couch_name'] == 'None':
                 self.ui.couchNameComboBox.setCurrentIndex(0)
