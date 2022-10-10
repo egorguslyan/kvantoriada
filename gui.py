@@ -483,7 +483,6 @@ class Window(QtWidgets.QMainWindow):
         enable_ecg = int(self.ui.checkECG.isChecked())
         enable_eeg = int(self.ui.checkEEG.isChecked())
         enable_gsr = int(self.ui.checkGSR.isChecked())
-
         # подключение к модулю с датчиками
         if read(self.ui.comportsCombo.currentText(), file_path,
                 timeECG=time_ecg, timeEEG=time_eeg,
@@ -567,6 +566,7 @@ class Window(QtWidgets.QMainWindow):
         filename, _ = os.path.splitext(file_path)
         r_file = f"{filename}_r.csv"
         p_file = f"{filename}_p.csv"
+
         # проверка на наличие файла с размеченными результатами
         if not os.path.exists(r_file):  # and not os.path.exists(p_file):
             cnt_r_files = sum(map(lambda x: x.find('_r') != -1, os.listdir(self.users.at[self.user, 'dir_path'])))
@@ -602,7 +602,7 @@ class Window(QtWidgets.QMainWindow):
 
             self.ui.startTimeAlphaLabel.setColor(status.loc['start_time']['result'])
 
-        # self.createResultFile(file_path)
+        self.createResultFile(file_path) #Я тут раскомментил, фикси как хочешь, но файлы с _r  должны быть
         recommendation_text = self.recommendations()  # вывод рекомендаций
         self.ui.recommendationsText.setText(recommendation_text)
 
@@ -751,7 +751,7 @@ class Window(QtWidgets.QMainWindow):
             self.ui.password.setText('')
             return
 
-        if self.ui.password.text() == self.doctors.set_index('doctor_name').at[user['doctor_name'], 'doctor_password'] \
+        if self.ui.password.text() == self.doctors.set_index('name').at[user['doctor_name'], 'password'] \
                 and self.file_path is not None:
             self.editingResultFileMode(True)
             self.ui.password.setStyleSheet('QLineEdit { background-color : #ffffff }')

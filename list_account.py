@@ -111,9 +111,9 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.surnameEdit.setText(surname)
             self.middleNameEdit.setText(middlename)
 
-            self.updateSportsmen(user['name'])  # Обновление списка спортсменов
+            self.updateSportsmenTable(user['name'])  # Обновление списка спортсменов
 
-    def updateSportsmen(self, username):
+    def updateSportsmenTable(self, username):
         """
         Обнволение списка спортсменов
         """
@@ -177,10 +177,9 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         row = self.tableWidget.currentRow()
         if row > -1:
             user = self.users.iloc[self.user]
-
+            self.updateSportsmen(user['name'])
             self.users.drop(index=[row], axis=0, inplace=True)
             self.users.reset_index(drop=True, inplace=True)
-
             if len(self.users) > 0:
                 self.user = 0
                 self.updateCard()
@@ -191,6 +190,10 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.tableWidget.selectionModel().clearCurrentIndex()
 
             self.saveTable()
+
+    def updateSportsmen(self, username):
+        names = self.sportsmen.get(self.mode + '_name')
+        print(names)
 
     def updateUser(self):
         """
