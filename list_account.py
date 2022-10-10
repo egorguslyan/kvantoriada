@@ -192,8 +192,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.saveTable()
 
     def updateSportsmen(self, username):
-        names = self.sportsmen.get(self.mode + '_name')
-        print(names)
+        self.sportsmen.loc[self.sportsmen[self.mode + '_name'] == username, self.mode + '_name'] = 'None'
 
     def updateUser(self):
         """
