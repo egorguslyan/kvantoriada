@@ -2,7 +2,8 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QTableWidgetItem
 
 from design import Ui_MainWindow
-from dialog import Ui_Dialog
+import ai_warning
+import connection_warning
 import sys
 import pandas as pd
 import os
@@ -28,10 +29,18 @@ from mplcanvas import MplCanvas
 test = True
 
 
-# диалоговое окно с предупреждением
-class WarningDialog(QtWidgets.QDialog, Ui_Dialog):
+# диалоговое окно с предупреждением недостаточного кол-ва данных для ИИ
+class AIWarningDialog(QtWidgets.QDialog, ai_warning.Ui_Dialog):
     def __init__(self):
-        super(WarningDialog, self).__init__()
+        super(AIWarningDialog, self).__init__()
+        self.setupUi(self)
+        self.setModal(True)
+
+
+# диалоговое окно с предупреждением подключения
+class ConnectionWarningDialog(QtWidgets.QDialog, connection_warning.Ui_Dialog):
+    def __init__(self):
+        super(ConnectionWarningDialog, self).__init__()
         self.setupUi(self)
         self.setModal(True)
 
@@ -88,7 +97,8 @@ class Window(QtWidgets.QMainWindow):
         self.updateComports()  # обновление списка COM-портов
 
         # создание диалоговых окон
-        self.warningDialog = WarningDialog()
+        self.AIWarningDialog = AIWarningDialog()
+        self.ConnectionWarningDialog = ConnectionWarningDialog()
         self.editRecommendationsDialog = EditRecommendations()
 
         self.updateTable()  # обновление таблицы пользователей
@@ -483,6 +493,8 @@ class Window(QtWidgets.QMainWindow):
         enable_ecg = int(self.ui.checkECG.isChecked())
         enable_eeg = int(self.ui.checkEEG.isChecked())
         enable_gsr = int(self.ui.checkGSR.isChecked())
+
+        self.ConnectionWarningDialog.show()
         # подключение к модулю с датчиками
         if read(self.ui.comportsCombo.currentText(), file_path,
                 timeECG=time_ecg, timeEEG=time_eeg,
@@ -497,8 +509,15 @@ class Window(QtWidgets.QMainWindow):
 
             self.users.at[self.user, 'last_result'] = self.ui.resultTextLabel.get_result()
         else:
+            if test:
+                if user['couch_name'] != 'None':
+                    self.bot.writeTg(user, self.createTable4Bot(), 'couch')
+
+                if user['doctor_name'] != 'None':
+                    self.bot.writeTg(user, self.createTable4Bot(), 'doctor')
             self.ui.resultTextLabel.setText('Не удалось подключиться')
             self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
+        self.ConnectionWarningDialog.close()
 
     def selectFile(self, file):
         """
@@ -564,8 +583,8 @@ class Window(QtWidgets.QMainWindow):
             cnt_r_files = sum(map(lambda x: x.find('_r') != -1, os.listdir(self.users.at[self.user, 'dir_path'])))
             # проверка на количество помеченных файлов
             if cnt_r_files < 5:
-                self.warningDialog.show()
-                self.warningDialog.exec()
+                self.AIWarningDialog.show()
+                self.AIWarningDialog.exec()
 
                 status = prior_analysis(ecg, eeg)
                 self.ui.resultTextLabel.setColor(status['result'])
@@ -938,7 +957,7 @@ class Window(QtWidgets.QMainWindow):
         self.couches.to_csv('couches.csv', index=False)  # сохранение таблицы тренеров
         self.doctors.to_csv('doctors.csv', index=False)  # сохранение таблицы врачей
         self.close()
-        self.warningDialog.close()
+        self.AIWarningDialog.close()
         self.editRecommendationsDialog.close()
         sys.exit()
 

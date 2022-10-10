@@ -43,16 +43,17 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
 
         # если есть пользователи, то загрузить карточку первого пользователя
         if not self.users.empty:
-            self.user = user
-            self.updateCard()
-
-            dialog = CheckPassword(self.users.iloc[self.user])
+            dialog = CheckPassword(self.users.iloc[user])
             dialog.show()
             dialog.exec()
-            if not dialog.check:
-                self.close()
+            if dialog.check:
+                self.user = user
+            else:
+                self.user = None
         else:
             self.user = None
+
+        self.updateCard()
 
     def chooseUser(self):
         """
@@ -60,12 +61,14 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         :return: None
         """
         row = self.tableWidget.currentRow()
-        dialog = CheckPassword(self.users.iloc[row])
-        dialog.show()
-        dialog.exec()
-        if dialog.check:
-            self.user = row
-            self.updateCard()
+        # Если пользователь изменился, проверить его пароль
+        if row != self.user:
+            dialog = CheckPassword(self.users.iloc[row])
+            dialog.show()
+            dialog.exec()
+            if dialog.check:
+                self.user = row
+                self.updateCard()
 
     def updateTable(self):
         """
@@ -73,7 +76,6 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         :return: None
         """
         self.tableWidget.clear()
-        # self.ui.table.setHorizontalHeaderLabels(['', 'Спортсмен'])
 
         if len(self.users) > 0:
             self.tableWidget.setRowCount(len(self.users))
@@ -174,8 +176,8 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         Удаление выбранного пользователя и всех его данных
         :return: None
         """
-        row = self.tableWidget.currentRow()
-        if row > -1:
+        # Если выбран пользователь, то удалить его
+        if self.user is not None:
             user = self.users.iloc[self.user]
             self.updateSportsmen(user['name'])
             self.users.drop(index=[row], axis=0, inplace=True)
@@ -192,6 +194,9 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.saveTable()
 
     def updateSportsmen(self, username):
+        """
+        При удалении пользователя, удалить его упоминание в таблице спортсменов
+        """
         self.sportsmen.loc[self.sportsmen[self.mode + '_name'] == username, self.mode + '_name'] = 'None'
 
     def updateUser(self):
@@ -199,45 +204,54 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         Изменение данных пользователя
         :return: None
         """
-        if self.updateUserButton.text() == 'Изменить':
-            self.updatingUserMode(False)
-            self.updateUserButton.setText('Сохранить')
-        else:
-            name, surname, middlename = '', '', ''
-            if self.surnameEdit.text() != '':
-                surname = self.surnameEdit.text()
-                self.surnameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
+        # Если выбран пользователь
+        if self.user is not None:
+            if self.updateUserButton.text() == 'Изменить':
+                self.updatingUserMode(False)
+                self.updateUserButton.setText('Сохранить')
             else:
-                self.surnameEdit.setStyleSheet('QLineEdit { background-color : #c73636; }')
+                name, surname, middlename = '', '', ''
+                if self.surnameEdit.text() != '':
+                    surname = self.surnameEdit.text()
+                    self.surnameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
+                else:
+                    self.surnameEdit.setStyleSheet('QLineEdit { background-color : #c73636; }')
 
-            if self.nameEdit.text() != '':
-                name = self.nameEdit.text()
-                self.nameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
-            else:
-                self.nameEdit.setStyleSheet('QLineEdit { background-color : #c73636; }')
+                if self.nameEdit.text() != '':
+                    name = self.nameEdit.text()
+                    self.nameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
+                else:
+                    self.nameEdit.setStyleSheet('QLineEdit { background-color : #c73636; }')
 
-            if self.middleNameEdit.text() != '':
-                middlename = self.middleNameEdit.text()
-                self.middleNameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
+                if self.middleNameEdit.text() != '':
+                    middlename = self.middleNameEdit.text()
+                    self.middleNameEdit.setStyleSheet('QLineEdit { background-color : #ffffff; }')
 
-            if name == '' or surname == '':
-                return
+                if name == '' or surname == '':
+                    return
 
-            full_name = ' '.join([surname, name, middlename])
-            self.users.at[self.user, 'name'] = full_name
+                full_name = ' '.join([surname, name, middlename])
+                self.users.at[self.user, 'name'] = full_name
 
-            self.updateTable()
+                self.updateTable()
 
-            self.updatingUserMode(True)
-            self.updateUserButton.setText('Изменить')
+                self.updatingUserMode(True)
+                self.updateUserButton.setText('Изменить')
 
-            self.saveTable()
+                self.saveTable()
 
     def unlinkUser(self):
-        self.users.at[self.user, 'linked_account'] = 'None'
-        self.saveTable()
+        """
+        Отвязать аккаунт в телеграмме
+        """
+        if self.user is not None:
+            self.users.at[self.user, 'linked_account'] = 'None'
+            self.saveTable()
 
     def newPasswordMode(self, flag):
+        """
+        Режим создания нового пароля
+        """
         self.newPasswordButton.setVisible(not flag)
         self.passwordEdit.setVisible(flag)
         self.repeatPasswordEdit.setVisible(flag)
@@ -246,10 +260,17 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         self.savePasswordButton.setVisible(flag)
 
     def checkPassword(self):
+        """
+        Проверка пароля на корректность
+        """
         return self.passwordEdit.text() == self.repeatPasswordEdit.text() and \
                self.passwordEdit.text() != ''
 
     def saveNewPassword(self):
+        """
+        Сохранение нового пароля
+        """
+        # Если пароль корректный, то сохранить его
         if self.checkPassword():
             self.users.at[self.user, 'password'] = self.passwordEdit.text()
             self.passwordWarning.setVisible(False)
@@ -262,7 +283,11 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.passwordWarning.setVisible(True)
 
     def newPassword(self):
-        self.newPasswordMode(True)
+        """
+        Создать новый пароль
+        """
+        if self.user is not None:
+            self.newPasswordMode(True)
 
     def saveTable(self):
         """

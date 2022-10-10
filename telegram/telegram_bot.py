@@ -213,9 +213,9 @@ class Bot(Thread):
                           + str(int(table['breath_freq']['value'])) + \
                           ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
                           + str(int(table['variability_index']['value'])) + '\r\n'
-                alpha_time = int(table['start_time']['value'])
+                alpha_time = float(table['start_time']['value'])
                 if alpha_time >= 0:
-                    results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд'
+                    results += 'Время до появления альфа-ритма: ' + str(alpha_time) + ' секунд'
                 else:
                     results += 'Альфа ритм не обнаружен'
                 text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results

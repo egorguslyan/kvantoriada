@@ -1,3 +1,3 @@
 name,surname,middleName,birthday,dir_path,doctor_name,last_result,is_editing_result_files,enableECG,timeECG,enableEEG,timeEEG,enableGSR,couch_name
 Егор,Гуслянцев,Евгеньевич,01.07.2005,users/1656666431,Михаил Жаринов Андреевич,normal,1,1,10,1,10,1,Михаил Жаринов
-Семен,Горюнов,Олегович,11.07.2005,users/1657495528,Игорь Пименов,normal,0,1,10,1,10,1,Горюнов Семён Олегович
+Семён,Горюнов,Олегович,11.07.2005,users/1657495528,Горюнов Семён Олегович,normal,0,1,10,1,10,1,Горюнов Семён Олегович
