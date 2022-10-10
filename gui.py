@@ -490,21 +490,13 @@ class Window(QtWidgets.QMainWindow):
             self.analysis(file_path)
 
             if user['couch_name'] != 'None':
-                self.bot.writeTg(user, file_path, 'couch')
+                self.bot.writeTg(user, self.createTable4Bot(), 'couch')
 
             if user['doctor_name'] != 'None':
-                self.bot.writeTg(user, file_path, 'doctor')
+                self.bot.writeTg(user, self.createTable4Bot(), 'doctor')
 
             self.users.at[self.user, 'last_result'] = self.ui.resultTextLabel.get_result()
         else:
-            if test:
-                file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
-                self.analysis(file_path)
-                if user['couch_name'] != 'None':
-                    self.bot.writeTg(user, file_path, 'couch')
-                if user['doctor_name'] != 'None':
-                    self.bot.writeTg(user, file_path, 'doctor')
-
             self.ui.resultTextLabel.setText('Не удалось подключиться')
             self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
 
@@ -606,6 +598,17 @@ class Window(QtWidgets.QMainWindow):
         # НЕТ не должны быть, они создаются только, если врач сам разметил все параметры и сохранил их
         recommendation_text = self.recommendations()  # вывод рекомендаций
         self.ui.recommendationsText.setText(recommendation_text)
+
+    def createTable4Bot(self):
+        result = {
+            'heart_rate': {'result': self.ui.heartRateLabel.color, 'value': self.ui.heartRateLabel.text()},
+            'breath_freq': {'result': self.ui.breathFreqLabel.color, 'value': self.ui.breathFreqLabel.text()},
+            'variability_index': {'result': self.ui.variabilityIndexLabel.color, 'value': self.ui.variabilityIndexLabel.text()},
+            'start_time': {'result': self.ui.startTimeAlphaLabel.color, 'value': self.ui.startTimeAlphaLabel.text()},
+            'result': {'result': self.ui.resultTextLabel.color, 'value': ''}
+        }
+
+        return reuslt
 
     def createResultFile(self, file_path):
         """

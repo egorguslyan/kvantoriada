@@ -180,7 +180,7 @@ class Bot(Thread):
             self.doctors.reset_index(inplace=True)
             self.doctors.to_csv('doctors.csv', index=False)
 
-    def writeTg(self, user, file_path, target):
+    def writeTg(self, user, table, target):
         if target == 'couch':
             receiver = self.couches.set_index('name').loc[user['couch_name']]
         elif target == 'doctor':
@@ -191,15 +191,11 @@ class Bot(Thread):
         receiver_id = receiver['linked_account']
         if receiver_id != 'None':
             user_name = user['name'] + ' ' + user['surname']
-            file_path = file_path[:-4] + '_r.csv'
-            file_data = pd.read_csv(file_path, delimiter=',')
-            file = pd.DataFrame(file_data)
-            file.set_index('ind', inplace=True)
 
             if target == 'couch':
                 # recommendation_text = recommendation_text.replace('<br>', '\r\n')
                 # recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
-                result = file.at['result', 'result']
+                result = table['result']['result']
                 if result == 0:
                     results = 'Спортсмен находится в состоянии "предстартовой апатии"'
                 elif result == 1:
@@ -213,12 +209,11 @@ class Bot(Thread):
                     text += '\r\n\r\nТестирование провел врач ' + user['doctor_name']
 
             elif target == 'doctor':
-                file = file.get('value')
-
-                results = 'ЧСС: ' + str(int(file['heart_rate'])) + ' уд/мин\r\nЧастота дыхания: ' \
-                          + str(int(file['breath_freq'])) + ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
-                          + str(int(file['variability_index'])) + '\r\n'
-                alpha_time = int(file['start_time'])
+                results = 'ЧСС: ' + str(int(table['heart_rate']['value'])) + ' уд/мин\r\nЧастота дыхания: ' \
+                          + str(int(table['breath_freq']['value'])) + \
+                          ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
+                          + str(int(table['variability_index']['value'])) + '\r\n'
+                alpha_time = int(table['start_time']['value'])
                 if alpha_time >= 0:
                     results += 'Время до появления альфа-ритма: ' + str(alpha_time) + 'секунд'
                 else:
