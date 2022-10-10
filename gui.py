@@ -602,7 +602,8 @@ class Window(QtWidgets.QMainWindow):
 
             self.ui.startTimeAlphaLabel.setColor(status.loc['start_time']['result'])
 
-        self.createResultFile(file_path) #Я тут раскомментил, фикси как хочешь, но файлы с _r  должны быть
+        # self.createResultFile(file_path)  # Я тут раскомментил, фикси как хочешь, но файлы с _r  должны быть
+        # НЕТ не должны быть, они создаются только, если врач сам разметил все параметры и сохранил их
         recommendation_text = self.recommendations()  # вывод рекомендаций
         self.ui.recommendationsText.setText(recommendation_text)
 
