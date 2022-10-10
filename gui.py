@@ -600,6 +600,9 @@ class Window(QtWidgets.QMainWindow):
         self.ui.recommendationsText.setText(recommendation_text)
 
     def createTable4Bot(self):
+        """
+        Создание таблицы с численными значениями параметров и их результатов для отсылки в телеграм бота
+        """
         result = {
             'heart_rate': {'result': self.ui.heartRateLabel.color, 'value': self.ui.heartRateLabel.text()},
             'breath_freq': {'result': self.ui.breathFreqLabel.color, 'value': self.ui.breathFreqLabel.text()},
@@ -608,7 +611,7 @@ class Window(QtWidgets.QMainWindow):
             'result': {'result': self.ui.resultTextLabel.color, 'value': ''}
         }
 
-        return reuslt
+        return result
 
     def createResultFile(self, file_path):
         """
