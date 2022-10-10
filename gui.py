@@ -149,20 +149,24 @@ class Window(QtWidgets.QMainWindow):
         self.updateDoctorList()
 
     def editCouch(self):
-        dialog = ListAccount('couch', self.couches, self.users)
-        dialog.show()
-        dialog.exec()
-        self.couches = dialog.users
-        self.bot.couches = self.couches
-        self.updateCouchesList()
+        if self.users.at[self.user, 'couch_name'] != 'None':
+            dialog = ListAccount('couch', self.couches, self.users,
+                                 self.couches['name'].to_list().index(self.users.at[self.user, 'couch_name']))
+            dialog.show()
+            dialog.exec()
+            self.couches = dialog.users
+            self.bot.couches = self.couches
+            self.updateCouchesList()
 
     def editDoctor(self):
-        dialog = ListAccount('doctor', self.doctors, self.users)
-        dialog.show()
-        dialog.exec()
-        self.doctors = dialog.users
-        self.bot.doctors = self.doctors
-        self.updateDoctorList()
+        if self.users.at[self.user, 'doctor_name'] != 'None':
+            dialog = ListAccount('doctor', self.doctors, self.users,
+                                 self.doctors['name'].to_list().index(self.users.at[self.user, 'doctor_name']))
+            dialog.show()
+            dialog.exec()
+            self.doctors = dialog.users
+            self.bot.doctors = self.doctors
+            self.updateDoctorList()
 
     def updateAge(self):
         """
@@ -334,14 +338,12 @@ class Window(QtWidgets.QMainWindow):
             if user['couch_name'] == 'None':
                 self.ui.couchNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.couchNameComboBox.setCurrentIndex(self.couches['name'].to_list().index(user['couch_name'])
-                                                          + 1)
+                self.ui.couchNameComboBox.setCurrentIndex(self.couches['name'].to_list().index(user['couch_name']) + 1)
 
             if user['doctor_name'] == 'None':
                 self.ui.doctorNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['name'].to_list().index(
-                    user['doctor_name']) + 1)
+                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['name'].to_list().index(user['doctor_name']) + 1)
 
     def clearLabels(self):
         """
@@ -496,7 +498,6 @@ class Window(QtWidgets.QMainWindow):
 
             self.users.at[self.user, 'last_result'] = self.ui.resultTextLabel.get_result()
         else:
-
             if test:
                 file_path = 'users/1656666431/01.07.2022 14-41-11.csv'
                 self.analysis(file_path)

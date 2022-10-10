@@ -19,7 +19,7 @@ class ColorDelegate(QStyledItemDelegate):
 
 
 class ListAccount(QtWidgets.QDialog, Ui_Dialog):
-    def __init__(self, mode, users, sportsmen):
+    def __init__(self, mode, users, sportsmen, user):
         super().__init__()
         self.setupUi(self)
         self.setModal(True)
@@ -43,8 +43,14 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
 
         # если есть пользователи, то загрузить карточку первого пользователя
         if not self.users.empty:
-            self.user = 0
+            self.user = user
             self.updateCard()
+
+            dialog = CheckPassword(self.users.iloc[self.user])
+            dialog.show()
+            dialog.exec()
+            if not dialog.check:
+                self.close()
         else:
             self.user = None
 
