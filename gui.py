@@ -26,7 +26,7 @@ from list_account import ListAccount
 # модуль холста для графиков
 from mplcanvas import MplCanvas
 
-test = True
+test = False
 
 
 # диалоговое окно с предупреждением недостаточного кол-ва данных для ИИ
@@ -482,7 +482,7 @@ class Window(QtWidgets.QMainWindow):
         files = [self.ui.filesCombo.itemText(i) for i in range(self.ui.filesCombo.count())]
         if files:
             last_file = files[-1]
-            if (datetime.datetime.now() - datetime.datetime.strptime(last_file, time_format)).seconds < 120:
+            if (datetime.datetime.now() - datetime.datetime.strptime(last_file, time_format)).seconds < 30:
                 if os.path.exists(os.path.normpath(os.path.join(dir_path, f"{last_file}.csv"))):
                     os.remove(os.path.normpath(os.path.join(dir_path, f"{last_file}.csv")))
                 self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)

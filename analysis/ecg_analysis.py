@@ -3,7 +3,7 @@ from analysis.signal_analysis import *
 
 FILE_PATH = "datasets/1_)7"
 RATE = 200
-RATIO = 0.3
+RATIO = 0.2
 
 
 def find_points_zeros(data, th):

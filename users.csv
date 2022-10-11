@@ -1,3 +1,5 @@
 name,surname,middleName,birthday,dir_path,doctor_name,last_result,is_editing_result_files,enableECG,timeECG,enableEEG,timeEEG,enableGSR,couch_name
 Егор,Гуслянцев,Евгеньевич,01.07.2005,users/1656666431,Михаил Жаринов Андреевич,normal,1,1,10,1,10,1,Михаил Жаринов
 Семён,Горюнов,Олегович,11.07.2005,users/1657495528,None,depressed,0,1,10,1,10,1,Горюнов Семён Олегович
+Михаил,Жаринов,Андреевич,09.02.2006,users\1665485259,Горюнов Семён Олегович,normal,1,1,30,1,10,1,Михаил Жаринов
+Name3,Surname3,Middle3,11.10.2022,users\1665488951,Горюнов Семён Олегович,normal,0,1,10,1,10,1,Михаил Жаринов
