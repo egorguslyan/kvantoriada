@@ -180,7 +180,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         if self.user is not None:
             user = self.users.iloc[self.user]
             self.updateSportsmen(user['name'])
-            self.users.drop(index=[row], axis=0, inplace=True)
+            self.users.drop(index=[user.name], axis=0, inplace=True)
             self.users.reset_index(drop=True, inplace=True)
             if len(self.users) > 0:
                 self.user = 0
