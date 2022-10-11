@@ -23,6 +23,9 @@ def read(com, file_path, timeECG=15, timeEEG=15, timeGSR=5, enableECG=1, enableE
     try:
         with serial.Serial(com, 38400, timeout=0.1) as my_serial, open('log.txt', 'w') as log:
             ecg, eeg, gsr = [128, 128], [128, 128], [128, 128]
+            for i in range(3):
+                my_serial.write('c'.encode('ascii'))
+
             while my_serial.in_waiting <= 0:
                 pass
             a = chr(int.from_bytes(my_serial.read(), "little"))

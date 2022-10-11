@@ -357,8 +357,22 @@ void loop()
     }
 
     if(serial.available())
+    {
+        char a = serial.read();
+        if(a == 'c')
+        {
+            // Мигнуть светодиодами, показав что подключились
+            digitalWrite(LEDR, HIGH);
+            digitalWrite(LEDW, HIGH);
+            digitalWrite(LEDY, HIGH);
+            delay(50);
+            digitalWrite(LEDR, LOW);
+            digitalWrite(LEDW, LOW);
+            digitalWrite(LEDY, LOW);
+            delay(50);
+        }
         // Формат: e15,10,5,(0b111);
-        if(serial.read() == 'e')
+        else if(a == 'e')
         {
             memset(S, 0, sizeof(char) * 30);
             serial.readBytesUntil(';', S, 30);
@@ -413,6 +427,7 @@ void loop()
             serial.print(';');
             timer1 = timer2 = millis();
         }
+    }
 
     // Считывание
     digitalWrite(DEBUG_LED, HIGH);
