@@ -1,4 +1,4 @@
-import pandas as pd
+# import pandas as pd
 import telebot
 from base64 import b64decode
 from threading import Thread
@@ -18,7 +18,7 @@ class Bot(Thread):
         self.readAccounts()
 
     def run(self):
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, [None]), commands=['login', 'start'])
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), commands=['login', 'start'])
         def handle_login(message):
             markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
             coach_btn = telebot.types.KeyboardButton('Тренер')
@@ -27,11 +27,11 @@ class Bot(Thread):
             self.tg_bot.send_message(message.chat.id, text='Укажите вашу профессию', reply_markup=markup)
             self.state[message.chat.id] = ['wait_role', None]
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, [None]), content_types=CONTENT_TYPES)
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), content_types=CONTENT_TYPES)
         def handle_unlogged(message):
             self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['wait_role']))
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'wait_role'))
         def handle_role(message):
             markup = telebot.types.ReplyKeyboardRemove()
             if message.text == 'Тренер':
@@ -45,7 +45,7 @@ class Bot(Thread):
                 self.tg_bot.send_message(message.chat.id, 'Ошибка', reply_markup=markup)
                 self.state.pop(message.chat.id)
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_wait_name', 'd_wait_name']))
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_wait_name', 'd_wait_name'))
         def handle_username(message):
             names = []
             if self.state[message.chat.id][0][0] == 'c':
@@ -61,7 +61,7 @@ class Bot(Thread):
                 self.tg_bot.send_message(message.chat.id, 'Пользователя с таким именем не существует')
                 self.state.pop(message.chat.id)
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_wait_pass', 'd_wait_pass']))
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_wait_pass', 'd_wait_pass'))
         def handle_password(message):
             if self.checkPassword(self.state[message.chat.id], message.text):
                 self.tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
@@ -72,13 +72,13 @@ class Bot(Thread):
                 self.tg_bot.send_message(message.chat.id, 'Введен неверный пароль')
                 self.state.pop(message.chat.id)
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_logged', 'd_logged']), commands=['logout'])
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_logged', 'd_logged'), commands=['logout'])
         def handle_logout(message):
             self.deleteTgId(self.state[message.chat.id])
             self.tg_bot.send_message(message.chat.id, 'Вы успешно вышли из аккаунта')
             self.state.pop(message.chat.id)
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['c_logged']),
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_logged'),
                                      content_types=CONTENT_TYPES)
         def handle_logged_couch(message):
             if self.isDeleted(self.doctors, self.state[message.chat.id][1]):
@@ -89,7 +89,7 @@ class Bot(Thread):
                                          self.state[message.chat.id][1] +
                                          '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, ['d_logged']),
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'd_logged'),
                                      content_types=CONTENT_TYPES)
         def handle_logged_doctor(message):
             if self.isDeleted(self.doctors, self.state[message.chat.id][1]):
@@ -107,10 +107,11 @@ class Bot(Thread):
 
         self.tg_bot.infinity_polling(interval=1)
 
-    def isDeleted(self, accounts, name):
+    @staticmethod
+    def isDeleted(accounts, name):
         return accounts.set_index('name').at[name, 'linked_account'] == 'None'
 
-    def checkState(self, message, states):
+    def checkState(self, message, *states):
         if message.chat.id in self.state.keys():
             return self.state[message.chat.id][0] in states
         return None in states
@@ -193,9 +194,7 @@ class Bot(Thread):
             user_name = user['name'] + ' ' + user['surname']
 
             if target == 'couch':
-                # recommendation_text = recommendation_text.replace('<br>', '\r\n')
-                # recommendation_text = recommendation_text.replace('\r\n\r\n', '\r\n')
-                result = table['result']['result']
+                result = table['result']
                 if result == 0:
                     results = 'Спортсмен находится в состоянии "предстартовой апатии"'
                 elif result == 1:
@@ -209,11 +208,11 @@ class Bot(Thread):
                     text += '\r\n\r\nТестирование провел врач ' + user['doctor_name']
 
             elif target == 'doctor':
-                results = 'ЧСС: ' + str(int(table['heart_rate']['value'])) + ' уд/мин\r\nЧастота дыхания: ' \
-                          + str(int(table['breath_freq']['value'])) + \
+                results = 'ЧСС: ' + str(table['heart_rate']) + ' уд/мин\r\nЧастота дыхания: ' \
+                          + str(table['breath_freq']) + \
                           ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
-                          + str(int(table['variability_index']['value'])) + '\r\n'
-                alpha_time = float(table['start_time']['value'])
+                          + str(table['variability_index']) + '\r\n'
+                alpha_time = float(table['start_time'])
                 if alpha_time >= 0:
                     results += 'Время до появления альфа-ритма: ' + str(alpha_time) + ' секунд'
                 else:

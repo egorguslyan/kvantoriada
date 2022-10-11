@@ -624,8 +624,7 @@ class Window(QtWidgets.QMainWindow):
 
             self.ui.startTimeAlphaLabel.setColor(status.loc['start_time']['result'])
 
-        # self.createResultFile(file_path)  # Я тут раскомментил, фикси как хочешь, но файлы с _r  должны быть
-        # НЕТ не должны быть, они создаются только, если врач сам разметил все параметры и сохранил их
+        # self.createResultFile(file_path)
         recommendation_text = self.recommendations()  # вывод рекомендаций
         self.ui.recommendationsText.setText(recommendation_text)
 
@@ -634,11 +633,11 @@ class Window(QtWidgets.QMainWindow):
         Создание таблицы с численными значениями параметров и их результатов для отсылки в телеграм бота
         """
         result = {
-            'heart_rate': {'result': self.ui.heartRateLabel.color, 'value': self.ui.heartRateLabel.text()},
-            'breath_freq': {'result': self.ui.breathFreqLabel.color, 'value': self.ui.breathFreqLabel.text()},
-            'variability_index': {'result': self.ui.variabilityIndexLabel.color, 'value': self.ui.variabilityIndexLabel.text()},
-            'start_time': {'result': self.ui.startTimeAlphaLabel.color, 'value': self.ui.startTimeAlphaLabel.text()},
-            'result': {'result': self.ui.resultTextLabel.color, 'value': ''}
+            'heart_rate': self.ui.heartRateLabel.text(),
+            'breath_freq': self.ui.breathFreqLabel.text(),
+            'variability_index': self.ui.variabilityIndexLabel.text(),
+            'start_time': self.ui.startTimeAlphaLabel.text(),
+            'result': self.ui.resultTextLabel.color
         }
 
         return result
