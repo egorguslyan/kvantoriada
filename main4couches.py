@@ -9,6 +9,6 @@ if __name__ == '__main__':
     sportsmen = pd.DataFrame(sportsmen_data)
 
     app = QtWidgets.QApplication([])
-    application = ListAccount('couch', couches, sportsmen)
+    application = ListAccount('couch', couches, sportsmen, -1)
     application.show()
     application.exec()

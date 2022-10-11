@@ -110,9 +110,9 @@ class Result(ResultLabel):
         self.set_background_color()
 
         results = {
-            1: "Норма",
-            0: "Подавлен",
-            2: "Возбужден",
+            1: "Боевая готовность",
+            0: "Предстартовая апатия",
+            2: "Предстартовая лихорадка",
             3: ""
         }
         self.setText(results[self.color])

@@ -159,24 +159,27 @@ class Window(QtWidgets.QMainWindow):
         self.updateDoctorList()
 
     def editCouch(self):
+        t = -1
         if self.users.at[self.user, 'couch_name'] != 'None':
-            dialog = ListAccount('couch', self.couches, self.users,
-                                 self.couches['name'].to_list().index(self.users.at[self.user, 'couch_name']))
-            dialog.show()
-            dialog.exec()
-            self.couches = dialog.users
-            self.bot.couches = self.couches
-            self.updateCouchesList()
+            t = self.couches['name'].to_list().index(self.users.at[self.user, 'couch_name'])
+
+        dialog = ListAccount('couch', self.couches, self.users, t)
+        dialog.show()
+        dialog.exec()
+        self.couches = dialog.users
+        self.bot.couches = self.couches
+        self.updateCouchesList()
 
     def editDoctor(self):
+        t = -1
         if self.users.at[self.user, 'doctor_name'] != 'None':
-            dialog = ListAccount('doctor', self.doctors, self.users,
-                                 self.doctors['name'].to_list().index(self.users.at[self.user, 'doctor_name']))
-            dialog.show()
-            dialog.exec()
-            self.doctors = dialog.users
-            self.bot.doctors = self.doctors
-            self.updateDoctorList()
+            t = self.doctors['name'].to_list().index(self.users.at[self.user, 'doctor_name'])
+        dialog = ListAccount('doctor', self.doctors, self.users, t)
+        dialog.show()
+        dialog.exec()
+        self.doctors = dialog.users
+        self.bot.doctors = self.doctors
+        self.updateDoctorList()
 
     def updateAge(self):
         """
@@ -517,9 +520,9 @@ class Window(QtWidgets.QMainWindow):
 
                 if user['doctor_name'] != 'None':
                     self.bot.writeTg(user, self.createTable4Bot(), 'doctor')
+            self.ui.resultTextLabel.clear()
             self.ui.resultTextLabel.setText('Не удалось подключиться')
             self.ui.filesCombo.removeItem(self.ui.filesCombo.count() - 1)
-        self.ConnectionWarningDialog.close()
 
     def selectFile(self, file):
         """

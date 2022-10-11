@@ -42,7 +42,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         self.updateTable()  # обновление таблицы пользователей
 
         # если есть пользователи, то загрузить карточку первого пользователя
-        if not self.users.empty:
+        if not self.users.empty and user != -1:
             dialog = CheckPassword(self.users.iloc[user])
             dialog.show()
             dialog.exec()
