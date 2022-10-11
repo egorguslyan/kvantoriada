@@ -494,7 +494,9 @@ class Window(QtWidgets.QMainWindow):
         enable_eeg = int(self.ui.checkEEG.isChecked())
         enable_gsr = int(self.ui.checkGSR.isChecked())
 
+        self.saveTables()
         self.ConnectionWarningDialog.show()
+        self.ConnectionWarningDialog.exec()
         # подключение к модулю с датчиками
         if read(self.ui.comportsCombo.currentText(), file_path,
                 timeECG=time_ecg, timeEEG=time_eeg,
@@ -947,15 +949,18 @@ class Window(QtWidgets.QMainWindow):
         recommendation_text = self.recommendations()
         self.ui.recommendationsText.setText(recommendation_text)
 
+    def saveTables(self):
+        self.users.to_csv('users.csv', index=False)  # сохранение таблицы пользователей
+        self.couches.to_csv('couches.csv', index=False)  # сохранение таблицы тренеров
+        self.doctors.to_csv('doctors.csv', index=False)  # сохранение таблицы врачей
+
     def exit(self):
         """
         Закрытие главного окна
         :return: None
         """
         self.saveSettings()
-        self.users.to_csv('users.csv', index=False)  # сохранение таблицы пользователей
-        self.couches.to_csv('couches.csv', index=False)  # сохранение таблицы тренеров
-        self.doctors.to_csv('doctors.csv', index=False)  # сохранение таблицы врачей
+        self.saveTables()
         self.close()
         self.AIWarningDialog.close()
         self.editRecommendationsDialog.close()
