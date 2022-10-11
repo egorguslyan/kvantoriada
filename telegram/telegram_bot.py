@@ -18,16 +18,16 @@ class Bot(Thread):
         self.readAccounts()
 
     def run(self):
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), commands=['login', 'start'])
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'None'), commands=['login', 'start'])
         def handle_login(message):
             markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
             coach_btn = telebot.types.KeyboardButton('Тренер')
             doctor_btn = telebot.types.KeyboardButton('Врач')
             markup.add(coach_btn, doctor_btn)
             self.tg_bot.send_message(message.chat.id, text='Укажите вашу профессию', reply_markup=markup)
-            self.state[message.chat.id] = ['wait_role', None]
+            self.state[message.chat.id] = ['wait_role', 'None']
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), content_types=CONTENT_TYPES)
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'None'), content_types=CONTENT_TYPES)
         def handle_unlogged(message):
             self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
 
@@ -114,7 +114,7 @@ class Bot(Thread):
     def checkState(self, message, *states):
         if message.chat.id in self.state.keys():
             return self.state[message.chat.id][0] in states
-        return None in states
+        return 'None' in states
 
     @staticmethod
     def checkName(name, names):
@@ -127,7 +127,7 @@ class Bot(Thread):
         for n in name_set:
             if n in names_set:
                 return True, ' '.join(n)
-        return False, None
+        return False, 'None'
 
     def readAccounts(self):
         for couch in self.couches.iterrows():
@@ -204,8 +204,6 @@ class Bot(Thread):
                 else:
                     results = 'Error'
                 text = user_name + ' прошел тестирование.\r\n\r\n<i>Результат:</i>\r\n' + results
-                if user['doctor_name'] != 'None':
-                    text += '\r\n\r\nТестирование провел врач ' + user['doctor_name']
 
             elif target == 'doctor':
                 results = 'ЧСС: ' + str(table['heart_rate']) + ' уд/мин\r\nЧастота дыхания: ' \
@@ -218,8 +216,6 @@ class Bot(Thread):
                 else:
                     results += 'Альфа ритм не обнаружен'
                 text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results
-                if user['couch_name'] != 'None':
-                    text += '\r\n\r\nТестирование провел тренер ' + user['couch_name']
 
             else:
                 text = 'Error'

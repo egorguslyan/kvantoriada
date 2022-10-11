@@ -26,7 +26,7 @@ from list_account import ListAccount
 # модуль холста для графиков
 from mplcanvas import MplCanvas
 
-test = False
+test = True
 
 
 # диалоговое окно с предупреждением недостаточного кол-ва данных для ИИ
