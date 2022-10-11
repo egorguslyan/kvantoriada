@@ -295,28 +295,33 @@ class Window(QtWidgets.QMainWindow):
             self.updateAge()
             self.ui.filesCombo.clear()
             files = os.listdir(user['dir_path'])
-            i = 0
             # создание списка файлов с сигналами
             if files:
+                filenames = []
                 for file in files:
                     if not re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d_\w', file) \
                             and re.search(r'\d\d.\d\d.\d{4} \d\d-\d\d-\d\d', file):
                         filename, _ = os.path.splitext(file)
-                        self.ui.filesCombo.addItem(filename)
+                        filenames.append(filename)
+                time_format = '%d.%m.%Y %H-%M-%S'
+                filenames.sort(key=lambda x: datetime.datetime.strptime(x, time_format))
+                i = 0
+                for filename in filenames:
+                    self.ui.filesCombo.addItem(filename)
 
-                        # в зависимости от отмеченного результата изменить фон записи
-                        color = QtGui.QColor(198, 198, 198)
-                        if files.count(f'{filename}_r.csv') != 0:
-                            r_file = os.path.normpath(os.path.join(user['dir_path'], f"{filename}_r.csv"))
-                            result = pd.read_csv(r_file, delimiter=',').set_index('ind').loc['result']['result']
-                            if result == 2:
-                                color = QtGui.QColor(227, 138, 138)  # red
-                            elif result == 1:
-                                color = QtGui.QColor(201, 245, 142)  # green
-                            else:
-                                color = QtGui.QColor(155, 151, 255)  # blue
-                        self.ui.filesCombo.setItemData(i, color, QtCore.Qt.BackgroundRole)
-                        i += 1
+                    # в зависимости от отмеченного результата изменить фон записи
+                    color = QtGui.QColor(198, 198, 198)
+                    if files.count(f'{filename}_r.csv') != 0:
+                        r_file = os.path.normpath(os.path.join(user['dir_path'], f"{filename}_r.csv"))
+                        result = pd.read_csv(r_file, delimiter=',').set_index('ind').loc['result']['result']
+                        if result == 2:
+                            color = QtGui.QColor(227, 138, 138)  # red
+                        elif result == 1:
+                            color = QtGui.QColor(201, 245, 142)  # green
+                        else:
+                            color = QtGui.QColor(155, 151, 255)  # blue
+                    self.ui.filesCombo.setItemData(i, color, QtCore.Qt.BackgroundRole)
+                    i += 1
             self.ui.deleteFile.setVisible(False)
             self.ui.predictionStatusButton.setVisible(False)
 
@@ -372,6 +377,7 @@ class Window(QtWidgets.QMainWindow):
         self.ui.startTimeAlphaLabel.clear()
 
         self.ui.resultTextLabel.clear()
+        self.ui.testDateLabel.setText('dd.mm.YYYY H-M-S')
 
     def updateTable(self):
         """
