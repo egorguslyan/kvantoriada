@@ -9,11 +9,11 @@ import pandas as pd
 
 class ColorDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
-        if index.data() == 'normal':
+        if index.data() == 'Боевая готовность':
             option.palette.setColor(QPalette.Text, QColor("green"))
-        elif index.data() == 'depressed':
+        elif index.data() == 'Предстартовая апатия':
             option.palette.setColor(QPalette.Text, QColor("blue"))
-        elif index.data() == 'excited':
+        elif index.data() == 'Предстартовая лихорадка':
             option.palette.setColor(QPalette.Text, QColor("red"))
         QStyledItemDelegate.paint(self, painter, option, index)
 
@@ -187,7 +187,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         if self.user is not None:
             user = self.users.iloc[self.user]
             self.updateSportsmen(user['name'])
-            self.users.drop(index=[user.name], axis=0, inplace=True)
+            self.users.drop(index=[self.user], axis=0, inplace=True)
             self.users.reset_index(drop=True, inplace=True)
             if len(self.users) > 0:
                 self.user = 0
