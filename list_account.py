@@ -134,8 +134,15 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             full_name = ' '.join([sportsman['surname'], sportsman['name'], sportsman['middleName']])
             name = QTableWidgetItem(full_name)
             self.sportsmenTable.setItem(i, 0, name)
-
-            result = QTableWidgetItem(sportsman['last_result'])
+            if sportsman['last_result'] == 'normal':
+                result = 'Боевая готовность'
+            elif sportsman['last_result'] == 'depressed':
+                result = 'Предстартовая апатия'
+            elif sportsman['last_result'] == 'exited':
+                result = 'Предстартовая лихорадка'
+            else:
+                result = ''
+            result = QTableWidgetItem(result)
             self.sportsmenTable.setItem(i, 1, result)
         self.sportsmenTable.resizeColumnsToContents()
 
