@@ -12,8 +12,9 @@ if __name__ == "__main__":
     doctors_data = pd.read_csv('doctors.csv', delimiter=',', dtype='str')
     doctors = pd.DataFrame(doctors_data)
 
+    # создание объекта бота и его запуск
     bot_thread = Bot(users, couches, doctors, 'NTc4OTExODUyOTpBQUZoSi1yUEZhSnVqU2xGZXVBMmtpY3lJck5rOVpOOTM0dw==')
     bot_thread.start()
-
+    # создание объекта интерфейса и его запуск
     gui_thread = Gui(users, couches, doctors, bot_thread)
     gui_thread.start()
