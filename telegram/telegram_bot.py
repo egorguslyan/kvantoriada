@@ -18,16 +18,16 @@ class Bot(Thread):
         self.readAccounts()
 
     def run(self):
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), commands=['login', 'start'])
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'None'), commands=['login', 'start'])
         def handle_login(message):
             markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
             coach_btn = telebot.types.KeyboardButton('Тренер')
             doctor_btn = telebot.types.KeyboardButton('Врач')
             markup.add(coach_btn, doctor_btn)
             self.tg_bot.send_message(message.chat.id, text='Укажите вашу профессию', reply_markup=markup)
-            self.state[message.chat.id] = ['wait_role', None]
+            self.state[message.chat.id] = ['wait_role', 'None']
 
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, None), content_types=CONTENT_TYPES)
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'None'), content_types=CONTENT_TYPES)
         def handle_unlogged(message):
             self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
 
@@ -109,15 +109,33 @@ class Bot(Thread):
 
     @staticmethod
     def isDeleted(accounts, name):
+        """
+        Режим изменения данных пользователя
+        :param accounts:
+        :param name:
+        :return: None
+        """
         return accounts.set_index('name').at[name, 'linked_account'] == 'None'
 
     def checkState(self, message, *states):
+        """
+        Режим изменения данных пользователя
+        :param message:
+        :param states:
+        :return:
+        """
         if message.chat.id in self.state.keys():
             return self.state[message.chat.id][0] in states
-        return None in states
+        return 'None' in states
 
     @staticmethod
     def checkName(name, names):
+        """
+        Режим изменения данных пользователя
+        :param name:
+        :param names:
+        :return: None
+        """
         name = name.title()
         if name in names:
             return True, name
@@ -127,9 +145,13 @@ class Bot(Thread):
         for n in name_set:
             if n in names_set:
                 return True, ' '.join(n)
-        return False, None
+        return False, 'None'
 
     def readAccounts(self):
+        """
+        Режим изменения данных пользователя
+        :return: None
+        """
         for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
                 self.state[int(couch[1]['linked_account'])] = ['c_logged', couch[1]['name']]
@@ -139,6 +161,12 @@ class Bot(Thread):
                 self.state[int(doctor[1]['linked_account'])] = ['d_logged', doctor[1]['name']]
 
     def checkPassword(self, account, password):
+        """
+        Режим изменения данных пользователя
+        :param account:
+        :param password:
+        :return: Bool
+        """
         acc_name = account[1]
         acc_type = account[0][0]
 
@@ -150,6 +178,12 @@ class Bot(Thread):
             return doctor['password'] == password
 
     def saveTgId(self, tg_id, account):
+        """
+        Режим изменения данных пользователя
+        :param tg_id:
+        :param account:
+        :return: None
+        """
         acc_name = account[1]
         acc_type = account[0][0]
 
@@ -166,6 +200,11 @@ class Bot(Thread):
             self.doctors.to_csv('doctors.csv', index=False)
 
     def deleteTgId(self, account):
+        """
+        Режим изменения данных пользователя
+        :param account:
+        :return: None
+        """
         acc_name = account[1]
         acc_type = account[0][0]
 
@@ -182,6 +221,13 @@ class Bot(Thread):
             self.doctors.to_csv('doctors.csv', index=False)
 
     def writeTg(self, user, table, target):
+        """
+        Отправка тренеру/врачу сообщения о пройденном тесте
+        :param user: данные о спортсмене
+        :param table:
+        :param target:
+        :return: None
+        """
         if target == 'couch':
             receiver = self.couches.set_index('name').loc[user['couch_name']]
         elif target == 'doctor':
@@ -204,8 +250,6 @@ class Bot(Thread):
                 else:
                     results = 'Error'
                 text = user_name + ' прошел тестирование.\r\n\r\n<i>Результат:</i>\r\n' + results
-                if user['doctor_name'] != 'None':
-                    text += '\r\n\r\nТестирование провел врач ' + user['doctor_name']
 
             elif target == 'doctor':
                 results = 'ЧСС: ' + str(table['heart_rate']) + ' уд/мин\r\nЧастота дыхания: ' \
@@ -218,8 +262,6 @@ class Bot(Thread):
                 else:
                     results += 'Альфа ритм не обнаружен'
                 text = user_name + ' прошел тестирование.\r\n\r\n<i>Полученные результаты:</i>\r\n' + results
-                if user['couch_name'] != 'None':
-                    text += '\r\n\r\nТестирование провел тренер ' + user['couch_name']
 
             else:
                 text = 'Error'

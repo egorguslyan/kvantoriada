@@ -26,7 +26,7 @@ from list_account import ListAccount
 # модуль холста для графиков
 from mplcanvas import MplCanvas
 
-test = False
+test = True
 
 
 # диалоговое окно с предупреждением недостаточного кол-ва данных для ИИ
@@ -361,7 +361,8 @@ class Window(QtWidgets.QMainWindow):
             if user['doctor_name'] == 'None':
                 self.ui.doctorNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['name'].to_list().index(user['doctor_name']) + 1)
+                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['name'].to_list().index(user['doctor_name'])
+                                                           + 1)
 
     def clearLabels(self):
         """

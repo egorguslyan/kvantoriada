@@ -9,11 +9,11 @@ import pandas as pd
 
 class ColorDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
-        if index.data() == 'normal':
+        if index.data() == 'Боевая готовность':
             option.palette.setColor(QPalette.Text, QColor("green"))
-        elif index.data() == 'depressed':
+        elif index.data() == 'Предстартовая апатия':
             option.palette.setColor(QPalette.Text, QColor("blue"))
-        elif index.data() == 'excited':
+        elif index.data() == 'Предстартовая лихорадка':
             option.palette.setColor(QPalette.Text, QColor("red"))
         QStyledItemDelegate.paint(self, painter, option, index)
 
@@ -117,7 +117,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
 
     def updateSportsmenTable(self, username):
         """
-        Обнволение списка спортсменов
+        Обновление списка спортсменов
         """
         self.sportsmenTable.clear()  # Очищение таблицы
         self.sportsmenTable.setItemDelegateForColumn(1, ColorDelegate())
@@ -134,8 +134,15 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             full_name = ' '.join([sportsman['surname'], sportsman['name'], sportsman['middleName']])
             name = QTableWidgetItem(full_name)
             self.sportsmenTable.setItem(i, 0, name)
-
-            result = QTableWidgetItem(sportsman['last_result'])
+            if sportsman['last_result'] == 'normal':
+                result = 'Боевая готовность'
+            elif sportsman['last_result'] == 'depressed':
+                result = 'Предстартовая апатия'
+            elif sportsman['last_result'] == 'exited':
+                result = 'Предстартовая лихорадка'
+            else:
+                result = ''
+            result = QTableWidgetItem(result)
             self.sportsmenTable.setItem(i, 1, result)
         self.sportsmenTable.resizeColumnsToContents()
 
@@ -180,7 +187,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         if self.user is not None:
             user = self.users.iloc[self.user]
             self.updateSportsmen(user['name'])
-            self.users.drop(index=[row], axis=0, inplace=True)
+            self.users.drop(index=[self.user], axis=0, inplace=True)
             self.users.reset_index(drop=True, inplace=True)
             if len(self.users) > 0:
                 self.user = 0
