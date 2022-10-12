@@ -4,7 +4,7 @@ from gui import Gui
 
 
 if __name__ == "__main__":
-    # чтение таблицы пользователей из файла
+    # чтение таблиц спортсменов, тренеров и врачей из файлов
     users_data = pd.read_csv('users.csv', delimiter=',')
     users = pd.DataFrame(users_data)
     couches_data = pd.read_csv('couches.csv', delimiter=',', dtype='str')

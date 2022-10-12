@@ -1,4 +1,3 @@
-# import pandas as pd
 import telebot
 from base64 import b64decode
 from threading import Thread
@@ -9,6 +8,13 @@ CONTENT_TYPES = ["text", "audio", "document", "photo", "sticker", "video", "vide
 
 class Bot(Thread):
     def __init__(self, tg_users, tg_couches, tg_doctors, token):
+        """
+        Инициализация бота
+        :param tg_users: таблица спортсменов
+        :param tg_couches: таблица тренеров
+        :param tg_doctors: таблица докторов
+        :param token: зашифрованный токен Telegram
+        """
         super().__init__()
         self.tg_bot = telebot.TeleBot(b64decode(token).decode())
         self.users = tg_users
@@ -18,8 +24,15 @@ class Bot(Thread):
         self.readAccounts()
 
     def run(self):
+        """
+        Автозапускающийся метод, обрабатывающий все сообщения
+        """
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'None'), commands=['login', 'start'])
         def handle_login(message):
+            """
+            Обработка команд login и start
+            :param message:
+            """
             markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
             coach_btn = telebot.types.KeyboardButton('Тренер')
             doctor_btn = telebot.types.KeyboardButton('Врач')
@@ -33,6 +46,10 @@ class Bot(Thread):
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'wait_role'))
         def handle_role(message):
+            """
+            Обработка сообщения с профессией пользователя
+            :param message:
+            """
             markup = telebot.types.ReplyKeyboardRemove()
             if message.text == 'Тренер':
                 self.state[message.chat.id][0] = 'c_wait_name'
@@ -47,6 +64,10 @@ class Bot(Thread):
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_wait_name', 'd_wait_name'))
         def handle_username(message):
+            """
+            Обработка сообщения с ФИО пользователя
+            :param message:
+            """
             names = []
             if self.state[message.chat.id][0][0] == 'c':
                 names = self.couches.get('name').to_numpy()
@@ -63,6 +84,10 @@ class Bot(Thread):
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_wait_pass', 'd_wait_pass'))
         def handle_password(message):
+            """
+            Обработка сообщения с паролем пользователя
+            :param message:
+            """
             if self.checkPassword(self.state[message.chat.id], message.text):
                 self.tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
                 self.saveTgId(message.chat.id, self.state[message.chat.id])
@@ -74,6 +99,10 @@ class Bot(Thread):
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_logged', 'd_logged'), commands=['logout'])
         def handle_logout(message):
+            """
+            Обработка команды logout
+            :param message:
+            """
             self.deleteTgId(self.state[message.chat.id])
             self.tg_bot.send_message(message.chat.id, 'Вы успешно вышли из аккаунта')
             self.state.pop(message.chat.id)
@@ -81,6 +110,10 @@ class Bot(Thread):
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_logged'),
                                      content_types=CONTENT_TYPES)
         def handle_logged_couch(message):
+            """
+            Обработка сообщений от залогиненного тренера
+            :param message:
+            """
             if self.isDeleted(self.doctors, self.state[message.chat.id][1]):
                 self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
                 self.state.pop(message.chat.id)
@@ -92,6 +125,10 @@ class Bot(Thread):
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'd_logged'),
                                      content_types=CONTENT_TYPES)
         def handle_logged_doctor(message):
+            """
+            Обработка сообщений от залогиненного доктора
+            :param message:
+            """
             if self.isDeleted(self.doctors, self.state[message.chat.id][1]):
                 self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
                 self.state.pop(message.chat.id)
@@ -102,6 +139,10 @@ class Bot(Thread):
 
         @self.tg_bot.message_handler(content_types=CONTENT_TYPES)
         def handle_misc(message):
+            """
+            Обработка прочих сообщений
+            :param message:
+            """
             self.tg_bot.send_message(message.chat.id, 'Ошибка')
             self.state.pop(message.chat.id)
 
@@ -110,19 +151,19 @@ class Bot(Thread):
     @staticmethod
     def isDeleted(accounts, name):
         """
-        Режим изменения данных пользователя
-        :param accounts:
-        :param name:
-        :return: None
+        Проверка того, отвязан ли аккаунт в программе
+        :param accounts: таблица с данными тренеров/врачей
+        :param name: имя тренера/врача
+        :return: boolean: состояние аккаунта
         """
         return accounts.set_index('name').at[name, 'linked_account'] == 'None'
 
     def checkState(self, message, *states):
         """
-        Режим изменения данных пользователя
-        :param message:
-        :param states:
-        :return:
+        Проверка состояния диалога
+        :param message: диалог
+        :param states: проверяемые состояния
+        :return: boolean: состояние аккаунта
         """
         if message.chat.id in self.state.keys():
             return self.state[message.chat.id][0] in states
@@ -131,10 +172,10 @@ class Bot(Thread):
     @staticmethod
     def checkName(name, names):
         """
-        Режим изменения данных пользователя
-        :param name:
-        :param names:
-        :return: None
+        Проверяет, есть ли тренер/врач в списке существующих пользователей
+        :param name: ФИО врача
+        :param names: список существующих пользователей
+        :return: boolean
         """
         name = name.title()
         if name in names:
@@ -149,7 +190,7 @@ class Bot(Thread):
 
     def readAccounts(self):
         """
-        Режим изменения данных пользователя
+        Чтение привязанных аккаунтов
         :return: None
         """
         for couch in self.couches.iterrows():
@@ -162,10 +203,10 @@ class Bot(Thread):
 
     def checkPassword(self, account, password):
         """
-        Режим изменения данных пользователя
-        :param account:
-        :param password:
-        :return: Bool
+        Проверка верности пароля
+        :param account: данные аккаунта, в который производится вход
+        :param password: введенный пароль
+        :return: boolean
         """
         acc_name = account[1]
         acc_type = account[0][0]
@@ -179,9 +220,9 @@ class Bot(Thread):
 
     def saveTgId(self, tg_id, account):
         """
-        Режим изменения данных пользователя
-        :param tg_id:
-        :param account:
+        Сохранение id авторизовавшегося пользователя
+        :param tg_id: id пользователя
+        :param account: данные аккаунта пользователя
         :return: None
         """
         acc_name = account[1]
@@ -201,8 +242,8 @@ class Bot(Thread):
 
     def deleteTgId(self, account):
         """
-        Режим изменения данных пользователя
-        :param account:
+        Отвязка пользователя от аккаунта Telegram
+        :param account: данный аккаунта
         :return: None
         """
         acc_name = account[1]
@@ -224,8 +265,8 @@ class Bot(Thread):
         """
         Отправка тренеру/врачу сообщения о пройденном тесте
         :param user: данные о спортсмене
-        :param table:
-        :param target:
+        :param table: данные о проведенном тесте
+        :param target: получатель сообщения (тренер или врач)
         :return: None
         """
         if target == 'couch':
