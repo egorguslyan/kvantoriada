@@ -118,6 +118,8 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
     def updateSportsmenTable(self, username):
         """
         Обновление списка спортсменов
+        :param username: string
+        :return: None
         """
         self.sportsmenTable.clear()  # Очищение таблицы
         self.sportsmenTable.setItemDelegateForColumn(1, ColorDelegate())
@@ -149,7 +151,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
     def updatingUserMode(self, flag):
         """
         Режим изменения данных пользователя
-        :param flag:
+        :param flag: Bool
         :return: None
         """
         self.surnameEdit.setReadOnly(flag)
@@ -203,6 +205,8 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
     def updateSportsmen(self, username):
         """
         При удалении пользователя, удалить его упоминание в таблице спортсменов
+        :param username: string
+        :return: None
         """
         self.sportsmen.loc[self.sportsmen[self.mode + '_name'] == username, self.mode + '_name'] = 'None'
 
@@ -250,6 +254,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
     def unlinkUser(self):
         """
         Отвязать аккаунт в телеграмме
+        :return: None
         """
         if self.user is not None:
             self.users.at[self.user, 'linked_account'] = 'None'
@@ -258,6 +263,8 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
     def newPasswordMode(self, flag):
         """
         Режим создания нового пароля
+        :param flag: Bool
+        :return: None
         """
         self.newPasswordButton.setVisible(not flag)
         self.passwordEdit.setVisible(flag)
@@ -269,13 +276,14 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
     def checkPassword(self):
         """
         Проверка пароля на корректность
+        :return: Bool
         """
-        return self.passwordEdit.text() == self.repeatPasswordEdit.text() and \
-               self.passwordEdit.text() != ''
+        return self.passwordEdit.text() == self.repeatPasswordEdit.text() and self.passwordEdit.text() != ''
 
     def saveNewPassword(self):
         """
         Сохранение нового пароля
+        :return: None
         """
         # Если пароль корректный, то сохранить его
         if self.checkPassword():
@@ -292,6 +300,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
     def newPassword(self):
         """
         Создать новый пароль
+        :return: None
         """
         if self.user is not None:
             self.newPasswordMode(True)
@@ -299,6 +308,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
     def saveTable(self):
         """
         Сохранение таблицы пользователя
+        :return: None
         """
         filename = {
             'couch': 'couches.csv',

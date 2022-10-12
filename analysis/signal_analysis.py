@@ -118,6 +118,6 @@ def convert_points_to_time(points, time):
     преобразование точек в точки на временном отрезке
     :param points: точки
     :param time: время
-    :return:
+    :return: list
     """
     return [time[i] for i in points]

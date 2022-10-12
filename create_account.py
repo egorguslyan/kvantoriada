@@ -27,22 +27,21 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
     def checkName(self):
         """
         Проверка корректности имени
-        :return:
+        :return: Bool
         """
-        return self.table['name'].isin([self.nameEdit.text().title()]).any()\
-               and self.nameEdit.text() != ''
+        return self.table['name'].isin([self.nameEdit.text().title()]).any() and self.nameEdit.text() != ''
 
     def checkPassword(self):
         """
         Проверка корректности пароля
-        :return:
+        :return: Bool
         """
         return self.passwordEdit.text() != self.repeatPasswordEdit.text()
 
     def addNewAccount(self):
         """
         Создание нового аккаунта врача или тренера
-        :return:
+        :return: None
         """
         if self.checkName():
             self.nameWarning.setHidden(False)

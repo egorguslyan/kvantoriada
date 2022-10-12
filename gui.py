@@ -121,6 +121,7 @@ class Window(QtWidgets.QMainWindow):
     def updateCouchesList(self):
         """
         Обновление списка тренеров
+        :return: None
         """
         self.ui.couchNameComboBox.clear()
         self.ui.couchNameComboBox.addItem('Не выбрано')
@@ -130,6 +131,7 @@ class Window(QtWidgets.QMainWindow):
     def updateDoctorList(self):
         """
         Обновление списка докторов
+        :return: None
         """
         self.ui.doctorNameComboBox.clear()
         self.ui.doctorNameComboBox.addItem('Не выбрано')
@@ -139,6 +141,7 @@ class Window(QtWidgets.QMainWindow):
     def addNewCouch(self):
         """
         Создание нового тренера
+        :return: None
         """
         dialog = CreateAccount('couch', self.couches)
         dialog.show()
@@ -150,6 +153,7 @@ class Window(QtWidgets.QMainWindow):
     def addNewDoctor(self):
         """
         Создание нового врача
+        :return: None
         """
         dialog = CreateAccount('doctor', self.doctors)
         dialog.show()
@@ -159,6 +163,10 @@ class Window(QtWidgets.QMainWindow):
         self.updateDoctorList()
 
     def editCouch(self):
+        """
+        Редактирование данных тренера
+        :return: None
+        """
         t = -1
         if self.users.at[self.user, 'couch_name'] != 'None':
             t = self.couches['name'].to_list().index(self.users.at[self.user, 'couch_name'])
@@ -171,6 +179,10 @@ class Window(QtWidgets.QMainWindow):
         self.updateCouchesList()
 
     def editDoctor(self):
+        """
+        Редактирование данных врача
+        :return: None
+        """
         t = -1
         if self.users.at[self.user, 'doctor_name'] != 'None':
             t = self.doctors['name'].to_list().index(self.users.at[self.user, 'doctor_name'])
@@ -183,7 +195,7 @@ class Window(QtWidgets.QMainWindow):
 
     def updateAge(self):
         """
-        расчет возраста пользователя
+        Расчет возраста пользователя
         :return: None
         """
         birthday = self.ui.birthdayEdit.date()
@@ -199,7 +211,7 @@ class Window(QtWidgets.QMainWindow):
 
     def addNewUser(self):
         """
-        создание нового пользователя
+        Создание нового пользователя
         :return: None
         """
         rows = self.ui.table.rowCount()
@@ -254,7 +266,7 @@ class Window(QtWidgets.QMainWindow):
 
     def chooseUser(self):
         """
-        выбор пользователя
+        Выбор пользователя
         :return: None
         """
         self.saveSettings()
@@ -264,7 +276,7 @@ class Window(QtWidgets.QMainWindow):
 
     def updateCard(self):
         """
-        обновление карточки пользователя
+        Обновление карточки пользователя
         :return: None
         """
         # очищение графиков
@@ -347,7 +359,7 @@ class Window(QtWidgets.QMainWindow):
     def updateCouchAndDoctor(self):
         """
         Отобразить тренера и лечащего врача спортсмена
-        :return:
+        :return: None
         """
         # если выбран пользователь, загрузить его данные
         if self.user is not None:
@@ -361,12 +373,11 @@ class Window(QtWidgets.QMainWindow):
             if user['doctor_name'] == 'None':
                 self.ui.doctorNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['name'].to_list().index(user['doctor_name'])
-                                                           + 1)
+                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['name'].to_list().index(user['doctor_name']) + 1)
 
     def clearLabels(self):
         """
-        очищение Label-ов результатов от записей
+        Очищение Label-ов результатов от записей
         :return: None
         """
         self.ui.heartRateLabel.clear()
@@ -382,7 +393,7 @@ class Window(QtWidgets.QMainWindow):
 
     def updateTable(self):
         """
-        обновление таблицы пользователей
+        Обновление таблицы пользователей
         :return: None
         """
         self.ui.table.clear()
@@ -402,7 +413,7 @@ class Window(QtWidgets.QMainWindow):
     def updatingUserMode(self, flag):
         """
         Режим изменения данных пользователя
-        :param flag:
+        :param flag: Bool
         :return: None
         """
         self.ui.surnameEdit.setReadOnly(flag)
@@ -471,7 +482,7 @@ class Window(QtWidgets.QMainWindow):
 
     def testUser(self):
         """
-        тестирование пользователя
+        Тестирование пользователя
         :return: None
         """
         time_format = '%d.%m.%Y %H-%M-%S'
@@ -533,7 +544,7 @@ class Window(QtWidgets.QMainWindow):
 
     def selectFile(self, file):
         """
-        выбор файла в списке файлов
+        Выбор файла в списке файлов
         :param file: имя файла (без разрешения и пути)
         :return: None
         """
@@ -543,7 +554,7 @@ class Window(QtWidgets.QMainWindow):
 
     def deleteFile(self):
         """
-        удаление выбранного файла сигнала
+        Удаление выбранного файла сигнала
         :return: None
         """
         user = self.users.iloc[self.user]
@@ -570,7 +581,7 @@ class Window(QtWidgets.QMainWindow):
 
     def analysis(self, file_path):
         """
-        анализ сигналов и вывод состояний
+        Анализ сигналов и вывод состояний
         :param file_path: полное имя файла
         :return: str: рекомендации спортсмену
         """
@@ -645,7 +656,7 @@ class Window(QtWidgets.QMainWindow):
 
     def createResultFile(self, file_path):
         """
-        создание результирующего файла
+        Создание результирующего файла
         :param file_path: имя файла с путем
         :return: None
         """
@@ -679,7 +690,7 @@ class Window(QtWidgets.QMainWindow):
 
     def updateECG(self, file_path):
         """
-        обновление графиков ЭКГ
+        Обновление графиков ЭКГ
         :param file_path: имя файла
         :return: None
         """
@@ -719,7 +730,7 @@ class Window(QtWidgets.QMainWindow):
 
     def updateEEG(self, file_path):
         """
-        обновление графиков ЭЭГ
+        Обновление графиков ЭЭГ
         :param file_path: имя файла
         :return: None
         """
@@ -747,7 +758,7 @@ class Window(QtWidgets.QMainWindow):
 
     def changeEditingLabel(self, flag):
         """
-        режим изменения Label-ов с результатами
+        Режим изменения Label-ов с результатами
         :param flag:
         :return: None
         """
@@ -763,7 +774,8 @@ class Window(QtWidgets.QMainWindow):
 
     def editingResultFileMode(self, flag):
         """
-        режим изменения результатов
+        Режим изменения результатов
+        :param flag: Bool
         :return: None
         """
         if flag:
@@ -779,7 +791,7 @@ class Window(QtWidgets.QMainWindow):
 
     def saveResultFile(self):
         """
-        сохранение изменений результирующего файла
+        Сохранение изменений результирующего файла
         :return: None
         """
         self.createResultFile(self.file_path)

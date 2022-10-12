@@ -49,16 +49,16 @@ class ResultLabel(QtWidgets.QLabel):
 
     def setEditable(self, mode):
         """
-        режим редактирования
-        :param mode:
+        Режим редактирования
+        :param mode: Bool
         :return: None
         """
         self.isEditable = mode
 
     def setColor(self, result):
         """
-        изменение цвета
-        :param result: текст или число
+        Изменение цвета
+        :param result: string or number
         :return: None
         """
         if isinstance(result, str):
@@ -69,22 +69,22 @@ class ResultLabel(QtWidgets.QLabel):
 
     def set_background_color(self):
         """
-        изменение фона
+        Изменение фона
         :return: None
         """
         self.setStyleSheet("QLabel { background-color : " + self.__colors[self.color] + "; }")
 
     def get_result(self):
         """
-        получение состояние в строковой форме
+        Получение состояние в строковой форме
         :return: str
         """
         return self._r_results[self.color]
 
     def clear(self):
         """
-        очистка
-        :return:
+        Очистка
+        :return: None
         """
         self.setText('')
         self.setColor('clear')
@@ -92,15 +92,15 @@ class ResultLabel(QtWidgets.QLabel):
 
 class Result(ResultLabel):
     """
-    label с возможностью редактировать фон и текст
+    Label с возможностью редактировать фон и текст
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def setColor(self, result):
         """
-        изменение цвета и текста
-        :param result: текст или число
+        Изменение цвета и текста
+        :param result: string or number
         :return: None
         """
         if isinstance(result, str):
