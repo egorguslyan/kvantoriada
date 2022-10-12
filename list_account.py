@@ -117,7 +117,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
 
     def updateSportsmenTable(self, username):
         """
-        Обнволение списка спортсменов
+        Обновление списка спортсменов
         """
         self.sportsmenTable.clear()  # Очищение таблицы
         self.sportsmenTable.setItemDelegateForColumn(1, ColorDelegate())

@@ -361,7 +361,8 @@ class Window(QtWidgets.QMainWindow):
             if user['doctor_name'] == 'None':
                 self.ui.doctorNameComboBox.setCurrentIndex(0)
             else:
-                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['name'].to_list().index(user['doctor_name']) + 1)
+                self.ui.doctorNameComboBox.setCurrentIndex(self.doctors['name'].to_list().index(user['doctor_name'])
+                                                           + 1)
 
     def clearLabels(self):
         """

@@ -109,15 +109,33 @@ class Bot(Thread):
 
     @staticmethod
     def isDeleted(accounts, name):
+        """
+        Режим изменения данных пользователя
+        :param accounts:
+        :param name:
+        :return: None
+        """
         return accounts.set_index('name').at[name, 'linked_account'] == 'None'
 
     def checkState(self, message, *states):
+        """
+        Режим изменения данных пользователя
+        :param message:
+        :param states:
+        :return:
+        """
         if message.chat.id in self.state.keys():
             return self.state[message.chat.id][0] in states
         return 'None' in states
 
     @staticmethod
     def checkName(name, names):
+        """
+        Режим изменения данных пользователя
+        :param name:
+        :param names:
+        :return: None
+        """
         name = name.title()
         if name in names:
             return True, name
@@ -130,6 +148,10 @@ class Bot(Thread):
         return False, 'None'
 
     def readAccounts(self):
+        """
+        Режим изменения данных пользователя
+        :return: None
+        """
         for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
                 self.state[int(couch[1]['linked_account'])] = ['c_logged', couch[1]['name']]
@@ -139,6 +161,12 @@ class Bot(Thread):
                 self.state[int(doctor[1]['linked_account'])] = ['d_logged', doctor[1]['name']]
 
     def checkPassword(self, account, password):
+        """
+        Режим изменения данных пользователя
+        :param account:
+        :param password:
+        :return: Bool
+        """
         acc_name = account[1]
         acc_type = account[0][0]
 
@@ -150,6 +178,12 @@ class Bot(Thread):
             return doctor['password'] == password
 
     def saveTgId(self, tg_id, account):
+        """
+        Режим изменения данных пользователя
+        :param tg_id:
+        :param account:
+        :return: None
+        """
         acc_name = account[1]
         acc_type = account[0][0]
 
@@ -166,6 +200,11 @@ class Bot(Thread):
             self.doctors.to_csv('doctors.csv', index=False)
 
     def deleteTgId(self, account):
+        """
+        Режим изменения данных пользователя
+        :param account:
+        :return: None
+        """
         acc_name = account[1]
         acc_type = account[0][0]
 
@@ -182,6 +221,13 @@ class Bot(Thread):
             self.doctors.to_csv('doctors.csv', index=False)
 
     def writeTg(self, user, table, target):
+        """
+        Отправка тренеру/врачу сообщения о пройденном тесте
+        :param user: данные о спортсмене
+        :param table:
+        :param target:
+        :return: None
+        """
         if target == 'couch':
             receiver = self.couches.set_index('name').loc[user['couch_name']]
         elif target == 'doctor':
