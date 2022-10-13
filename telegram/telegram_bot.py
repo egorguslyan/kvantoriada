@@ -14,6 +14,8 @@ class Bot(Thread):
         :param tg_couches: таблица тренеров
         :param tg_doctors: таблица докторов
         :param token: зашифрованный токен Telegram
+        :type token: str
+        :rtype: Bot
         """
         super().__init__()
         self.tg_bot = telebot.TeleBot(b64decode(token).decode())
@@ -154,7 +156,9 @@ class Bot(Thread):
         Проверка того, отвязан ли аккаунт в программе
         :param accounts: таблица с данными тренеров/врачей
         :param name: имя тренера/врача
-        :return: boolean: состояние аккаунта
+        :type name: str
+        :return: результат проверки
+        :rtype: bool
         """
         return accounts.set_index('name').at[name, 'linked_account'] == 'None'
 
@@ -163,7 +167,9 @@ class Bot(Thread):
         Проверка состояния диалога
         :param message: диалог
         :param states: проверяемые состояния
-        :return: boolean: состояние аккаунта
+        :type states: str
+        :return: результат проверки
+        :rtype: bool
         """
         if message.chat.id in self.state.keys():
             return self.state[message.chat.id][0] in states
@@ -174,8 +180,11 @@ class Bot(Thread):
         """
         Проверяет, есть ли тренер/врач в списке существующих пользователей
         :param name: ФИО врача
+        :type name: str
         :param names: список существующих пользователей
-        :return: boolean
+        :type names: list
+        :return: результат проверки
+        :rtype: bool
         """
         name = name.title()
         if name in names:
@@ -205,8 +214,11 @@ class Bot(Thread):
         """
         Проверка верности пароля
         :param account: данные аккаунта, в который производится вход
+        :type account: list
         :param password: введенный пароль
-        :return: boolean
+        :type password: str
+        :return: результат проверки
+        :rtype: bool
         """
         acc_name = account[1]
         acc_type = account[0][0]
@@ -222,7 +234,9 @@ class Bot(Thread):
         """
         Сохранение id авторизовавшегося пользователя
         :param tg_id: id пользователя
+        :type tg_id: str
         :param account: данные аккаунта пользователя
+        :type account: list
         :return: None
         """
         acc_name = account[1]
@@ -243,7 +257,8 @@ class Bot(Thread):
     def deleteTgId(self, account):
         """
         Отвязка пользователя от аккаунта Telegram
-        :param account: данный аккаунта
+        :param account: данные аккаунта
+        :type account: list
         :return: None
         """
         acc_name = account[1]
@@ -266,7 +281,9 @@ class Bot(Thread):
         Отправка тренеру/врачу сообщения о пройденном тесте
         :param user: данные о спортсмене
         :param table: данные о проведенном тесте
+        :type table: dict
         :param target: получатель сообщения (тренер или врач)
+        :type target: str
         :return: None
         """
         if target == 'couch':
