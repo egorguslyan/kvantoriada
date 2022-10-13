@@ -880,11 +880,12 @@ class Window(QtWidgets.QMainWindow):
         Сохранение настроек пользователя
         :return: None
         """
-        self.users.at[self.user, 'timeECG'] = self.ui.timeECG.text()
-        self.users.at[self.user, 'enableECG'] = int(self.ui.checkECG.isChecked())
-        self.users.at[self.user, 'timeEEG'] = self.ui.timeEEG.text()
-        self.users.at[self.user, 'enableEEG'] = int(self.ui.checkEEG.isChecked())
-        self.users.at[self.user, 'enableGSR'] = int(self.ui.checkGSR.isChecked())
+        if self.user is not None:
+            self.users.at[self.user, 'timeECG'] = self.ui.timeECG.text()
+            self.users.at[self.user, 'enableECG'] = int(self.ui.checkECG.isChecked())
+            self.users.at[self.user, 'timeEEG'] = self.ui.timeEEG.text()
+            self.users.at[self.user, 'enableEEG'] = int(self.ui.checkEEG.isChecked())
+            self.users.at[self.user, 'enableGSR'] = int(self.ui.checkGSR.isChecked())
 
     def recommendations(self):
         """
