@@ -90,9 +90,9 @@ class Bot(Thread):
             Обработка сообщения с паролем пользователя
             :param message:
             """
-            if self.checkPassword(self.state[message.chat.id], message.text):
+            if self.checkPassword(message.chat.id, message.text):
                 self.tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
-                self.saveTgId(message.chat.id, self.state[message.chat.id])
+                self.saveTgId(message.chat.id)
                 self.state[message.chat.id][0] = self.state[message.chat.id][0][0] + '_logged'
 
             else:
@@ -105,9 +105,8 @@ class Bot(Thread):
             Обработка команды logout
             :param message:
             """
-            self.deleteTgId(self.state[message.chat.id])
             self.tg_bot.send_message(message.chat.id, 'Вы успешно вышли из аккаунта')
-            self.state.pop(message.chat.id)
+            self.deleteTgId(message.chat.id)
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_logged'),
                                      content_types=CONTENT_TYPES)
@@ -165,7 +164,7 @@ class Bot(Thread):
     def checkState(self, message, *states):
         """
         Проверка состояния диалога
-        :param message: диалог
+        :param message: диалог с пользователем
         :param states: проверяемые состояния
         :type states: str
         :return: результат проверки
@@ -186,10 +185,10 @@ class Bot(Thread):
         :return: корректное ФИО тренера/врача или 'None'
         :rtype: str
         """
-        name = name.lower().replace('ё', 'е').title()
+        name = name.lower().replace('ё', 'е')
         form_names = []
         for full_name in names:
-            form_names.append(full_name.lower().replace('ё', 'е').title())
+            form_names.append(full_name.lower().replace('ё', 'е'))
         name_set = permutations(name.split())
         names_set = [tuple(set_name.split()) for set_name in form_names]
 
@@ -212,18 +211,18 @@ class Bot(Thread):
             if doctor[1]['linked_account'] != 'None':
                 self.state[int(doctor[1]['linked_account'])] = ['d_logged', doctor[1]['name']]
 
-    def checkPassword(self, account, password):
+    def checkPassword(self, tg_id, password):
         """
         Проверка верности пароля
-        :param account: данные аккаунта, в который производится вход
-        :type account: list
+        :param tg_id: id пользователя
+        :type tg_id: str
         :param password: введенный пароль
         :type password: str
         :return: результат проверки
         :rtype: bool
         """
-        acc_name = account[1]
-        acc_type = account[0][0]
+        acc_name = self.state[tg_id][1]
+        acc_type = self.state[tg_id][0][0]
 
         if acc_type == 'c':
             couch = self.couches.set_index('name').loc[acc_name]
@@ -232,17 +231,15 @@ class Bot(Thread):
             doctor = self.doctors.set_index('name').loc[acc_name]
             return doctor['password'] == password
 
-    def saveTgId(self, tg_id, account):
+    def saveTgId(self, tg_id):
         """
         Сохранение id авторизовавшегося пользователя
         :param tg_id: id пользователя
         :type tg_id: str
-        :param account: данные аккаунта пользователя
-        :type account: list
         :return: None
         """
-        acc_name = account[1]
-        acc_type = account[0][0]
+        acc_name = self.state[tg_id][1]
+        acc_type = self.state[tg_id][0][0]
 
         if acc_type == 'c':
             self.couches.set_index('name', inplace=True)
@@ -261,18 +258,18 @@ class Bot(Thread):
         else:
             last_id = ''
 
-        if last_id == 'None':
-            self.state.pop(last_id)
+        if last_id != 'None':
+            self.state.pop(int(last_id))
 
-    def deleteTgId(self, account):
+    def deleteTgId(self, tg_id):
         """
         Отвязка пользователя от аккаунта Telegram
-        :param account: данные аккаунта
-        :type account: list
+        :param tg_id: id пользователя
+        :type tg_id: str
         :return: None
         """
-        acc_name = account[1]
-        acc_type = account[0][0]
+        acc_name = self.state[tg_id][1]
+        acc_type = self.state[tg_id][0][0]
 
         if acc_type == 'c':
             self.couches.set_index('name', inplace=True)
@@ -285,6 +282,8 @@ class Bot(Thread):
             self.doctors.at[acc_name, 'linked_account'] = 'None'
             self.doctors.reset_index(inplace=True)
             self.doctors.to_csv('doctors.csv', index=False)
+
+        self.state.pop(tg_id)
 
     def writeTg(self, user, table, target):
         """
