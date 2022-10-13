@@ -27,6 +27,10 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         self.users = users
         self.sportsmen = sportsmen
 
+        modes = {'doctor': 'врачей',
+                 'couch': 'тренеров'}
+        self.setWindowTitle('Редактирование списка ' + modes[mode])
+
         self.spacer1.setVisible(False)
         self.spacer2.setVisible(False)
 

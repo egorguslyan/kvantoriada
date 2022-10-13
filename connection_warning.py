@@ -45,5 +45,5 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Предупреждение"))
         self.label_2.setText(_translate("Dialog", "Подключение может занять некоторое время. Если подключние к устройству произошло, следуйте инструкциям, иначе перезагрузите программу и проверьте правильность выбранного COM-порта."))

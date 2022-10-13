@@ -16,7 +16,7 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
         modes = {'doctor': 'врача',
                  'couch': 'тренера'}
 
-        self.setObjectName('Зарегистрировать нового ' + modes[mode])
+        self.setWindowTitle('Зарегистрировать нового ' + modes[mode])
         self.nameLabel.setText('ФИО ' + modes[mode])
 
         self.createButton.clicked.connect(self.addNewAccount)

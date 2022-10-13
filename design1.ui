@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Диагностика предстартового состояния</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(139, 83, 83);</string>

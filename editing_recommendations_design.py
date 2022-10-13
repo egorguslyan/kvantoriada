@@ -134,7 +134,7 @@ class Ui_Dialog(object):
         self.updateCombRecommendationButton.setStyleSheet("background-color: rgb(225, 194, 36);")
         self.updateCombRecommendationButton.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("images/update_comports.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(".\\update_comports.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.updateCombRecommendationButton.setIcon(icon)
         self.updateCombRecommendationButton.setObjectName("updateCombRecommendationButton")
         self.horizontalLayout_4.addWidget(self.updateCombRecommendationButton)
@@ -166,7 +166,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Editing recommendations"))
+        Dialog.setWindowTitle(_translate("Dialog", "Редактирование рекомендаций"))
         self.label.setText(_translate("Dialog", "Выберите категорию"))
         self.label_2.setText(_translate("Dialog", "Выберите характеристику"))
         self.label_4.setText(_translate("Dialog", "Выберите состояние"))
