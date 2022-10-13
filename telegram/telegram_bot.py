@@ -75,9 +75,9 @@ class Bot(Thread):
                 names = self.couches.get('name').to_numpy()
             elif self.state[message.chat.id][0][0] == 'd':
                 names = self.doctors.get('name').to_numpy()
-            flag, name = self.checkName(message.text, names)
+            name = self.checkName(message.text, names)
 
-            if flag:
+            if name != 'None':
                 self.state[message.chat.id] = [self.state[message.chat.id][0][0] + '_wait_pass', name]
                 self.tg_bot.send_message(message.chat.id, 'Введите ваш пароль')
             else:
@@ -113,14 +113,14 @@ class Bot(Thread):
                                      content_types=CONTENT_TYPES)
         def handle_logged_couch(message):
             """
-            Обработка сообщений от залогиненного тренера
+            Обработка сообщений от авторизированного тренера
             :param message:
             """
-            if self.isDeleted(self.doctors, self.state[message.chat.id][1]):
+            if self.isDeleted(self.couches, self.state[message.chat.id][1]):
                 self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
                 self.state.pop(message.chat.id)
             else:
-                self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт под именем ' +
+                self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт тренера под именем ' +
                                          self.state[message.chat.id][1] +
                                          '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
 
@@ -128,14 +128,14 @@ class Bot(Thread):
                                      content_types=CONTENT_TYPES)
         def handle_logged_doctor(message):
             """
-            Обработка сообщений от залогиненного доктора
+            Обработка сообщений от авторизированного доктора
             :param message:
             """
             if self.isDeleted(self.doctors, self.state[message.chat.id][1]):
                 self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
                 self.state.pop(message.chat.id)
             else:
-                self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт под именем ' +
+                self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт врача под именем ' +
                                          self.state[message.chat.id][1] +
                                          '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
 
@@ -179,23 +179,25 @@ class Bot(Thread):
     def checkName(name, names):
         """
         Проверяет, есть ли тренер/врач в списке существующих пользователей
-        :param name: ФИО врача
+        :param name: введенное ФИО
         :type name: str
         :param names: список существующих пользователей
         :type names: list
-        :return: результат проверки
-        :rtype: bool
+        :return: корректное ФИО тренера/врача или 'None'
+        :rtype: str
         """
-        name = name.title()
-        if name in names:
-            return True, name
+        name = name.lower().replace('ё', 'е').title()
+        form_names = []
+        for full_name in names:
+            form_names.append(full_name.lower().replace('ё', 'е').title())
         name_set = permutations(name.split())
-        names_set = [tuple(set_name.split()) for set_name in names]
+        names_set = [tuple(set_name.split()) for set_name in form_names]
 
         for n in name_set:
             if n in names_set:
-                return True, ' '.join(n)
-        return False, 'None'
+                row = names_set.index(n)
+                return names[row]
+        return 'None'
 
     def readAccounts(self):
         """
@@ -244,15 +246,23 @@ class Bot(Thread):
 
         if acc_type == 'c':
             self.couches.set_index('name', inplace=True)
+            last_id = self.couches.at[acc_name, 'linked_account']
             self.couches.at[acc_name, 'linked_account'] = str(tg_id)
             self.couches.reset_index(inplace=True)
             self.couches.to_csv('couches.csv', index=False)
 
         elif acc_type == 'd':
             self.doctors.set_index('name', inplace=True)
+            last_id = self.doctors.at[acc_name, 'linked_account']
             self.doctors.at[acc_name, 'linked_account'] = str(tg_id)
             self.doctors.reset_index(inplace=True)
             self.doctors.to_csv('doctors.csv', index=False)
+
+        else:
+            last_id = ''
+
+        if last_id == 'None':
+            self.state.pop(last_id)
 
     def deleteTgId(self, account):
         """
