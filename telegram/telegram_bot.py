@@ -97,14 +97,19 @@ class Bot(Thread):
             Обработка сообщения с паролем пользователя
             :param message:
             """
-            if self.checkPassword(message.chat.id, message.text):
-                self.tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
-                self.saveTgId(message.chat.id)
-                self.state[message.chat.id][0] = self.state[message.chat.id][0][0] + '_logged'
+            if self.isEdited(self.state[message.chat.id]):
+                self.tg_bot.send_message(message.chat.id, 'Ошибка: аккаунт отредактирован или удален')
+                self.state.pop(message.chat.id)
 
             else:
-                self.tg_bot.send_message(message.chat.id, 'Введен неверный пароль')
-                self.state.pop(message.chat.id)
+                if self.checkPassword(message.chat.id, message.text):
+                    self.tg_bot.send_message(message.chat.id, 'Вы успешно вошли в аккаунт')
+                    self.saveTgId(message.chat.id)
+                    self.state[message.chat.id][0] = self.state[message.chat.id][0][0] + '_logged'
+
+                else:
+                    self.tg_bot.send_message(message.chat.id, 'Введен неверный пароль')
+                    self.state.pop(message.chat.id)
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'c_logged', 'd_logged'), commands=['logout'])
         def handle_logout(message):
@@ -157,6 +162,12 @@ class Bot(Thread):
             self.state.pop(message.chat.id)
 
         self.tg_bot.infinity_polling(interval=1)
+
+    def isEdited(self, account):
+        if account[0] == 'c_wait_pass':
+            return account[1] not in (list(self.couches.get('name')))
+        elif account[0] == 'd_wait_pass':
+            return account[1] not in (list(self.doctors.get('name')))
 
     @staticmethod
     def isDeleted(accounts, tg_id):
