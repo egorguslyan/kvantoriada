@@ -128,6 +128,7 @@ class Bot(Thread):
             :param message:
             """
             if self.isDeleted(self.couches, message.chat.id):
+                # если был осуществлен выход из аккаунта в приложении
                 self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
                 self.readAccounts()
             else:
@@ -144,6 +145,7 @@ class Bot(Thread):
             :param message:
             """
             if self.isDeleted(self.doctors, message.chat.id):
+                # если был осуществлен выход из аккаунта в приложении
                 self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
                 self.readAccounts()
             else:
@@ -161,9 +163,17 @@ class Bot(Thread):
             self.tg_bot.send_message(message.chat.id, 'Ошибка', reply_markup=telebot.types.ReplyKeyboardRemove())
             self.state.pop(message.chat.id)
 
+        # запуск бесконечного ожидания сообщений
         self.tg_bot.infinity_polling(interval=1)
 
     def isEdited(self, account):
+        """
+        Проверка изменения имени пользователя
+        :param account: данные аккаунта
+        :type account: list
+        :return: результат проверки
+        :rtype: bool
+        """
         if account[0] == 'c_wait_pass':
             return account[1] not in (list(self.couches.get('name')))
         elif account[0] == 'd_wait_pass':
@@ -223,6 +233,7 @@ class Bot(Thread):
         Чтение привязанных аккаунтов
         :return: None
         """
+        # очистка удаленнных аккаунтов
         ids = []
         for tg_id in self.state:
             if self.state[tg_id][0] == 'c_logged' or self.state[tg_id][0] == 'd_logged':
@@ -231,6 +242,7 @@ class Bot(Thread):
         for del_id in ids:
             self.state.pop(del_id)
 
+        # обновление аккаунтов
         for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
                 self.state[int(couch[1]['linked_account'])] = ['c_logged', couch[1]['name']]
@@ -286,6 +298,7 @@ class Bot(Thread):
         else:
             last_id = ''
 
+        # отвязка предыдущего аккаунта
         if last_id != 'None':
             self.state.pop(int(last_id))
 
@@ -337,6 +350,7 @@ class Bot(Thread):
             user_name = user['name'] + ' ' + user['surname']
 
             if target == 'couch':
+                # формирование сообщения тренеру
                 result = table['result']
                 if result == 0:
                     results = 'Спортсмен находится в состоянии "предстартовой апатии"'
@@ -349,6 +363,7 @@ class Bot(Thread):
                 text = user_name + ' прошел тестирование.\r\n\r\n<i>Результат:</i>\r\n' + results
 
             elif target == 'doctor':
+                # формирование сообщения врачу
                 results = 'ЧСС: ' + str(table['heart_rate']) + ' уд/мин\r\nЧастота дыхания: ' \
                           + str(table['breath_freq']) + \
                           ' вдохов в минуту\r\nВариабельность сердечного ритма: ' \
