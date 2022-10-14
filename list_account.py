@@ -280,7 +280,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
     def checkPassword(self):
         """
         Проверка пароля на корректность
-        :return: Bool
+        :return: bool
         """
         return self.passwordEdit.text() == self.repeatPasswordEdit.text() and self.passwordEdit.text() != ''
 

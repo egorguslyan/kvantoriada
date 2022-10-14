@@ -27,14 +27,14 @@ class CreateAccount(QtWidgets.QDialog, Ui_Dialog):
     def checkName(self):
         """
         Проверка корректности имени
-        :return: Bool
+        :return: bool
         """
         return self.table['name'].isin([self.nameEdit.text().title()]).any() and self.nameEdit.text() != ''
 
     def checkPassword(self):
         """
         Проверка корректности пароля
-        :return: Bool
+        :return: bool
         """
         return self.passwordEdit.text() != self.repeatPasswordEdit.text()
 

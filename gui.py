@@ -583,7 +583,8 @@ class Window(QtWidgets.QMainWindow):
         """
         Анализ сигналов и вывод состояний
         :param file_path: полное имя файла
-        :return: str: рекомендации спортсмену
+        :return: рекомендации спортсмену
+        :rtype: str
         """
         # self.ui.predictionStatusButton.setVisible(True)
         self.ui.deleteFile.setVisible(True)
@@ -643,6 +644,8 @@ class Window(QtWidgets.QMainWindow):
     def createTable4Bot(self):
         """
         Создание таблицы с численными значениями параметров и их результатов для отсылки в телеграм бота
+        :return: словарь с результатами
+        :rtype: dict
         """
         result = {
             'heart_rate': self.ui.heartRateLabel.text(),
@@ -890,7 +893,8 @@ class Window(QtWidgets.QMainWindow):
     def recommendations(self):
         """
         Выдача рекомендаций
-        :return: str: рекомендации спортсмену
+        :return: рекомендации спортсмену
+        :rtype: str
         """
         recommend_files = [i for i in os.listdir('.') if i.find('recommendations') != -1 and i.find('-') != -1]
         recommend_file = 'recommendations.csv'
@@ -972,6 +976,10 @@ class Window(QtWidgets.QMainWindow):
         self.ui.recommendationsText.setText(recommendation_text)
 
     def saveTables(self):
+        """
+        Сохранение всех таблиц в файлы
+        :return: None
+        """
         self.users.to_csv('users.csv', index=False)  # сохранение таблицы пользователей
         self.couches.to_csv('couches.csv', index=False)  # сохранение таблицы тренеров
         self.doctors.to_csv('doctors.csv', index=False)  # сохранение таблицы врачей
