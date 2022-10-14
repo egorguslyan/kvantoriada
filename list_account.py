@@ -100,6 +100,9 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
         self.tabWidget.setCurrentIndex(0)
         self.passwordWarning.setVisible(False)
         self.newPasswordMode(False)
+        self.nameEdit.setText('')
+        self.surnameEdit.setText('')
+        self.middleNameEdit.setText('')
 
         # если выбран пользователь, загрузить его данные
         if self.user is not None:
@@ -118,6 +121,8 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.middleNameEdit.setText(middlename)
 
             self.updateSportsmenTable(user['name'])  # Обновление списка спортсменов
+        else:
+            self.updateSportsmenTable('')
 
     def updateSportsmenTable(self, username):
         """
@@ -195,11 +200,9 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
             self.updateSportsmen(user['name'])
             self.users.drop(index=[self.user], axis=0, inplace=True)
             self.users.reset_index(drop=True, inplace=True)
-            if len(self.users) > 0:
-                self.user = 0
-                self.updateCard()
-            else:
-                self.user = None
+
+            self.user = None
+            self.updateCard()
 
             self.updateTable()
             self.tableWidget.selectionModel().clearCurrentIndex()
