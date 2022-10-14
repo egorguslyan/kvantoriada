@@ -144,7 +144,7 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
                 result = 'Боевая готовность'
             elif sportsman['last_result'] == 'depressed':
                 result = 'Предстартовая апатия'
-            elif sportsman['last_result'] == 'exited':
+            elif sportsman['last_result'] == 'excited':
                 result = 'Предстартовая лихорадка'
             else:
                 result = ''
