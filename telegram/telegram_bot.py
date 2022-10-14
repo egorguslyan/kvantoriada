@@ -168,7 +168,7 @@ class Bot(Thread):
         :return: результат проверки
         :rtype: bool
         """
-        return str(tg_id) not in accounts.get('linked_account')
+        return str(tg_id) not in (list(accounts.get('linked_account')))
 
     def checkState(self, message, *states):
         """
@@ -212,9 +212,13 @@ class Bot(Thread):
         Чтение привязанных аккаунтов
         :return: None
         """
+        ids = []
         for tg_id in self.state:
-            if self.state[tg_id][1] == 'c_logged' or self.state[tg_id][1] == 'd_logged':
-                self.state.pop(tg_id)
+            if self.state[tg_id][0] == 'c_logged' or self.state[tg_id][0] == 'd_logged':
+                ids.append(tg_id)
+
+        for del_id in ids:
+            self.state.pop(del_id)
 
         for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
