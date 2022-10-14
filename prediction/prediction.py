@@ -23,6 +23,7 @@ def crate_prediction_file(dir_path, file, data, results):
     :param data: численные данные
     :param results: результаты
     :return: имя файла
+    :rtype: str
     """
     t = []
     for param in PARAMS:
@@ -71,6 +72,7 @@ def load_models(dir_path):
     загрузка моделей
     :param dir_path: директории
     :return: словарь моделей
+    :rtype: dict
     """
     models = dict()
     for param in PARAMS + ['result', 'onehotencoder']:
@@ -80,9 +82,10 @@ def load_models(dir_path):
 
 def get_columns(param):
     """
-    получение листа колонок в зависимости от параметра
-    :param param:
-    :return:
+    Получение листа колонок в зависимости от параметра
+    :param param: параметр
+    :return: лист
+    :rtype: list
     """
     if param != 'result':
         columns = ['value']
@@ -93,9 +96,9 @@ def get_columns(param):
 
 def get_data(file, param):
     """
-    получение записи из файла
+    Получение записи из файла
     :param file: полное имя файла
-    :param param:
+    :param param: параметр
     :return: None
     """
     columns = get_columns(param)
@@ -114,10 +117,11 @@ def get_data(file, param):
 
 def get_dataset(dir_path, param):
     """
-    создание датасета
+    Создание датасета
     :param dir_path: директория
-    :param param:
-    :return: датасет
+    :param param: параметр
+    :return: dataset
+    :rtype: pd.DataFrame
     """
     columns = get_columns(param)
 
@@ -133,9 +137,9 @@ def get_dataset(dir_path, param):
 
 def split_dataset(dataset):
     """
-    разделение датасета на признаки и метку
-    :param dataset:
-    :return:
+    Разделение датасета на признаки и метку
+    :param dataset: pd.DataFrame
+    :return: X, y
     """
     X = dataset.iloc[:, :-1]
     y = dataset.iloc[:, -1]
@@ -144,10 +148,10 @@ def split_dataset(dataset):
 
 def transform(data, ohe):
     """
-    преобразование категориальных признаков
+    Преобразование категориальных признаков
     :param data:
-    :param ohe:
-    :return:
+    :param ohe: OneHotEncoder
+    :return: pd.DataFrame
     """
     feature_arr = ohe.fit_transform(data[:]).toarray()
     feature_labels = ohe.categories_
@@ -157,10 +161,11 @@ def transform(data, ohe):
 
 def fit(dir_path, ignor=None):
     """
-    обучение моделей
+    Обучение моделей
     :param dir_path: директория
     :param ignor: игнорируемая запись
     :return: словарь моделей
+    :rtype: dict
     """
     models = dict()
 
@@ -188,11 +193,12 @@ def fit(dir_path, ignor=None):
 
 def predict(dir_path, file, models):
     """
-    предсказание результата
+    Предсказание результата
     :param dir_path: директория
     :param file: файл
     :param models: словарь моделей
     :return: результат
+    :rtype: list
     """
     result = dict()
     y_pred = []
