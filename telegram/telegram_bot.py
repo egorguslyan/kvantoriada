@@ -29,12 +29,15 @@ class Bot(Thread):
         """
         Автозапускающийся метод, обрабатывающий все сообщения
         """
-        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'None'), commands=['login', 'start'])
+        @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'None', 'wait_role', 'c_wait_name',
+                                                                    'd_wait_name', 'c_wait_pass', 'd_wait_pass'),
+                                     commands=['login', 'start'])
         def handle_login(message):
             """
             Обработка команд login и start
             :param message:
             """
+            # создание клавиатуры ответов
             markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
             coach_btn = telebot.types.KeyboardButton('Тренер')
             doctor_btn = telebot.types.KeyboardButton('Врач')
@@ -44,6 +47,10 @@ class Bot(Thread):
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'None'), content_types=CONTENT_TYPES)
         def handle_unlogged(message):
+            """
+            Обработка прочих сообщений от неавторизованных пользователей
+            :param message:
+            """
             self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
 
         @self.tg_bot.message_handler(func=lambda m: self.checkState(m, 'wait_role'))
@@ -112,13 +119,14 @@ class Bot(Thread):
                                      content_types=CONTENT_TYPES)
         def handle_logged_couch(message):
             """
-            Обработка сообщений от авторизированного тренера
+            Обработка прочих сообщений от авторизированного тренера
             :param message:
             """
-            if self.isDeleted(self.couches, self.state[message.chat.id][1]):
+            if self.isDeleted(self.couches, message.chat.id):
                 self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
-                self.state.pop(message.chat.id)
+                self.readAccounts()
             else:
+                self.readAccounts()
                 self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт тренера под именем ' +
                                          self.state[message.chat.id][1] +
                                          '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
@@ -130,10 +138,11 @@ class Bot(Thread):
             Обработка сообщений от авторизированного доктора
             :param message:
             """
-            if self.isDeleted(self.doctors, self.state[message.chat.id][1]):
+            if self.isDeleted(self.doctors, message.chat.id):
                 self.tg_bot.send_message(message.chat.id, 'Для входа в аккаунт напишите "/login"')
-                self.state.pop(message.chat.id)
+                self.readAccounts()
             else:
+                self.readAccounts()
                 self.tg_bot.send_message(message.chat.id, 'Вы уже вошли в аккаунт врача под именем ' +
                                          self.state[message.chat.id][1] +
                                          '.\r\nЧтобы выйти из аккаунта, напишите "/logout"')
@@ -144,22 +153,22 @@ class Bot(Thread):
             Обработка прочих сообщений
             :param message:
             """
-            self.tg_bot.send_message(message.chat.id, 'Ошибка')
+            self.tg_bot.send_message(message.chat.id, 'Ошибка', reply_markup=telebot.types.ReplyKeyboardRemove())
             self.state.pop(message.chat.id)
 
         self.tg_bot.infinity_polling(interval=1)
 
     @staticmethod
-    def isDeleted(accounts, name):
+    def isDeleted(accounts, tg_id):
         """
         Проверка того, отвязан ли аккаунт в программе
         :param accounts: таблица с данными тренеров/врачей
-        :param name: имя тренера/врача
-        :type name: str
+        :param tg_id: Telegram id
+        :type tg_id: int
         :return: результат проверки
         :rtype: bool
         """
-        return accounts.set_index('name').at[name, 'linked_account'] == 'None'
+        return str(tg_id) not in (list(accounts.get('linked_account')))
 
     def checkState(self, message, *states):
         """
@@ -203,6 +212,14 @@ class Bot(Thread):
         Чтение привязанных аккаунтов
         :return: None
         """
+        ids = []
+        for tg_id in self.state:
+            if self.state[tg_id][0] == 'c_logged' or self.state[tg_id][0] == 'd_logged':
+                ids.append(tg_id)
+
+        for del_id in ids:
+            self.state.pop(del_id)
+
         for couch in self.couches.iterrows():
             if couch[1]['linked_account'] != 'None':
                 self.state[int(couch[1]['linked_account'])] = ['c_logged', couch[1]['name']]
@@ -215,7 +232,7 @@ class Bot(Thread):
         """
         Проверка верности пароля
         :param tg_id: id пользователя
-        :type tg_id: str
+        :type tg_id: int
         :param password: введенный пароль
         :type password: str
         :return: результат проверки
@@ -235,7 +252,7 @@ class Bot(Thread):
         """
         Сохранение id авторизовавшегося пользователя
         :param tg_id: id пользователя
-        :type tg_id: str
+        :type tg_id: int
         :return: None
         """
         acc_name = self.state[tg_id][1]
@@ -265,25 +282,27 @@ class Bot(Thread):
         """
         Отвязка пользователя от аккаунта Telegram
         :param tg_id: id пользователя
-        :type tg_id: str
+        :type tg_id: int
         :return: None
         """
-        acc_name = self.state[tg_id][1]
-        acc_type = self.state[tg_id][0][0]
+        self.readAccounts()
+        if self.state.get(tg_id) is not None:
+            acc_name = self.state[tg_id][1]
+            acc_type = self.state[tg_id][0][0]
 
-        if acc_type == 'c':
-            self.couches.set_index('name', inplace=True)
-            self.couches.at[acc_name, 'linked_account'] = 'None'
-            self.couches.reset_index(inplace=True)
-            self.couches.to_csv('couches.csv', index=False)
+            if acc_type == 'c':
+                self.couches.set_index('name', inplace=True)
+                self.couches.at[acc_name, 'linked_account'] = 'None'
+                self.couches.reset_index(inplace=True)
+                self.couches.to_csv('couches.csv', index=False)
 
-        elif acc_type == 'd':
-            self.doctors.set_index('name', inplace=True)
-            self.doctors.at[acc_name, 'linked_account'] = 'None'
-            self.doctors.reset_index(inplace=True)
-            self.doctors.to_csv('doctors.csv', index=False)
+            elif acc_type == 'd':
+                self.doctors.set_index('name', inplace=True)
+                self.doctors.at[acc_name, 'linked_account'] = 'None'
+                self.doctors.reset_index(inplace=True)
+                self.doctors.to_csv('doctors.csv', index=False)
 
-        self.state.pop(tg_id)
+            self.state.pop(tg_id)
 
     def writeTg(self, user, table, target):
         """
