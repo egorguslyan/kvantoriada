@@ -79,6 +79,7 @@
 ## You can also deploy your own backend outside of Matplotlib by referring to
 ## the module name (which must be in the PYTHONPATH) as 'module://my_backend'.
 ##backend: Agg
+
 ## The port to use for the web server in the WebAgg backend.
 #webagg.port: 8988
 
