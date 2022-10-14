@@ -245,9 +245,10 @@ class ListAccount(QtWidgets.QDialog, Ui_Dialog):
                 if name == '' or surname == '':
                     return
 
+                last_name = self.users.at[self.user, 'name']
                 full_name = ' '.join([surname, name, middlename])
                 self.users.at[self.user, 'name'] = full_name
-
+                self.sportsmen.loc[(self.sportsmen[self.mode + '_name'] == last_name), self.mode + '_name'] = full_name
                 self.updateTable()
 
                 self.updatingUserMode(True)
